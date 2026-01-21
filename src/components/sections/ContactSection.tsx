@@ -1,48 +1,51 @@
 import { motion } from 'framer-motion';
-import { Twitter, Linkedin, Github, Mail, MessageCircle, ExternalLink, Send, Wifi } from 'lucide-react';
+import { Linkedin, Mail, MessageCircle, Send, Wifi, Instagram, Youtube } from 'lucide-react';
 import { FloatingPixels, CornerBrackets } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
 
-const socialLinks = [
-  {
-    name: 'Twitter / X',
-    icon: Twitter,
-    url: 'https://twitter.com/yourusername',
-    color: 'hover:text-[#1DA1F2] hover:border-[#1DA1F2]/50',
-    description: 'Follow for game dev updates',
-  },
+interface SocialLink {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  url: string | null;
+  displayText?: string;
+  color: string;
+  description: string;
+}
+
+const socialLinks: SocialLink[] = [
   {
     name: 'LinkedIn',
     icon: Linkedin,
-    url: 'https://linkedin.com/in/yourusername',
+    url: 'https://www.linkedin.com/in/aayush-vayn-91533921a/',
     color: 'hover:text-[#0A66C2] hover:border-[#0A66C2]/50',
     description: 'Professional connections',
   },
   {
-    name: 'GitHub',
-    icon: Github,
-    url: 'https://github.com/yourusername',
-    color: 'hover:text-[#f0f0f0] hover:border-[#f0f0f0]/50',
-    description: 'Open source projects',
+    name: 'Instagram',
+    icon: Instagram,
+    url: 'https://www.instagram.com/builtbyvayn/',
+    color: 'hover:text-[#E4405F] hover:border-[#E4405F]/50',
+    description: 'Behind the scenes',
+  },
+  {
+    name: 'YouTube',
+    icon: Youtube,
+    url: 'https://www.youtube.com/@vaynverse',
+    color: 'hover:text-[#FF0000] hover:border-[#FF0000]/50',
+    description: 'Dev logs & trailers',
   },
   {
     name: 'Discord',
     icon: MessageCircle,
-    url: 'https://discord.gg/yourcommunity',
+    url: null,
+    displayText: 'loocvayn',
     color: 'hover:text-[#5865F2] hover:border-[#5865F2]/50',
-    description: 'Join my community',
-  },
-  {
-    name: 'itch.io',
-    icon: ExternalLink,
-    url: 'https://yourusername.itch.io',
-    color: 'hover:text-[#FA5C5C] hover:border-[#FA5C5C]/50',
-    description: 'Play my games',
+    description: 'Discord handle',
   },
   {
     name: 'Email',
     icon: Mail,
-    url: 'mailto:your@email.com',
+    url: 'mailto:aayush007work@gmail.com',
     color: 'hover:text-primary hover:border-primary/50',
     description: 'Direct contact',
   },
@@ -81,38 +84,52 @@ export default function ContactSection() {
             Let's <span className="text-gradient">Connect</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-            Ready to team up? Find me on your favorite platform or send a direct message
+            Ready to collaborate? Let's build something ambitious and scalable.
           </p>
         </motion.div>
 
         {/* Social Links Grid - Game menu style */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           {socialLinks.map((link, index) => (
-            <motion.a
+            <motion.div
               key={link.name}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              whileHover={{ scale: 1.05, y: -5 }}
-              whileTap={{ scale: 0.95 }}
-              className={`glass rounded-xl p-4 sm:p-6 text-center border border-border transition-all duration-300 group relative overflow-hidden ${link.color}`}
             >
-              <CornerBrackets />
-              
-              {/* Hover effect */}
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              
-              <link.icon className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 text-muted-foreground group-hover:scale-110 transition-all relative z-10" />
-              <h3 className="font-semibold text-sm sm:text-base mb-1 relative z-10">{link.name}</h3>
-              <p className="text-xs text-muted-foreground hidden sm:block relative z-10">{link.description}</p>
-              
-              {/* Connection status indicator */}
-              <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity animate-pulse" />
-            </motion.a>
+              {link.url ? (
+                <a
+                  href={link.url}
+                  target={link.url.startsWith('mailto:') ? undefined : '_blank'}
+                  rel="noopener noreferrer"
+                  className={`glass rounded-xl p-4 sm:p-6 text-center border border-border transition-all duration-300 group relative overflow-hidden block h-full ${link.color}`}
+                >
+                  <CornerBrackets />
+                  
+                  {/* Hover effect */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
+                  <link.icon className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 text-muted-foreground group-hover:scale-110 transition-all relative z-10" />
+                  <h3 className="font-semibold text-sm sm:text-base mb-1 relative z-10">{link.name}</h3>
+                  <p className="text-xs text-muted-foreground hidden sm:block relative z-10">{link.description}</p>
+                  
+                  {/* Connection status indicator */}
+                  <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity animate-pulse" />
+                </a>
+              ) : (
+                <div
+                  className={`glass rounded-xl p-4 sm:p-6 text-center border border-border transition-all duration-300 group relative overflow-hidden cursor-default h-full ${link.color}`}
+                >
+                  <CornerBrackets />
+                  
+                  <link.icon className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 text-muted-foreground relative z-10" />
+                  <h3 className="font-semibold text-sm sm:text-base mb-1 relative z-10">{link.name}</h3>
+                  <p className="text-xs text-primary font-mono relative z-10">{link.displayText}</p>
+                  <p className="text-xs text-muted-foreground hidden sm:block relative z-10 mt-1">{link.description}</p>
+                </div>
+              )}
+            </motion.div>
           ))}
         </div>
 
@@ -143,11 +160,11 @@ export default function ContactSection() {
                 Interested in working together?
               </h3>
               <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">
-                I'm always open to discussing new projects, creative ideas, or opportunities to be part of your visions.
+                I'm open to partnerships, investor conversations, and selective development work. If you're building something ambitious, let's connect and explore how we can collaborate.
               </p>
               
               <motion.a
-                href="mailto:your@email.com"
+                href="mailto:aayush007work@gmail.com"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-lg bg-primary text-primary-foreground font-semibold hover-glow glow-primary transition-all duration-300 text-sm sm:text-base"
@@ -159,7 +176,7 @@ export default function ContactSection() {
               {/* Status indicator */}
               <div className="mt-4 sm:mt-6 flex items-center justify-center gap-2 text-xs sm:text-sm text-muted-foreground">
                 <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                <span>Currently available for new quests</span>
+                <span>Available for investor meetings and selective projects</span>
               </div>
             </div>
           </div>

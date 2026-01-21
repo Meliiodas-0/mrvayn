@@ -54,7 +54,7 @@ export default function Navbar() {
               href="#contact"
               className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:scale-105 transition-transform"
             >
-              Hire Me
+              Let's Talk
             </a>
           </div>
 
@@ -93,7 +93,7 @@ export default function Navbar() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="px-8 py-3 rounded-lg bg-primary text-primary-foreground font-semibold mt-4"
               >
-                Hire Me
+                Let's Talk
               </a>
             </div>
           </motion.div>

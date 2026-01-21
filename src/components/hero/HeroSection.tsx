@@ -89,7 +89,7 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
         >
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/30 text-sm text-primary font-medium">
             <Gamepad2 className="w-4 h-4" />
-            Game Developer & Creative Technologist
+            Creative Technologist
             <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
           </span>
         </motion.div>
@@ -110,8 +110,7 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
         >
-          Crafting immersive gaming experiences and interactive digital worlds. 
-          Specializing in game development, 3D environments, and creative coding.
+          Building next-gen game experiences with strong tech foundations — gameplay systems, environments, and scalable interactive mechanics players remember.
         </motion.p>
         
         <motion.div
