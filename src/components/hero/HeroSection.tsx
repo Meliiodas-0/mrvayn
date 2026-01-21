@@ -110,7 +110,7 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
         >
-          Building next-gen game experiences with strong tech foundations — gameplay systems, environments, and scalable interactive mechanics players remember.
+          Building next-gen game experiences with strong tech foundations - gameplay systems, environments, and scalable interactive mechanics players remember.
         </motion.p>
         
         <motion.div
