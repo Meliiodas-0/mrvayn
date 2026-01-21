@@ -157,7 +157,7 @@ export default function ProjectsSection() {
               transition={{ duration: 0.4, delay: 0.3 + index * 0.05 }}
             >
               {project.locked ? (
-                <div className="glass rounded-xl p-4 sm:p-5 border border-border/50 opacity-60 cursor-not-allowed h-full flex items-center justify-center text-center">
+                <div className="glass rounded-xl p-4 sm:p-5 border border-primary/30 opacity-60 cursor-not-allowed h-full flex items-center justify-center text-center">
                   <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-2 flex-wrap justify-center">
                     {project.title}
                     <Lock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -168,7 +168,7 @@ export default function ProjectsSection() {
                   href={project.link || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="glass rounded-xl p-4 sm:p-5 border border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 group h-full flex items-center justify-center text-center"
+                  className="glass rounded-xl p-4 sm:p-5 neon-border hover:bg-primary/5 transition-all duration-300 group h-full flex items-center justify-center text-center"
                 >
                   <span className="text-xs sm:text-sm text-muted-foreground group-hover:text-foreground transition-colors">
                     {project.title}
