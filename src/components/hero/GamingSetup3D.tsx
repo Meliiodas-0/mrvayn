@@ -1,4 +1,4 @@
-import { useRef, useMemo, useState, useCallback } from 'react';
+import { useRef, useMemo, useState, useCallback, useEffect } from 'react';
 import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
 import { Float, Environment, Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
@@ -298,31 +298,49 @@ function EnemyShip({
   );
 }
 
-// Generate position in outer areas (avoiding center)
-function generateOuterPosition(isMobile: boolean): [number, number, number] {
-  const side = Math.floor(Math.random() * 4); // 0: left, 1: right, 2: top, 3: bottom
-  const spreadX = isMobile ? 5 : 7;
-  const spreadY = isMobile ? 3.5 : 4.5;
-  const minDistFromCenter = isMobile ? 2.5 : 3;
+// Generate positions spread across the entire viewport (avoiding center text area)
+function generateSpreadPosition(isMobile: boolean, index: number, total: number): [number, number, number] {
+  const spreadX = isMobile ? 6 : 8;
+  const spreadY = isMobile ? 5 : 7; // Much larger vertical spread
+  const centerExcludeX = isMobile ? 2 : 2.5;
+  const centerExcludeY = isMobile ? 1.5 : 2;
   
+  // Divide into zones: top-left, top-right, mid-left, mid-right, bottom-left, bottom-right
+  const zone = index % 8;
   let x: number, y: number;
   
-  switch (side) {
-    case 0: // Left side
-      x = -minDistFromCenter - Math.random() * (spreadX - minDistFromCenter);
-      y = (Math.random() - 0.5) * spreadY * 2;
+  switch (zone) {
+    case 0: // Top left
+      x = -spreadX + Math.random() * (spreadX - centerExcludeX);
+      y = centerExcludeY + Math.random() * (spreadY - centerExcludeY);
       break;
-    case 1: // Right side
-      x = minDistFromCenter + Math.random() * (spreadX - minDistFromCenter);
-      y = (Math.random() - 0.5) * spreadY * 2;
+    case 1: // Top right
+      x = centerExcludeX + Math.random() * (spreadX - centerExcludeX);
+      y = centerExcludeY + Math.random() * (spreadY - centerExcludeY);
       break;
-    case 2: // Top
-      x = (Math.random() - 0.5) * spreadX * 2;
-      y = minDistFromCenter + Math.random() * (spreadY - minDistFromCenter);
+    case 2: // Mid left (far)
+      x = -spreadX + Math.random() * 1.5;
+      y = (Math.random() - 0.5) * centerExcludeY * 2;
       break;
-    default: // Bottom
-      x = (Math.random() - 0.5) * spreadX * 2;
-      y = -minDistFromCenter - Math.random() * (spreadY - minDistFromCenter);
+    case 3: // Mid right (far)
+      x = spreadX - 1.5 + Math.random() * 1.5;
+      y = (Math.random() - 0.5) * centerExcludeY * 2;
+      break;
+    case 4: // Bottom left
+      x = -spreadX + Math.random() * (spreadX - centerExcludeX);
+      y = -centerExcludeY - Math.random() * (spreadY - centerExcludeY);
+      break;
+    case 5: // Bottom right
+      x = centerExcludeX + Math.random() * (spreadX - centerExcludeX);
+      y = -centerExcludeY - Math.random() * (spreadY - centerExcludeY);
+      break;
+    case 6: // Far top center (above text)
+      x = (Math.random() - 0.5) * 4;
+      y = spreadY - Math.random() * 1.5;
+      break;
+    default: // Far bottom center (below text)
+      x = (Math.random() - 0.5) * 4;
+      y = -spreadY + Math.random() * 1.5;
       break;
   }
   
@@ -331,12 +349,12 @@ function generateOuterPosition(isMobile: boolean): [number, number, number] {
 
 // Enemy fleet manager
 function EnemyFleet({ isMobile = false }: { isMobile?: boolean }) {
-  const initialCount = isMobile ? 5 : 8;
+  const initialCount = isMobile ? 6 : 10;
   
   const [enemies, setEnemies] = useState(() => 
     Array.from({ length: initialCount }, (_, i) => ({
       id: i,
-      position: generateOuterPosition(isMobile),
+      position: generateSpreadPosition(isMobile, i, initialCount),
       color: ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7', '#ff3366', '#00aaff'][i % 8],
     }))
   );
@@ -346,9 +364,10 @@ function EnemyFleet({ isMobile = false }: { isMobile?: boolean }) {
     
     // Respawn after delay
     setTimeout(() => {
+      const newId = Date.now();
       setEnemies(prev => [...prev, {
-        id: Date.now(),
-        position: generateOuterPosition(isMobile),
+        id: newId,
+        position: generateSpreadPosition(isMobile, Math.floor(Math.random() * 8), 8),
         color: ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7', '#ff3366', '#00aaff'][Math.floor(Math.random() * 8)],
       }]);
     }, 2500);
@@ -369,13 +388,13 @@ function EnemyFleet({ isMobile = false }: { isMobile?: boolean }) {
   );
 }
 
-// Floating power-ups - also in outer areas
+// Floating power-ups - spread throughout
 function PowerUps({ isMobile = false }: { isMobile?: boolean }) {
-  const count = isMobile ? 3 : 5;
+  const count = isMobile ? 4 : 6;
   
   const powerUps = useMemo(() => {
     return Array.from({ length: count }, (_, i) => ({
-      position: generateOuterPosition(isMobile),
+      position: generateSpreadPosition(isMobile, i + 3, count),
       type: ['health', 'shield', 'speed', 'power', 'coin'][i % 5],
       color: ['#00ff88', '#00ffff', '#ffff00', '#ff0080', '#ffd700'][i % 5],
     }));
@@ -414,17 +433,17 @@ function PowerUps({ isMobile = false }: { isMobile?: boolean }) {
   );
 }
 
-// Asteroid field - outer areas
+// Asteroid field - spread throughout
 function Asteroids({ isMobile = false }: { isMobile?: boolean }) {
-  const count = isMobile ? 4 : 8;
+  const count = isMobile ? 5 : 10;
   const groupRef = useRef<THREE.Group>(null);
   
   const asteroids = useMemo(() => {
     return Array.from({ length: count }, (_, i) => {
-      const pos = generateOuterPosition(isMobile);
+      const pos = generateSpreadPosition(isMobile, i + 5, count);
       return {
-        position: [pos[0] * 1.2, pos[1] * 1.1, -4 - Math.random() * 2] as [number, number, number],
-        scale: 0.1 + Math.random() * 0.2,
+        position: [pos[0] * 1.1, pos[1] * 1.1, -3 - Math.random() * 2] as [number, number, number],
+        scale: 0.08 + Math.random() * 0.15,
         rotation: [Math.random() * Math.PI, Math.random() * Math.PI, 0] as [number, number, number],
       };
     });
@@ -466,13 +485,13 @@ function StarfieldGrid() {
   });
 
   return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -4, -5]}>
-      <planeGeometry args={[50, 30, 50, 30]} />
+    <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -5, -5]}>
+      <planeGeometry args={[60, 40, 60, 40]} />
       <meshStandardMaterial
         color="#00ffff"
         wireframe
         transparent
-        opacity={0.08}
+        opacity={0.06}
       />
     </mesh>
   );
@@ -493,12 +512,12 @@ function Scene({ isMobile = false }: { isMobile?: boolean }) {
       <StarfieldGrid />
       
       <Sparkles
-        count={isMobile ? 30 : 60}
-        scale={15}
+        count={isMobile ? 40 : 80}
+        scale={20}
         size={1}
         speed={0.2}
         color="#ffffff"
-        opacity={0.4}
+        opacity={0.3}
       />
       
       <Environment preset="night" />
@@ -510,15 +529,111 @@ export default function GamingSetup3D() {
   const isMobile = useIsMobile();
   
   return (
-    <div className="absolute inset-0 z-0 cursor-crosshair">
+    <div className="absolute inset-0 z-0 cursor-none">
+      {/* Sci-fi crosshair cursor */}
+      <style>{`
+        .cursor-scifi {
+          pointer-events: none;
+          position: fixed;
+          width: 40px;
+          height: 40px;
+          transform: translate(-50%, -50%);
+          z-index: 9999;
+          opacity: 0.8;
+        }
+        .cursor-scifi::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 32px;
+          height: 32px;
+          border: 2px solid #00ffff;
+          border-radius: 50%;
+          transform: translate(-50%, -50%);
+          box-shadow: 0 0 10px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.1);
+        }
+        .cursor-scifi::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 6px;
+          height: 6px;
+          background: #00ffff;
+          border-radius: 50%;
+          transform: translate(-50%, -50%);
+          box-shadow: 0 0 8px #00ffff;
+        }
+        .cursor-scifi .crosshair-line {
+          position: absolute;
+          background: #00ffff;
+          box-shadow: 0 0 4px #00ffff;
+        }
+        .cursor-scifi .line-top {
+          top: 0;
+          left: 50%;
+          width: 2px;
+          height: 8px;
+          transform: translateX(-50%);
+        }
+        .cursor-scifi .line-bottom {
+          bottom: 0;
+          left: 50%;
+          width: 2px;
+          height: 8px;
+          transform: translateX(-50%);
+        }
+        .cursor-scifi .line-left {
+          left: 0;
+          top: 50%;
+          width: 8px;
+          height: 2px;
+          transform: translateY(-50%);
+        }
+        .cursor-scifi .line-right {
+          right: 0;
+          top: 50%;
+          width: 8px;
+          height: 2px;
+          transform: translateY(-50%);
+        }
+      `}</style>
+      <SciFiCursor />
       <Canvas
-        camera={{ position: [0, 0, isMobile ? 7 : 6], fov: isMobile ? 50 : 55 }}
+        camera={{ position: [0, 0, isMobile ? 8 : 7], fov: isMobile ? 55 : 60 }}
         shadows
         gl={{ antialias: true, alpha: true }}
         dpr={[1, isMobile ? 1.5 : 2]}
       >
         <Scene isMobile={isMobile} />
       </Canvas>
+    </div>
+  );
+}
+
+// Custom sci-fi cursor component
+function SciFiCursor() {
+  const cursorRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.left = `${e.clientX}px`;
+        cursorRef.current.style.top = `${e.clientY}px`;
+      }
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  return (
+    <div ref={cursorRef} className="cursor-scifi hidden sm:block">
+      <span className="crosshair-line line-top" />
+      <span className="crosshair-line line-bottom" />
+      <span className="crosshair-line line-left" />
+      <span className="crosshair-line line-right" />
     </div>
   );
 }

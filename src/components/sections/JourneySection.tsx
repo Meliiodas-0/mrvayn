@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Calendar, Trophy, Briefcase, GraduationCap, Rocket, Flag, Star } from 'lucide-react';
-import { FloatingPixels, CornerBrackets } from '@/components/ui/GameElements';
+import { FloatingPixels, CornerBrackets, SectionSpaceships } from '@/components/ui/GameElements';
 
 const journeyItems = [
   {
@@ -54,6 +54,7 @@ export default function JourneySection() {
   return (
     <section id="journey" className="py-16 sm:py-24 px-4 relative overflow-hidden">
       <FloatingPixels count={6} color="secondary" />
+      <SectionSpaceships count={3} />
       
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
