@@ -1,21 +1,40 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 interface CinematicIntroProps {
   onComplete: () => void;
 }
 
+// Generate particles for disintegration effect
+const generateParticles = (count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100 - 50,
+    y: Math.random() * 100 - 50,
+    size: Math.random() * 4 + 2,
+    delay: Math.random() * 0.8,
+    duration: Math.random() * 1.2 + 0.8,
+    opacity: Math.random() * 0.5 + 0.5,
+  }));
+};
+
 export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
-  const [phase, setPhase] = useState<'playing' | 'fading' | 'done'>('playing');
+  const [phase, setPhase] = useState<'playing' | 'disintegrating' | 'fading' | 'done'>('playing');
   const fadeTimerRef = useRef<number | null>(null);
+  const disintegrateTimerRef = useRef<number | null>(null);
   const doneTimerRef = useRef<number | null>(null);
   const completedRef = useRef(false);
 
-  const FADE_DURATION_MS = 1200;
+  const DISINTEGRATE_DURATION_MS = 1500;
+  const FADE_DURATION_MS = 800;
 
   // Check for reduced motion preference
   const prefersReducedMotion = typeof window !== 'undefined' 
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Generate particles once
+  const titleParticles = useMemo(() => generateParticles(80), []);
+  const subtitleParticles = useMemo(() => generateParticles(50), []);
 
   // Skip intro if reduced motion is preferred
   useEffect(() => {
@@ -24,46 +43,66 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
     }
   }, [prefersReducedMotion, onComplete]);
 
-  // Simple timeline - just fade out and complete
+  // Timeline: play -> disintegrate -> fade -> done
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    fadeTimerRef.current = window.setTimeout(() => setPhase('fading'), 7000);
+    // Start disintegration at 6.5s (after title appears and glows)
+    disintegrateTimerRef.current = window.setTimeout(() => {
+      setPhase('disintegrating');
+    }, 6500);
+
+    // Start fade after disintegration
+    fadeTimerRef.current = window.setTimeout(() => {
+      setPhase('fading');
+    }, 6500 + DISINTEGRATE_DURATION_MS);
+
+    // Complete after fade
     doneTimerRef.current = window.setTimeout(() => {
       setPhase('done');
       if (!completedRef.current) {
         completedRef.current = true;
         onComplete();
       }
-    }, 7000 + FADE_DURATION_MS);
+    }, 6500 + DISINTEGRATE_DURATION_MS + FADE_DURATION_MS);
 
     return () => {
+      if (disintegrateTimerRef.current) window.clearTimeout(disintegrateTimerRef.current);
       if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
       if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
     };
   }, [onComplete, prefersReducedMotion]);
 
   const handleSkip = useCallback(() => {
+    if (disintegrateTimerRef.current) window.clearTimeout(disintegrateTimerRef.current);
     if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
     if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
 
-    setPhase('fading');
+    // Quick disintegrate -> fade -> done sequence
+    setPhase('disintegrating');
+    
+    fadeTimerRef.current = window.setTimeout(() => {
+      setPhase('fading');
+    }, 600);
+
     doneTimerRef.current = window.setTimeout(() => {
       setPhase('done');
       if (!completedRef.current) {
         completedRef.current = true;
         onComplete();
       }
-    }, FADE_DURATION_MS);
+    }, 600 + 400);
   }, [onComplete]);
 
   if (phase === 'done' || prefersReducedMotion) return null;
+
+  const isDisintegrating = phase === 'disintegrating' || phase === 'fading';
 
   return (
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: phase === 'fading' ? 0 : 1 }}
-      transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ duration: FADE_DURATION_MS / 1000, ease: [0.4, 0, 0.2, 1] }}
       className="fixed inset-0 z-50 bg-background cursor-pointer overflow-hidden"
       onClick={handleSkip}
     >
@@ -201,6 +240,28 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
             text-shadow: 0 0 40px hsl(var(--primary) / 0.8), 0 0 80px hsl(var(--primary) / 0.5), 0 0 120px hsl(var(--primary) / 0.3);
           }
         }
+
+        @keyframes particleDisintegrate {
+          0% {
+            opacity: var(--particle-opacity, 1);
+            transform: translate(0, 0) scale(1);
+          }
+          100% {
+            opacity: 0;
+            transform: translate(var(--particle-x, 50px), var(--particle-y, -50px)) scale(0);
+          }
+        }
+
+        @keyframes textDissolve {
+          0% {
+            opacity: 1;
+            filter: blur(0);
+          }
+          100% {
+            opacity: 0;
+            filter: blur(4px);
+          }
+        }
         
         .hero-ship {
           animation: heroFlyIn 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
@@ -296,6 +357,22 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           animation: subtitleSlideUp 0.6s ease-out 5s forwards;
           opacity: 0;
           will-change: transform, opacity;
+        }
+
+        .intro-title.disintegrating .intro-title-main,
+        .intro-title.disintegrating .intro-subtitle {
+          animation: textDissolve 1.2s ease-out forwards;
+        }
+
+        .particle {
+          position: absolute;
+          border-radius: 50%;
+          pointer-events: none;
+          will-change: transform, opacity;
+        }
+
+        .particle.active {
+          animation: particleDisintegrate var(--particle-duration, 1s) ease-out var(--particle-delay, 0s) forwards;
         }
         
         .starfield-layer {
@@ -519,14 +596,71 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
         Click anywhere to skip
       </div>
 
-      {/* Title overlay - CENTERED */}
-      <div className="intro-title absolute top-1/2 left-1/2 text-center">
-        <h2 className="intro-title-main text-5xl sm:text-6xl md:text-8xl font-display font-bold text-gradient">
-          MrVayn
-        </h2>
-        <p className="intro-subtitle text-xl sm:text-2xl md:text-3xl text-muted-foreground mt-4">
-          Founder & Game Developer
-        </p>
+      {/* Title overlay with particle disintegration - CENTERED */}
+      <div className={`intro-title absolute top-1/2 left-1/2 text-center ${isDisintegrating ? 'disintegrating' : ''}`}>
+        {/* Title with particles */}
+        <div className="relative">
+          <h2 className="intro-title-main text-5xl sm:text-6xl md:text-8xl font-display font-bold text-gradient">
+            MrVayn
+          </h2>
+          
+          {/* Title disintegration particles */}
+          {isDisintegrating && (
+            <div className="absolute inset-0 pointer-events-none">
+              {titleParticles.map((particle) => (
+                <div
+                  key={particle.id}
+                  className="particle active"
+                  style={{
+                    left: `${50 + (Math.random() - 0.5) * 100}%`,
+                    top: `${50 + (Math.random() - 0.5) * 100}%`,
+                    width: `${particle.size}px`,
+                    height: `${particle.size}px`,
+                    background: `linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))`,
+                    boxShadow: `0 0 ${particle.size * 2}px hsl(var(--primary) / 0.8)`,
+                    '--particle-x': `${particle.x * 3}px`,
+                    '--particle-y': `${particle.y * 3}px`,
+                    '--particle-delay': `${particle.delay}s`,
+                    '--particle-duration': `${particle.duration}s`,
+                    '--particle-opacity': particle.opacity,
+                  } as React.CSSProperties}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Subtitle with particles */}
+        <div className="relative mt-4">
+          <p className="intro-subtitle text-xl sm:text-2xl md:text-3xl text-muted-foreground">
+            Founder & Game Developer
+          </p>
+          
+          {/* Subtitle disintegration particles */}
+          {isDisintegrating && (
+            <div className="absolute inset-0 pointer-events-none">
+              {subtitleParticles.map((particle) => (
+                <div
+                  key={particle.id}
+                  className="particle active"
+                  style={{
+                    left: `${50 + (Math.random() - 0.5) * 100}%`,
+                    top: `${50 + (Math.random() - 0.5) * 100}%`,
+                    width: `${particle.size * 0.8}px`,
+                    height: `${particle.size * 0.8}px`,
+                    background: `hsl(var(--muted-foreground))`,
+                    boxShadow: `0 0 ${particle.size}px hsl(var(--muted-foreground) / 0.5)`,
+                    '--particle-x': `${particle.x * 2}px`,
+                    '--particle-y': `${particle.y * 2}px`,
+                    '--particle-delay': `${particle.delay + 0.2}s`,
+                    '--particle-duration': `${particle.duration}s`,
+                    '--particle-opacity': particle.opacity,
+                  } as React.CSSProperties}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );
