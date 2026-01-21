@@ -4,7 +4,7 @@ import { Calendar, Trophy, Briefcase, GraduationCap, Rocket } from 'lucide-react
 const journeyItems = [
   {
     year: '2024',
-    title: 'Senior Game Developer',
+    title: 'Esports',
     company: 'Your Current Studio',
     description: 'Leading development of multiple AAA-quality indie titles. Managing a team of developers and artists.',
     icon: Rocket,
