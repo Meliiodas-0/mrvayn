@@ -23,11 +23,11 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    const fadeTimer = setTimeout(() => setPhase('fading'), 3200);
+    const fadeTimer = setTimeout(() => setPhase('fading'), 5500);
     const doneTimer = setTimeout(() => {
       setPhase('done');
       onComplete();
-    }, 3700);
+    }, 6000);
 
     return () => {
       clearTimeout(fadeTimer);
@@ -152,87 +152,87 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
         }
         
         .hero-ship {
-          animation: heroFlyIn 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+          animation: heroFlyIn 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
           will-change: transform, opacity;
         }
         
         .enemy-1 {
-          animation: enemyFlyIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s forwards,
-                     enemyExplode 0.15s ease-out 1.25s forwards;
+          animation: enemyFlyIn 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s forwards,
+                     enemyExplode 0.2s ease-out 2s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .enemy-2 {
-          animation: enemyFlyIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.1s forwards,
-                     enemyExplode 0.15s ease-out 1.85s forwards;
+          animation: enemyFlyIn 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.8s forwards,
+                     enemyExplode 0.2s ease-out 3s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .enemy-3 {
-          animation: enemyFlyIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.7s forwards,
-                     enemyExplode 0.15s ease-out 2.45s forwards;
+          animation: enemyFlyIn 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 2.8s forwards,
+                     enemyExplode 0.2s ease-out 4s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .laser-1 {
-          animation: laserFire 0.2s ease-out 1.1s forwards;
+          animation: laserFire 0.25s ease-out 1.8s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .laser-2 {
-          animation: laserFire 0.2s ease-out 1.7s forwards;
+          animation: laserFire 0.25s ease-out 2.8s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .laser-3 {
-          animation: laserFire 0.2s ease-out 2.3s forwards;
+          animation: laserFire 0.25s ease-out 3.8s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .explosion-1 {
-          animation: explosionFlash 0.4s ease-out 1.25s forwards;
+          animation: explosionFlash 0.5s ease-out 2s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .explosion-1-ring {
-          animation: explosionRing 0.5s ease-out 1.3s forwards;
+          animation: explosionRing 0.6s ease-out 2.05s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .explosion-2 {
-          animation: explosionFlash 0.4s ease-out 1.85s forwards;
+          animation: explosionFlash 0.5s ease-out 3s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .explosion-2-ring {
-          animation: explosionRing 0.5s ease-out 1.9s forwards;
+          animation: explosionRing 0.6s ease-out 3.05s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .explosion-3 {
-          animation: explosionFlash 0.4s ease-out 2.45s forwards;
+          animation: explosionFlash 0.5s ease-out 4s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .explosion-3-ring {
-          animation: explosionRing 0.5s ease-out 2.5s forwards;
+          animation: explosionRing 0.6s ease-out 4.05s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
         
         .intro-title {
-          animation: titleFadeIn 0.5s ease-out 2.7s forwards;
+          animation: titleFadeIn 0.6s ease-out 4.5s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
