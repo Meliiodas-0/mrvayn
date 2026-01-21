@@ -1,11 +1,30 @@
-import { Suspense } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronDown, Gamepad2 } from 'lucide-react';
+import { Suspense, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, Gamepad2, Crosshair, X } from 'lucide-react';
 import GamingSetup3D from './GamingSetup3D';
 
 export default function HeroSection() {
+  const [showHint, setShowHint] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  // Hide hint after first interaction or after 8 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => setShowHint(false), 8000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleSectionClick = () => {
+    if (!hasInteracted) {
+      setHasInteracted(true);
+      setShowHint(false);
+    }
+  };
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section 
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      onClick={handleSectionClick}
+    >
       {/* 3D Background */}
       <Suspense fallback={
         <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
@@ -15,9 +34,40 @@ export default function HeroSection() {
       
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background pointer-events-none z-10" />
+
+      {/* Shooting hint */}
+      <AnimatePresence>
+        {showHint && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-20 sm:top-24 left-1/2 -translate-x-1/2 z-30"
+          >
+            <div className="glass rounded-xl px-4 py-3 border border-primary/30 flex items-center gap-3 group">
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+              >
+                <Crosshair className="w-5 h-5 text-primary" />
+              </motion.div>
+              <div className="text-sm">
+                <span className="text-foreground font-medium">Click the enemy ships</span>
+                <span className="text-muted-foreground"> to destroy them!</span>
+              </div>
+              <button 
+                onClick={(e) => { e.stopPropagation(); setShowHint(false); }}
+                className="ml-2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Content */}
-      <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
+      <div className="relative z-20 text-center px-4 max-w-4xl mx-auto pointer-events-none">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -55,7 +105,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center pointer-events-auto"
         >
           <a
             href="#projects"
