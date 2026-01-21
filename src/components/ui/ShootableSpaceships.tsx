@@ -225,61 +225,34 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 5 }}>
-      {/* CSS animations for ship movement */}
-      <style>{`
-        @keyframes shipFloat0 {
-          0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
-          50% { transform: translate(-50%, -50%) translateY(-15px); }
-        }
-        @keyframes shipFloat1 {
-          0%, 100% { transform: translate(-50%, -50%) translateY(0px) rotate(5deg); }
-          50% { transform: translate(-50%, -50%) translateY(-20px) rotate(-5deg); }
-        }
-        @keyframes shipFloat2 {
-          0%, 100% { transform: translate(-50%, -50%) translateY(0px) rotate(-3deg); }
-          50% { transform: translate(-50%, -50%) translateY(-12px) rotate(3deg); }
-        }
-        @keyframes shipDrift0 {
-          0% { margin-left: 0; margin-top: 0; }
-          25% { margin-left: 20px; margin-top: -10px; }
-          50% { margin-left: 10px; margin-top: 15px; }
-          75% { margin-left: -15px; margin-top: 5px; }
-          100% { margin-left: 0; margin-top: 0; }
-        }
-        @keyframes shipDrift1 {
-          0% { margin-left: 0; margin-top: 0; }
-          25% { margin-left: -15px; margin-top: 20px; }
-          50% { margin-left: 25px; margin-top: 10px; }
-          75% { margin-left: 5px; margin-top: -15px; }
-          100% { margin-left: 0; margin-top: 0; }
-        }
-      `}</style>
       <AnimatePresence>
         {ships.map((ship, index) => (
           <motion.div
             key={ship.id}
-            initial={{ opacity: 0, scale: 0 }}
+            initial={{ opacity: 0, scale: 0, x: '-50%', y: '-50%' }}
             animate={{ 
               opacity: 1, 
               scale: 1,
+              x: ['-50%', `calc(-50% + ${15 - index * 3}px)`, `calc(-50% - ${10 + index * 2}px)`, '-50%'],
+              y: ['-50%', `calc(-50% - ${12 + index * 2}px)`, `calc(-50% + ${8 + index * 3}px)`, '-50%'],
+              rotate: [ship.rotation, ship.rotation + 8, ship.rotation - 5, ship.rotation],
             }}
             exit={{ opacity: 0, scale: 0 }}
             transition={{ 
               opacity: { duration: 0.3 },
               scale: { duration: 0.3 },
+              x: { duration: 4 + index * 0.5, repeat: Infinity, ease: 'easeInOut' },
+              y: { duration: 3 + index * 0.4, repeat: Infinity, ease: 'easeInOut' },
+              rotate: { duration: 5 + index * 0.3, repeat: Infinity, ease: 'easeInOut' },
             }}
             onClick={() => handleShoot(ship)}
-            className="absolute cursor-crosshair pointer-events-auto hover:scale-125 transition-transform duration-200"
+            className="absolute cursor-crosshair pointer-events-auto"
             style={{ 
               left: `${ship.x}%`, 
               top: `${ship.y}%`,
-              transform: `translate(-50%, -50%) rotate(${ship.rotation}deg)`,
-              animation: `
-                shipFloat${index % 3} ${3 + (index % 2)}s ease-in-out infinite,
-                shipDrift${index % 2} ${8 + index * 2}s linear infinite
-              `,
+              willChange: 'transform',
             }}
-            whileHover={{ scale: 1.3, rotate: ship.rotation + 10 }}
+            whileHover={{ scale: 1.25 }}
             whileTap={{ scale: 0.9 }}
           >
             <SpaceshipSVG color={ship.color} size={ship.size} />
