@@ -152,7 +152,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           }
         }
         
-        @keyframes laserFire {
+        @keyframes laserBeamFire {
           0% { 
             transform: scaleX(0);
             opacity: 0;
@@ -289,22 +289,31 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           will-change: transform, opacity;
         }
         
-        .laser-1 {
-          animation: laserFire 0.25s ease-out 1.8s forwards;
-          opacity: 0;
+        .laser-wrapper {
+          position: absolute;
+          transform-origin: left center;
+        }
+        
+        .laser-beam {
+          width: 100%;
+          height: 100%;
+          transform-origin: left center;
           will-change: transform, opacity;
         }
         
-        .laser-2 {
-          animation: laserFire 0.25s ease-out 2.8s forwards;
+        .laser-1 .laser-beam {
+          animation: laserBeamFire 0.25s ease-out 1.8s forwards;
           opacity: 0;
-          will-change: transform, opacity;
         }
         
-        .laser-3 {
-          animation: laserFire 0.25s ease-out 3.8s forwards;
+        .laser-2 .laser-beam {
+          animation: laserBeamFire 0.25s ease-out 2.8s forwards;
           opacity: 0;
-          will-change: transform, opacity;
+        }
+        
+        .laser-3 .laser-beam {
+          animation: laserBeamFire 0.25s ease-out 3.8s forwards;
+          opacity: 0;
         }
         
         .explosion-1 {
@@ -478,51 +487,69 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
         </svg>
       </div>
 
-      {/* Laser Beams */}
+      {/* Laser Beams - wrapper holds rotation, inner beam animates scaleX */}
+      {/* Laser 1: aims UP at enemy at top:30%, right:15% */}
       <div 
-        className="laser-1 absolute"
+        className="laser-wrapper laser-1"
         style={{
           left: 'calc(20vw + 80px)',
           top: '50%',
-          width: 'calc(65% - 20vw)',
+          width: 'calc(65vw - 20vw)',
           height: '4px',
-          transformOrigin: 'left center',
-          transform: 'translateY(-50%) rotate(-12deg)',
-          background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
-          boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
-          borderRadius: '2px'
+          transform: 'translateY(-50%) rotate(-15deg)',
         }}
-      />
+      >
+        <div 
+          className="laser-beam"
+          style={{
+            background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
+            boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
+            borderRadius: '2px'
+          }}
+        />
+      </div>
       
+      {/* Laser 2: aims STRAIGHT at enemy at top:50%, right:12% */}
       <div 
-        className="laser-2 absolute"
+        className="laser-wrapper laser-2"
         style={{
           left: 'calc(20vw + 80px)',
           top: '50%',
-          width: 'calc(68% - 20vw)',
+          width: 'calc(68vw - 20vw)',
           height: '4px',
-          transformOrigin: 'left center',
           transform: 'translateY(-50%) rotate(0deg)',
-          background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
-          boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
-          borderRadius: '2px'
         }}
-      />
+      >
+        <div 
+          className="laser-beam"
+          style={{
+            background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
+            boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
+            borderRadius: '2px'
+          }}
+        />
+      </div>
       
+      {/* Laser 3: aims DOWN at enemy at top:70%, right:10% */}
       <div 
-        className="laser-3 absolute"
+        className="laser-wrapper laser-3"
         style={{
           left: 'calc(20vw + 80px)',
           top: '50%',
-          width: 'calc(70% - 20vw)',
+          width: 'calc(70vw - 20vw)',
           height: '4px',
-          transformOrigin: 'left center',
-          transform: 'translateY(-50%) rotate(12deg)',
-          background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
-          boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
-          borderRadius: '2px'
+          transform: 'translateY(-50%) rotate(15deg)',
         }}
-      />
+      >
+        <div 
+          className="laser-beam"
+          style={{
+            background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
+            boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
+            borderRadius: '2px'
+          }}
+        />
+      </div>
 
       {/* Explosions */}
       <div className="explosion-1 absolute" style={{ right: '15%', top: '30%', width: '100px', height: '100px' }}>
