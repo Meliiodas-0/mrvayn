@@ -530,76 +530,6 @@ export default function GamingSetup3D() {
   
   return (
     <div className="absolute inset-0 z-0 cursor-none">
-      {/* Sci-fi crosshair cursor */}
-      <style>{`
-        .cursor-scifi {
-          pointer-events: none;
-          position: fixed;
-          width: 40px;
-          height: 40px;
-          transform: translate(-50%, -50%);
-          z-index: 9999;
-          opacity: 0.8;
-        }
-        .cursor-scifi::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 32px;
-          height: 32px;
-          border: 2px solid #00ffff;
-          border-radius: 50%;
-          transform: translate(-50%, -50%);
-          box-shadow: 0 0 10px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.1);
-        }
-        .cursor-scifi::after {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 6px;
-          height: 6px;
-          background: #00ffff;
-          border-radius: 50%;
-          transform: translate(-50%, -50%);
-          box-shadow: 0 0 8px #00ffff;
-        }
-        .cursor-scifi .crosshair-line {
-          position: absolute;
-          background: #00ffff;
-          box-shadow: 0 0 4px #00ffff;
-        }
-        .cursor-scifi .line-top {
-          top: 0;
-          left: 50%;
-          width: 2px;
-          height: 8px;
-          transform: translateX(-50%);
-        }
-        .cursor-scifi .line-bottom {
-          bottom: 0;
-          left: 50%;
-          width: 2px;
-          height: 8px;
-          transform: translateX(-50%);
-        }
-        .cursor-scifi .line-left {
-          left: 0;
-          top: 50%;
-          width: 8px;
-          height: 2px;
-          transform: translateY(-50%);
-        }
-        .cursor-scifi .line-right {
-          right: 0;
-          top: 50%;
-          width: 8px;
-          height: 2px;
-          transform: translateY(-50%);
-        }
-      `}</style>
-      <SciFiCursor />
       <Canvas
         camera={{ position: [0, 0, isMobile ? 8 : 7], fov: isMobile ? 55 : 60 }}
         shadows
@@ -608,32 +538,6 @@ export default function GamingSetup3D() {
       >
         <Scene isMobile={isMobile} />
       </Canvas>
-    </div>
-  );
-}
-
-// Custom sci-fi cursor component
-function SciFiCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (cursorRef.current) {
-        cursorRef.current.style.left = `${e.clientX}px`;
-        cursorRef.current.style.top = `${e.clientY}px`;
-      }
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  return (
-    <div ref={cursorRef} className="cursor-scifi hidden sm:block">
-      <span className="crosshair-line line-top" />
-      <span className="crosshair-line line-bottom" />
-      <span className="crosshair-line line-left" />
-      <span className="crosshair-line line-right" />
     </div>
   );
 }
