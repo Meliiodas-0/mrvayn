@@ -4,12 +4,12 @@ import { FloatingPixels, CornerBrackets } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
 
 const skills = [
-  { name: 'Unreal Engine 5', level: 95, max: 100 },
-  { name: 'Gameplay Frameworks', level: 90, max: 100 },
-  { name: 'Niagara VFX + CGI', level: 88, max: 100 },
-  { name: 'Sequencer + Cutscenes', level: 90, max: 100 },
-  { name: 'Multiplayer + Server Architecture', level: 80, max: 100 },
-  { name: 'C++', level: 82, max: 100 },
+  { name: 'Unreal Engine 5', level: 9, max: 10 },
+  { name: 'Gameplay Frameworks', level: 9, max: 10 },
+  { name: 'Niagara VFX + CGI', level: 8, max: 10 },
+  { name: 'Sequencer + Cutscenes', level: 9, max: 10 },
+  { name: 'Multiplayer + Server Architecture', level: 8, max: 10 },
+  { name: 'C++', level: 8, max: 10 },
 ];
 
 const expertise = [
@@ -143,12 +143,12 @@ export default function AboutSection() {
                 >
                   <div className="flex justify-between mb-2">
                     <span className="font-medium text-sm sm:text-base">{skill.name}</span>
-                    <span className="text-primary font-mono text-xs sm:text-sm">LVL {Math.min(9, Math.floor(skill.level / 10))}</span>
+                    <span className="text-primary font-mono text-xs sm:text-sm">LVL {skill.level}</span>
                   </div>
                   <div className="h-3 sm:h-4 bg-muted/50 rounded overflow-hidden border border-primary/20 relative">
                     <motion.div
                       initial={{ width: 0 }}
-                      whileInView={{ width: `${skill.level}%` }}
+                      whileInView={{ width: `${(skill.level / skill.max) * 100}%` }}
                       viewport={{ once: true }}
                       transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
                       className="h-full bg-gradient-to-r from-primary via-primary to-secondary rounded relative overflow-hidden"
