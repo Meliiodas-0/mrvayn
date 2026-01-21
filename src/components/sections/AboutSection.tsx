@@ -35,24 +35,24 @@ const expertise = [
 
 export default function AboutSection() {
   return (
-    <section id="about" className="py-24 px-4 relative">
+    <section id="about" className="py-16 sm:py-24 px-4 relative">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
             About <span className="text-gradient">Me</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
             Passionate game developer with a love for creating memorable digital experiences
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           {/* Bio Section */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -83,7 +83,7 @@ export default function AboutSection() {
             </div>
 
             {/* Expertise Cards */}
-            <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6">
               {expertise.map((item, index) => (
                 <motion.div
                   key={item.title}
@@ -91,11 +91,11 @@ export default function AboutSection() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                  className="glass rounded-xl p-4 hover-glow cursor-default group"
+                  className="glass rounded-xl p-3 sm:p-4 hover-glow cursor-default group"
                 >
-                  <item.icon className="w-8 h-8 text-primary mb-2 group-hover:scale-110 transition-transform" />
-                  <h4 className="font-semibold mb-1">{item.title}</h4>
-                  <p className="text-xs text-muted-foreground">{item.description}</p>
+                  <item.icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary mb-2 group-hover:scale-110 transition-transform" />
+                  <h4 className="font-semibold text-sm sm:text-base mb-1">{item.title}</h4>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>
                 </motion.div>
               ))}
             </div>

@@ -46,11 +46,11 @@ const journeyItems = [
 
 export default function JourneySection() {
   return (
-    <section id="journey" className="py-24 px-4 relative overflow-hidden">
+    <section id="journey" className="py-16 sm:py-24 px-4 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-0 w-48 sm:w-96 h-48 sm:h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-0 w-48 sm:w-96 h-48 sm:h-96 bg-secondary/5 rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-4xl mx-auto relative z-10">
@@ -59,12 +59,12 @@ export default function JourneySection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
             My <span className="text-gradient">Journey</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
             The path that led me to where I am today
           </p>
         </motion.div>
@@ -72,7 +72,7 @@ export default function JourneySection() {
         {/* Timeline */}
         <div className="relative">
           {/* Timeline line */}
-          <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary via-secondary to-accent" />
+          <div className="absolute left-4 sm:left-8 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary via-secondary to-accent" />
 
           {journeyItems.map((item, index) => (
             <motion.div
@@ -81,34 +81,34 @@ export default function JourneySection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`relative flex items-center mb-12 ${
+              className={`relative flex items-center mb-8 sm:mb-12 ${
                 index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
               }`}
             >
               {/* Timeline dot */}
-              <div className="absolute left-8 md:left-1/2 transform -translate-x-1/2 z-10">
-                <div className="w-4 h-4 rounded-full bg-primary glow-primary" />
+              <div className="absolute left-4 sm:left-8 md:left-1/2 transform -translate-x-1/2 z-10">
+                <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-primary glow-primary" />
               </div>
 
               {/* Content */}
-              <div className={`ml-20 md:ml-0 md:w-1/2 ${index % 2 === 0 ? 'md:pr-12' : 'md:pl-12'}`}>
+              <div className={`ml-10 sm:ml-20 md:ml-0 md:w-1/2 ${index % 2 === 0 ? 'md:pr-12' : 'md:pl-12'}`}>
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="glass rounded-2xl p-6 neon-border hover-glow cursor-default"
+                  className="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 neon-border hover-glow cursor-default"
                 >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                      <item.icon className="w-5 h-5 text-primary" />
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                      <item.icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
+                    <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                      <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                       {item.year}
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-bold mb-1">{item.title}</h3>
-                  <p className="text-primary text-sm mb-3">{item.company}</p>
-                  <p className="text-muted-foreground text-sm">{item.description}</p>
+                  <h3 className="text-lg sm:text-xl font-bold mb-1">{item.title}</h3>
+                  <p className="text-primary text-xs sm:text-sm mb-2 sm:mb-3">{item.company}</p>
+                  <p className="text-muted-foreground text-xs sm:text-sm">{item.description}</p>
                 </motion.div>
               </div>
             </motion.div>
