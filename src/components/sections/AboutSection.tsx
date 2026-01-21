@@ -87,10 +87,10 @@ export default function AboutSection() {
               
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl sm:text-3xl font-bold border-2 border-primary/50">
-                  YN
+                  MV
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl sm:text-2xl font-bold">Your Name</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold">MrVayn</h3>
                   <p className="text-primary text-sm">Game Developer</p>
                   <LevelIndicator level={42} xp={7500} maxXp={10000} />
                 </div>

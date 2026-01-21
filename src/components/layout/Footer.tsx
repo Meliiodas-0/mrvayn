@@ -9,12 +9,12 @@ export default function Footer() {
         {/* Logo */}
         <a href="#" className="flex items-center gap-2">
           <Gamepad2 className="w-6 h-6 text-primary" />
-          <span className="font-bold">YourName</span>
+          <span className="font-bold">MrVayn</span>
         </a>
 
         {/* Copyright */}
         <p className="text-sm text-muted-foreground flex items-center gap-1">
-          © {currentYear} Made with <Heart className="w-4 h-4 text-accent" /> by YourName
+          © {currentYear} Made with <Heart className="w-4 h-4 text-accent" /> by MrVayn
         </p>
 
         {/* Quick Links */}

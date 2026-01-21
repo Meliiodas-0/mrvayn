@@ -35,7 +35,7 @@ export default function Navbar() {
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
             <Gamepad2 className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
-            <span className="font-bold text-xl">YourName</span>
+            <span className="font-bold text-xl">MrVayn</span>
           </a>
 
           {/* Desktop Nav */}
