@@ -23,11 +23,11 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    const fadeTimer = setTimeout(() => setPhase('fading'), 7500);
+    const fadeTimer = setTimeout(() => setPhase('fading'), 7000);
     const doneTimer = setTimeout(() => {
       setPhase('done');
       onComplete();
-    }, 8000);
+    }, 8200);
 
     return () => {
       clearTimeout(fadeTimer);
@@ -46,7 +46,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: phase === 'fading' ? 0 : 1 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
       className="fixed inset-0 z-50 bg-background cursor-pointer overflow-hidden"
       onClick={handleSkip}
     >

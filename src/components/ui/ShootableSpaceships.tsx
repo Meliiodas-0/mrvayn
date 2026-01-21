@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Spaceship {
@@ -13,7 +13,6 @@ interface Spaceship {
 interface ShootableSpaceshipsProps {
   sectionId: string;
   count?: number;
-  // Define safe zones where spaceships should NOT appear (as percentages)
   safeZones?: Array<{
     top: number;
     left: number;
@@ -25,102 +24,118 @@ interface ShootableSpaceshipsProps {
 const colors = ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7', '#ff3366', '#00aaff'];
 const sizes: Array<'sm' | 'md' | 'lg'> = ['sm', 'md', 'lg'];
 
-// Generate position with better distribution - filling vacant spaces
-function generatePosition(safeZones: ShootableSpaceshipsProps['safeZones'] = [], index: number, total: number): { x: number; y: number } {
-  // Randomize zone picking for variety
-  const zoneIndex = (index + Math.floor(Math.random() * 16)) % 16;
-  
-  // Define spawn zones across entire viewport - edges AND mid-screen areas
+// Ship size in percentage for collision detection
+const SHIP_SIZE = { sm: 3, md: 4, lg: 5 };
+// Minimum distance between ships (percentage)
+const MIN_SHIP_DISTANCE = 8;
+// Boundary padding (percentage from edges)
+const BOUNDARY_PADDING = { top: 12, bottom: 8, left: 3, right: 3 };
+
+// Check if position collides with other ships
+function checkShipCollision(x: number, y: number, existingShips: Spaceship[], excludeId?: number): boolean {
+  return existingShips.some(ship => {
+    if (ship.id === excludeId) return false;
+    const dx = Math.abs(x - ship.x);
+    const dy = Math.abs(y - ship.y);
+    return Math.sqrt(dx * dx + dy * dy) < MIN_SHIP_DISTANCE;
+  });
+}
+
+// Check if position is within boundaries (away from header/footer/edges)
+function isWithinBoundaries(x: number, y: number): boolean {
+  return (
+    x >= BOUNDARY_PADDING.left &&
+    x <= 100 - BOUNDARY_PADDING.right &&
+    y >= BOUNDARY_PADDING.top &&
+    y <= 100 - BOUNDARY_PADDING.bottom
+  );
+}
+
+// Generate position with collision avoidance
+function generatePosition(
+  safeZones: ShootableSpaceshipsProps['safeZones'] = [],
+  index: number,
+  total: number,
+  existingShips: Spaceship[] = []
+): { x: number; y: number } {
   const spawnZones = [
-    // Edge zones
-    { minX: 0, maxX: 12, minY: 10, maxY: 35 },     // Left upper
-    { minX: 88, maxX: 100, minY: 10, maxY: 35 },   // Right upper
-    { minX: 0, maxX: 12, minY: 65, maxY: 90 },     // Left lower
-    { minX: 88, maxX: 100, minY: 65, maxY: 90 },   // Right lower
-    { minX: 0, maxX: 10, minY: 40, maxY: 60 },     // Left middle
-    { minX: 90, maxX: 100, minY: 40, maxY: 60 },   // Right middle
-    
-    // Top/bottom mid areas
-    { minX: 15, maxX: 35, minY: 3, maxY: 15 },     // Top left quadrant
-    { minX: 65, maxX: 85, minY: 3, maxY: 15 },     // Top right quadrant
-    { minX: 15, maxX: 35, minY: 85, maxY: 97 },    // Bottom left quadrant
-    { minX: 65, maxX: 85, minY: 85, maxY: 97 },    // Bottom right quadrant
-    
-    // NEW: Fill the gaps - mid-screen zones (safe zone logic prevents overlap)
-    { minX: 35, maxX: 50, minY: 3, maxY: 12 },     // Top center-left
-    { minX: 50, maxX: 65, minY: 3, maxY: 12 },     // Top center-right
-    { minX: 35, maxX: 50, minY: 88, maxY: 97 },    // Bottom center-left
-    { minX: 50, maxX: 65, minY: 88, maxY: 97 },    // Bottom center-right
-    
-    // Side gaps
-    { minX: 5, maxX: 18, minY: 15, maxY: 30 },     // Upper left side
-    { minX: 82, maxX: 95, minY: 15, maxY: 30 },    // Upper right side
+    // Left side zones
+    { minX: 3, maxX: 12, minY: 15, maxY: 35 },
+    { minX: 3, maxX: 12, minY: 40, maxY: 60 },
+    { minX: 3, maxX: 12, minY: 65, maxY: 88 },
+    // Right side zones
+    { minX: 88, maxX: 97, minY: 15, maxY: 35 },
+    { minX: 88, maxX: 97, minY: 40, maxY: 60 },
+    { minX: 88, maxX: 97, minY: 65, maxY: 88 },
+    // Top zones (below header)
+    { minX: 15, maxX: 35, minY: 13, maxY: 22 },
+    { minX: 65, maxX: 85, minY: 13, maxY: 22 },
+    // Bottom zones (above footer)
+    { minX: 15, maxX: 35, minY: 78, maxY: 88 },
+    { minX: 65, maxX: 85, minY: 78, maxY: 88 },
+    // Mid-screen zones
+    { minX: 35, maxX: 50, minY: 13, maxY: 20 },
+    { minX: 50, maxX: 65, minY: 80, maxY: 88 },
   ];
-  
+
+  const maxAttempts = 50;
   let attempts = 0;
-  const maxAttempts = 30;
-  
+
   while (attempts < maxAttempts) {
-    // Pick zone with randomization for more natural spread
-    const zone = spawnZones[zoneIndex % spawnZones.length];
+    const zoneIndex = (index + attempts) % spawnZones.length;
+    const zone = spawnZones[zoneIndex];
+    
     const x = zone.minX + Math.random() * (zone.maxX - zone.minX);
     const y = zone.minY + Math.random() * (zone.maxY - zone.minY);
-    
-    // Check if position is in any safe zone
-    const inSafeZone = safeZones.some(sz => 
+
+    // Check all conditions
+    const inSafeZone = safeZones.some(sz =>
       x >= sz.left && x <= sz.left + sz.width &&
       y >= sz.top && y <= sz.top + sz.height
     );
     
-    if (!inSafeZone) {
+    const collidesWithShip = checkShipCollision(x, y, existingShips);
+    const withinBounds = isWithinBoundaries(x, y);
+
+    if (!inSafeZone && !collidesWithShip && withinBounds) {
       return { x, y };
     }
+    
     attempts++;
   }
-  
-  // Fallback to edges with more variety
-  const edges = [3, 5, 95, 97];
-  const edge = edges[zoneIndex % edges.length];
-  return { x: edge, y: 10 + (zoneIndex * 8) % 80 };
+
+  // Fallback: find any valid edge position
+  const fallbackZones = [
+    { x: 5, y: 25 + (index * 15) % 50 },
+    { x: 95, y: 30 + (index * 15) % 50 },
+  ];
+  return fallbackZones[index % fallbackZones.length];
 }
 
 function SpaceshipSVG({ color, size }: { color: string; size: 'sm' | 'md' | 'lg' }) {
   const dimensions = size === 'sm' ? 'w-8 h-10' : size === 'lg' ? 'w-14 h-18' : 'w-10 h-14';
-  
+
   return (
-    <svg 
-      viewBox="0 0 24 36" 
+    <svg
+      viewBox="0 0 24 36"
       className={dimensions}
       style={{ filter: `drop-shadow(0 0 12px ${color})` }}
     >
-      {/* Main fuselage */}
       <ellipse cx="12" cy="16" rx="5" ry="10" fill="#1a1a2e" stroke={color} strokeWidth="0.5" />
-      
-      {/* Nose cone */}
       <path d="M12 2 L7 12 L17 12 Z" fill="#2a2a4e" stroke={color} strokeWidth="0.3" />
-      
-      {/* Wings */}
       <path d="M7 14 L1 22 L1 28 L7 24 Z" fill="#1a1a2e" stroke={color} strokeWidth="0.3" />
       <path d="M17 14 L23 22 L23 28 L17 24 Z" fill="#1a1a2e" stroke={color} strokeWidth="0.3" />
-      
-      {/* Wing tip lights */}
       <circle cx="1" cy="25" r="2" fill={color}>
         <animate attributeName="opacity" values="0.5;1;0.5" dur="1s" repeatCount="indefinite" />
       </circle>
       <circle cx="23" cy="25" r="2" fill={color}>
         <animate attributeName="opacity" values="0.5;1;0.5" dur="1s" repeatCount="indefinite" />
       </circle>
-      
-      {/* Cockpit */}
       <ellipse cx="12" cy="10" rx="2.5" ry="3.5" fill={color} opacity="0.7">
         <animate attributeName="opacity" values="0.5;0.9;0.5" dur="2s" repeatCount="indefinite" />
       </ellipse>
-      
-      {/* Engine housings */}
       <rect x="9" y="24" width="2" height="4" rx="0.5" fill="#0a0a1e" />
       <rect x="13" y="24" width="2" height="4" rx="0.5" fill="#0a0a1e" />
-      
-      {/* Engine glow */}
       <ellipse cx="10" cy="29" rx="1.5" ry="2" fill={color}>
         <animate attributeName="ry" values="2;3;2" dur="0.3s" repeatCount="indefinite" />
         <animate attributeName="opacity" values="0.8;1;0.8" dur="0.3s" repeatCount="indefinite" />
@@ -129,8 +144,6 @@ function SpaceshipSVG({ color, size }: { color: string; size: 'sm' | 'md' | 'lg'
         <animate attributeName="ry" values="2;3;2" dur="0.3s" repeatCount="indefinite" />
         <animate attributeName="opacity" values="0.8;1;0.8" dur="0.3s" repeatCount="indefinite" />
       </ellipse>
-      
-      {/* Engine trails */}
       <path d="M10 31 L10 36" stroke={color} strokeWidth="2" opacity="0.4">
         <animate attributeName="opacity" values="0.2;0.6;0.2" dur="0.2s" repeatCount="indefinite" />
       </path>
@@ -153,34 +166,32 @@ function Explosion({ x, y, color, onComplete }: { x: number; y: number; color: s
       animate={{ scale: 2, opacity: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="absolute pointer-events-none"
-      style={{ 
-        left: `${x}%`, 
-        top: `${y}%`, 
+      style={{
+        left: `${x}%`,
+        top: `${y}%`,
         transform: 'translate(-50%, -50%)',
         zIndex: 100
       }}
     >
-      {/* Explosion ring */}
-      <div 
+      <div
         className="w-16 h-16 rounded-full border-4"
-        style={{ 
+        style={{
           borderColor: color,
           boxShadow: `0 0 30px ${color}, inset 0 0 20px ${color}`
         }}
       />
-      {/* Particles */}
       {Array.from({ length: 8 }).map((_, i) => (
         <motion.div
           key={i}
           initial={{ x: 0, y: 0, opacity: 1 }}
-          animate={{ 
+          animate={{
             x: Math.cos(i * Math.PI / 4) * 50,
             y: Math.sin(i * Math.PI / 4) * 50,
             opacity: 0
           }}
           transition={{ duration: 0.5 }}
           className="absolute w-2 h-2 rounded-full"
-          style={{ 
+          style={{
             backgroundColor: i % 2 === 0 ? color : '#ffffff',
             boxShadow: `0 0 8px ${color}`,
             left: '50%',
@@ -195,34 +206,40 @@ function Explosion({ x, y, color, onComplete }: { x: number; y: number; color: s
 export default function ShootableSpaceships({ sectionId, count = 4, safeZones = [] }: ShootableSpaceshipsProps) {
   const [ships, setShips] = useState<Spaceship[]>([]);
   const [explosions, setExplosions] = useState<Array<{ id: number; x: number; y: number; color: string }>>([]);
+  const shipsRef = useRef<Spaceship[]>([]);
 
-  // Initialize ships with better distribution
+  // Keep ref in sync for collision detection during respawn
   useEffect(() => {
-    const initialShips: Spaceship[] = Array.from({ length: count }, (_, i) => {
-      const pos = generatePosition(safeZones, i, count);
-      return {
+    shipsRef.current = ships;
+  }, [ships]);
+
+  // Initialize ships with collision avoidance
+  useEffect(() => {
+    const initialShips: Spaceship[] = [];
+    
+    for (let i = 0; i < count; i++) {
+      const pos = generatePosition(safeZones, i, count, initialShips);
+      initialShips.push({
         id: Date.now() + i,
         x: pos.x,
         y: pos.y,
         color: colors[i % colors.length],
         rotation: -30 + Math.random() * 60,
         size: sizes[i % sizes.length],
-      };
-    });
+      });
+    }
+    
     setShips(initialShips);
   }, [count, sectionId]);
 
   const handleShoot = useCallback((ship: Spaceship) => {
-    // Add explosion
     setExplosions(prev => [...prev, { id: ship.id, x: ship.x, y: ship.y, color: ship.color }]);
-    
-    // Remove ship
     setShips(prev => prev.filter(s => s.id !== ship.id));
-    
-    // Respawn after delay with new position in a different zone
+
+    // Respawn with collision check
     setTimeout(() => {
-      const newIndex = Math.floor(Math.random() * 8);
-      const pos = generatePosition(safeZones, newIndex, count);
+      const newIndex = Math.floor(Math.random() * 12);
+      const pos = generatePosition(safeZones, newIndex, count, shipsRef.current);
       const newShip: Spaceship = {
         id: Date.now(),
         x: pos.x,
@@ -241,17 +258,12 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 5 }}>
-      {/* Pure CSS animations for buttery smooth 60fps movement */}
       <style>{`
-        @keyframes smoothFloat {
-          0%, 100% { transform: translate(-50%, -50%) translateY(0px) rotate(var(--rot)); }
-          50% { transform: translate(-50%, -50%) translateY(-18px) rotate(calc(var(--rot) + 5deg)); }
-        }
         @keyframes smoothDrift {
           0%, 100% { transform: translate(-50%, -50%) translate(0px, 0px) rotate(var(--rot)); }
-          25% { transform: translate(-50%, -50%) translate(12px, -8px) rotate(calc(var(--rot) + 3deg)); }
-          50% { transform: translate(-50%, -50%) translate(-8px, 10px) rotate(calc(var(--rot) - 2deg)); }
-          75% { transform: translate(-50%, -50%) translate(6px, 5px) rotate(calc(var(--rot) + 2deg)); }
+          25% { transform: translate(-50%, -50%) translate(8px, -6px) rotate(calc(var(--rot) + 2deg)); }
+          50% { transform: translate(-50%, -50%) translate(-6px, 8px) rotate(calc(var(--rot) - 2deg)); }
+          75% { transform: translate(-50%, -50%) translate(4px, 4px) rotate(calc(var(--rot) + 1deg)); }
         }
         .spaceship-smooth {
           animation: smoothDrift var(--duration) cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
@@ -275,8 +287,8 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
             transition={{ duration: 0.3 }}
             onClick={() => handleShoot(ship)}
             className="absolute cursor-crosshair pointer-events-auto spaceship-smooth"
-            style={{ 
-              left: `${ship.x}%`, 
+            style={{
+              left: `${ship.x}%`,
               top: `${ship.y}%`,
               '--rot': `${ship.rotation}deg`,
               '--duration': `${6 + index * 1.5}s`,
@@ -287,15 +299,14 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
           </motion.div>
         ))}
       </AnimatePresence>
-      
-      {/* Explosions */}
+
       {explosions.map((exp) => (
-        <Explosion 
-          key={exp.id} 
-          x={exp.x} 
-          y={exp.y} 
-          color={exp.color} 
-          onComplete={() => removeExplosion(exp.id)} 
+        <Explosion
+          key={exp.id}
+          x={exp.x}
+          y={exp.y}
+          color={exp.color}
+          onComplete={() => removeExplosion(exp.id)}
         />
       ))}
     </div>
