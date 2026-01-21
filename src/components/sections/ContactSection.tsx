@@ -48,7 +48,7 @@ const socialLinks = [
 
 export default function ContactSection() {
   return (
-    <section id="contact" className="py-24 px-4 relative">
+    <section id="contact" className="py-16 sm:py-24 px-4 relative">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
@@ -60,18 +60,18 @@ export default function ContactSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
             Let's <span className="text-gradient">Connect</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
             Find me on your favorite platform or reach out directly
           </p>
         </motion.div>
 
         {/* Social Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           {socialLinks.map((link, index) => (
             <motion.a
               key={link.name}
@@ -84,11 +84,11 @@ export default function ContactSection() {
               transition={{ duration: 0.4, delay: index * 0.1 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`glass rounded-xl p-6 text-center border border-border transition-all duration-300 group ${link.color}`}
+              className={`glass rounded-xl p-4 sm:p-6 text-center border border-border transition-all duration-300 group ${link.color}`}
             >
-              <link.icon className="w-8 h-8 mx-auto mb-3 text-muted-foreground group-hover:scale-110 transition-all" />
-              <h3 className="font-semibold mb-1">{link.name}</h3>
-              <p className="text-xs text-muted-foreground">{link.description}</p>
+              <link.icon className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 text-muted-foreground group-hover:scale-110 transition-all" />
+              <h3 className="font-semibold text-sm sm:text-base mb-1">{link.name}</h3>
+              <p className="text-xs text-muted-foreground hidden sm:block">{link.description}</p>
             </motion.a>
           ))}
         </div>
