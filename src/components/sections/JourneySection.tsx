@@ -125,7 +125,7 @@ export default function JourneySection() {
             My <span className="text-gradient">Journey</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-            The path that led me to where I am today — each milestone a completed quest
+            The path that led me to where I am today - each milestone a completed quest
           </p>
         </motion.div>
 

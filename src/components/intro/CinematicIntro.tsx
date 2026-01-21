@@ -140,14 +140,48 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           }
         }
         
-        @keyframes titleFadeIn {
+        @keyframes titleGlitchIn {
           0% { 
             opacity: 0;
-            transform: translate(-50%, 20px);
+            transform: translate(-50%, -50%) scale(0.8);
+            filter: blur(10px);
+          }
+          20% { 
+            opacity: 1;
+            transform: translate(-48%, -50%) scale(1.02);
+            filter: blur(0);
+          }
+          25% { 
+            opacity: 0.8;
+            transform: translate(-52%, -50%) scale(0.98);
+          }
+          30% { 
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
           }
           100% { 
             opacity: 1;
-            transform: translate(-50%, 0);
+            transform: translate(-50%, -50%) scale(1);
+          }
+        }
+        
+        @keyframes subtitleSlideUp {
+          0% { 
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          100% { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes glowPulse {
+          0%, 100% { 
+            text-shadow: 0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--primary) / 0.3);
+          }
+          50% { 
+            text-shadow: 0 0 40px hsl(var(--primary) / 0.8), 0 0 80px hsl(var(--primary) / 0.5), 0 0 120px hsl(var(--primary) / 0.3);
           }
         }
         
@@ -232,7 +266,17 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
         }
         
         .intro-title {
-          animation: titleFadeIn 0.6s ease-out 4.5s forwards;
+          animation: titleGlitchIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 4.5s forwards;
+          opacity: 0;
+          will-change: transform, opacity, filter;
+        }
+        
+        .intro-title-main {
+          animation: glowPulse 2s ease-in-out 5.3s infinite;
+        }
+        
+        .intro-subtitle {
+          animation: subtitleSlideUp 0.6s ease-out 5s forwards;
           opacity: 0;
           will-change: transform, opacity;
         }
@@ -458,12 +502,14 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
         Click anywhere to skip
       </div>
 
-      {/* Title overlay */}
-      <div className="intro-title absolute bottom-20 left-1/2 text-center">
-        <h2 className="text-2xl md:text-4xl font-display font-bold text-gradient">
+      {/* Title overlay - CENTERED */}
+      <div className="intro-title absolute top-1/2 left-1/2 text-center">
+        <h2 className="intro-title-main text-5xl sm:text-6xl md:text-8xl font-display font-bold text-gradient">
           MrVayn
         </h2>
-        <p className="text-muted-foreground mt-2">Founder & Game Developer</p>
+        <p className="intro-subtitle text-xl sm:text-2xl md:text-3xl text-muted-foreground mt-4">
+          Founder & Game Developer
+        </p>
       </div>
     </motion.div>
   );

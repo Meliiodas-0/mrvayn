@@ -25,29 +25,44 @@ interface ShootableSpaceshipsProps {
 const colors = ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7', '#ff3366', '#00aaff'];
 const sizes: Array<'sm' | 'md' | 'lg'> = ['sm', 'md', 'lg'];
 
-// Generate position with better distribution - some areas sparse, some clustered
+// Generate position with better distribution - filling vacant spaces
 function generatePosition(safeZones: ShootableSpaceshipsProps['safeZones'] = [], index: number, total: number): { x: number; y: number } {
-  // Distribute across 8 zones around the periphery
-  const zoneIndex = index % 8;
+  // Randomize zone picking for variety
+  const zoneIndex = (index + Math.floor(Math.random() * 16)) % 16;
   
-  // Define spawn zones with varied density
+  // Define spawn zones across entire viewport - edges AND mid-screen areas
   const spawnZones = [
-    { minX: 0, maxX: 10, minY: 10, maxY: 35 },    // Left upper
-    { minX: 90, maxX: 100, minY: 10, maxY: 35 },  // Right upper
-    { minX: 0, maxX: 10, minY: 65, maxY: 90 },    // Left lower
-    { minX: 90, maxX: 100, minY: 65, maxY: 90 },  // Right lower
-    { minX: 0, maxX: 8, minY: 40, maxY: 60 },     // Left middle
-    { minX: 92, maxX: 100, minY: 40, maxY: 60 },  // Right middle
-    { minX: 15, maxX: 35, minY: 5, maxY: 15 },    // Top left area
-    { minX: 65, maxX: 85, minY: 85, maxY: 95 },   // Bottom right area
+    // Edge zones
+    { minX: 0, maxX: 12, minY: 10, maxY: 35 },     // Left upper
+    { minX: 88, maxX: 100, minY: 10, maxY: 35 },   // Right upper
+    { minX: 0, maxX: 12, minY: 65, maxY: 90 },     // Left lower
+    { minX: 88, maxX: 100, minY: 65, maxY: 90 },   // Right lower
+    { minX: 0, maxX: 10, minY: 40, maxY: 60 },     // Left middle
+    { minX: 90, maxX: 100, minY: 40, maxY: 60 },   // Right middle
+    
+    // Top/bottom mid areas
+    { minX: 15, maxX: 35, minY: 3, maxY: 15 },     // Top left quadrant
+    { minX: 65, maxX: 85, minY: 3, maxY: 15 },     // Top right quadrant
+    { minX: 15, maxX: 35, minY: 85, maxY: 97 },    // Bottom left quadrant
+    { minX: 65, maxX: 85, minY: 85, maxY: 97 },    // Bottom right quadrant
+    
+    // NEW: Fill the gaps - mid-screen zones (safe zone logic prevents overlap)
+    { minX: 35, maxX: 50, minY: 3, maxY: 12 },     // Top center-left
+    { minX: 50, maxX: 65, minY: 3, maxY: 12 },     // Top center-right
+    { minX: 35, maxX: 50, minY: 88, maxY: 97 },    // Bottom center-left
+    { minX: 50, maxX: 65, minY: 88, maxY: 97 },    // Bottom center-right
+    
+    // Side gaps
+    { minX: 5, maxX: 18, minY: 15, maxY: 30 },     // Upper left side
+    { minX: 82, maxX: 95, minY: 15, maxY: 30 },    // Upper right side
   ];
   
   let attempts = 0;
-  const maxAttempts = 20;
+  const maxAttempts = 30;
   
   while (attempts < maxAttempts) {
-    // Pick zone based on index for even distribution
-    const zone = spawnZones[zoneIndex];
+    // Pick zone with randomization for more natural spread
+    const zone = spawnZones[zoneIndex % spawnZones.length];
     const x = zone.minX + Math.random() * (zone.maxX - zone.minX);
     const y = zone.minY + Math.random() * (zone.maxY - zone.minY);
     
@@ -63,9 +78,10 @@ function generatePosition(safeZones: ShootableSpaceshipsProps['safeZones'] = [],
     attempts++;
   }
   
-  // Fallback to far edges
-  const edge = zoneIndex % 2 === 0 ? 3 : 97;
-  return { x: edge, y: 20 + (zoneIndex * 10) };
+  // Fallback to edges with more variety
+  const edges = [3, 5, 95, 97];
+  const edge = edges[zoneIndex % edges.length];
+  return { x: edge, y: 10 + (zoneIndex * 8) % 80 };
 }
 
 function SpaceshipSVG({ color, size }: { color: string; size: 'sm' | 'md' | 'lg' }) {
