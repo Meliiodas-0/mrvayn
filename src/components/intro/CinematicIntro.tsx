@@ -23,11 +23,11 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    const fadeTimer = setTimeout(() => setPhase('fading'), 5500);
+    const fadeTimer = setTimeout(() => setPhase('fading'), 7500);
     const doneTimer = setTimeout(() => {
       setPhase('done');
       onComplete();
-    }, 6000);
+    }, 8000);
 
     return () => {
       clearTimeout(fadeTimer);
