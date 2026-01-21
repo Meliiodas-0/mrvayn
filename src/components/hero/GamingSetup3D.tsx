@@ -1,5 +1,5 @@
-import { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useRef, useMemo, useState, useCallback } from 'react';
+import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
 import { Float, Environment, Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -21,26 +21,20 @@ function GameController({ position = [0, 0, 0], isMobile = false }: { position?:
         {/* Controller body */}
         <mesh castShadow>
           <capsuleGeometry args={[0.4, 1.2, 8, 16]} />
-          <meshStandardMaterial 
-            color="#1a1a2e" 
-            metalness={0.8} 
-            roughness={0.2}
-          />
+          <meshStandardMaterial color="#1a1a2e" metalness={0.8} roughness={0.2} />
         </mesh>
         
-        {/* Left grip */}
+        {/* Grips */}
         <mesh position={[-0.7, -0.3, 0]} rotation={[0, 0, 0.3]} castShadow>
           <capsuleGeometry args={[0.25, 0.6, 8, 16]} />
           <meshStandardMaterial color="#1a1a2e" metalness={0.8} roughness={0.2} />
         </mesh>
-        
-        {/* Right grip */}
         <mesh position={[0.7, -0.3, 0]} rotation={[0, 0, -0.3]} castShadow>
           <capsuleGeometry args={[0.25, 0.6, 8, 16]} />
           <meshStandardMaterial color="#1a1a2e" metalness={0.8} roughness={0.2} />
         </mesh>
         
-        {/* D-pad glow */}
+        {/* D-pad */}
         <mesh position={[-0.35, 0.1, 0.35]}>
           <cylinderGeometry args={[0.12, 0.12, 0.04, 32]} />
           <meshStandardMaterial color="#00ffff" emissive="#00ffff" emissiveIntensity={2} />
@@ -69,171 +63,197 @@ function GameController({ position = [0, 0, 0], isMobile = false }: { position?:
   );
 }
 
-// Floating hexagons
-function FloatingHexagons({ isMobile = false }: { isMobile?: boolean }) {
-  const count = isMobile ? 4 : 8;
+// Enemy spaceship component
+function EnemyShip({ 
+  position, 
+  onDestroy, 
+  id,
+  color 
+}: { 
+  position: [number, number, number]; 
+  onDestroy: (id: number) => void;
+  id: number;
+  color: string;
+}) {
   const groupRef = useRef<THREE.Group>(null);
+  const [isExploding, setIsExploding] = useState(false);
+  const [explosionScale, setExplosionScale] = useState(0);
   
-  const hexagons = useMemo(() => {
-    return Array.from({ length: count }, (_, i) => ({
-      position: [
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 6,
-        (Math.random() - 0.5) * 4 - 3,
-      ] as [number, number, number],
-      rotation: [Math.random() * Math.PI, Math.random() * Math.PI, 0] as [number, number, number],
-      scale: 0.15 + Math.random() * 0.25,
-      speed: 0.2 + Math.random() * 0.3,
-      color: ['#00ffff', '#ff0080', '#a855f7', '#00ff88'][i % 4],
-    }));
-  }, [count]);
-
   useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.02;
+    if (groupRef.current && !isExploding) {
+      // Hovering motion
+      groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2 + id) * 0.15;
+      groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 1.5 + id) * 0.1;
+    }
+    
+    if (isExploding) {
+      setExplosionScale(prev => {
+        if (prev >= 1) {
+          onDestroy(id);
+          return prev;
+        }
+        return prev + 0.08;
+      });
     }
   });
 
-  return (
-    <group ref={groupRef}>
-      {hexagons.map((hex, i) => (
-        <Float key={i} speed={hex.speed} rotationIntensity={0.5} floatIntensity={1}>
-          <mesh position={hex.position} rotation={hex.rotation} scale={hex.scale}>
-            <cylinderGeometry args={[1, 1, 0.1, 6]} />
-            <meshStandardMaterial
-              color={hex.color}
-              emissive={hex.color}
-              emissiveIntensity={0.3}
+  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    if (!isExploding) {
+      setIsExploding(true);
+    }
+  }, [isExploding]);
+
+  if (isExploding) {
+    return (
+      <group position={position}>
+        {/* Explosion particles */}
+        {Array.from({ length: 8 }).map((_, i) => (
+          <mesh 
+            key={i} 
+            position={[
+              Math.cos(i * Math.PI / 4) * explosionScale * 0.5,
+              Math.sin(i * Math.PI / 4) * explosionScale * 0.5,
+              0
+            ]}
+            scale={0.1 * (1 - explosionScale)}
+          >
+            <sphereGeometry args={[1, 8, 8]} />
+            <meshStandardMaterial 
+              color={color} 
+              emissive={color} 
+              emissiveIntensity={3}
               transparent
-              opacity={0.6}
-              wireframe
+              opacity={1 - explosionScale}
             />
           </mesh>
-        </Float>
-      ))}
-    </group>
-  );
-}
-
-// Glowing orbital rings
-function OrbitalRings({ isMobile = false }: { isMobile?: boolean }) {
-  const ring1Ref = useRef<THREE.Mesh>(null);
-  const ring2Ref = useRef<THREE.Mesh>(null);
-  const ring3Ref = useRef<THREE.Mesh>(null);
-  
-  const scale = isMobile ? 0.7 : 1;
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    if (ring1Ref.current) {
-      ring1Ref.current.rotation.x = t * 0.15;
-      ring1Ref.current.rotation.y = t * 0.1;
-    }
-    if (ring2Ref.current) {
-      ring2Ref.current.rotation.x = -t * 0.1;
-      ring2Ref.current.rotation.z = t * 0.12;
-    }
-    if (ring3Ref.current) {
-      ring3Ref.current.rotation.y = t * 0.08;
-      ring3Ref.current.rotation.z = -t * 0.1;
-    }
-  });
+        ))}
+      </group>
+    );
+  }
 
   return (
-    <group scale={scale}>
-      <mesh ref={ring1Ref} position={[0, 0.3, 0]}>
-        <torusGeometry args={[2.2, 0.015, 16, 100]} />
-        <meshStandardMaterial color="#00ffff" emissive="#00ffff" emissiveIntensity={2} transparent opacity={0.7} />
+    <group ref={groupRef} position={position} onClick={handleClick}>
+      {/* Ship body */}
+      <mesh rotation={[0, 0, Math.PI]} scale={0.25}>
+        <coneGeometry args={[0.5, 1.2, 4]} />
+        <meshStandardMaterial 
+          color="#1a1a2e" 
+          metalness={0.9} 
+          roughness={0.1}
+        />
       </mesh>
-      <mesh ref={ring2Ref} position={[0, 0.3, 0]}>
-        <torusGeometry args={[2.6, 0.01, 16, 100]} />
-        <meshStandardMaterial color="#ff0080" emissive="#ff0080" emissiveIntensity={1.5} transparent opacity={0.5} />
+      {/* Wings */}
+      <mesh position={[-0.2, 0, 0]} rotation={[0, 0, -0.3]} scale={[0.3, 0.08, 0.15]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#1a1a2e" metalness={0.8} />
       </mesh>
-      <mesh ref={ring3Ref} position={[0, 0.3, 0]}>
-        <torusGeometry args={[3, 0.008, 16, 100]} />
-        <meshStandardMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={1.5} transparent opacity={0.4} />
+      <mesh position={[0.2, 0, 0]} rotation={[0, 0, 0.3]} scale={[0.3, 0.08, 0.15]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#1a1a2e" metalness={0.8} />
+      </mesh>
+      {/* Engine glow */}
+      <mesh position={[0, 0.2, 0]} scale={0.08}>
+        <sphereGeometry args={[1, 16, 16]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={3} />
+      </mesh>
+      {/* Cockpit */}
+      <mesh position={[0, -0.1, 0.08]} scale={0.08}>
+        <sphereGeometry args={[1, 16, 16]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={1} transparent opacity={0.8} />
       </mesh>
     </group>
   );
 }
 
-// Floating cubes
-function FloatingCubes({ isMobile = false }: { isMobile?: boolean }) {
-  const count = isMobile ? 3 : 6;
+// Enemy fleet manager
+function EnemyFleet({ isMobile = false }: { isMobile?: boolean }) {
+  const initialCount = isMobile ? 4 : 7;
   
-  const cubes = useMemo(() => {
-    return Array.from({ length: count }, (_, i) => ({
+  const [enemies, setEnemies] = useState(() => 
+    Array.from({ length: initialCount }, (_, i) => ({
+      id: i,
       position: [
         (Math.random() - 0.5) * 8,
-        (Math.random() - 0.5) * 5,
-        -2 - Math.random() * 3,
+        (Math.random() - 0.5) * 4,
+        -2 - Math.random() * 2,
       ] as [number, number, number],
-      scale: 0.1 + Math.random() * 0.2,
-      color: ['#00ffff', '#ff0080', '#a855f7'][i % 3],
-      rotationSpeed: 0.5 + Math.random() * 0.5,
-    }));
-  }, [count]);
+      color: ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7', '#ff3366'][i % 7],
+    }))
+  );
+
+  const handleDestroy = useCallback((id: number) => {
+    setEnemies(prev => prev.filter(e => e.id !== id));
+    
+    // Respawn after delay
+    setTimeout(() => {
+      setEnemies(prev => [...prev, {
+        id: Date.now(),
+        position: [
+          (Math.random() - 0.5) * 8,
+          (Math.random() - 0.5) * 4,
+          -2 - Math.random() * 2,
+        ] as [number, number, number],
+        color: ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7'][Math.floor(Math.random() * 6)],
+      }]);
+    }, 2000);
+  }, []);
 
   return (
     <>
-      {cubes.map((cube, i) => (
-        <Float key={i} speed={1} rotationIntensity={cube.rotationSpeed} floatIntensity={1.5}>
-          <mesh position={cube.position} scale={cube.scale}>
-            <boxGeometry args={[1, 1, 1]} />
-            <meshStandardMaterial
-              color={cube.color}
-              emissive={cube.color}
-              emissiveIntensity={0.4}
-              transparent
-              opacity={0.5}
-              wireframe
-            />
-          </mesh>
-        </Float>
+      {enemies.map((enemy) => (
+        <EnemyShip
+          key={enemy.id}
+          id={enemy.id}
+          position={enemy.position}
+          color={enemy.color}
+          onDestroy={handleDestroy}
+        />
       ))}
     </>
   );
 }
 
-// Energy orbs with trails
-function EnergyOrbs({ isMobile = false }: { isMobile?: boolean }) {
+// Floating power-ups
+function PowerUps({ isMobile = false }: { isMobile?: boolean }) {
   const count = isMobile ? 3 : 5;
   
-  const orbs = useMemo(() => {
+  const powerUps = useMemo(() => {
     return Array.from({ length: count }, (_, i) => ({
       position: [
-        (Math.random() - 0.5) * 6,
-        (Math.random() - 0.5) * 4,
-        -1 - Math.random() * 2,
+        (Math.random() - 0.5) * 10,
+        (Math.random() - 0.5) * 5,
+        -3 - Math.random() * 2,
       ] as [number, number, number],
-      scale: 0.06 + Math.random() * 0.1,
-      color: ['#00ffff', '#ff0080', '#00ff88', '#a855f7', '#ffff00'][i % 5],
+      type: ['health', 'shield', 'speed', 'power', 'coin'][i % 5],
+      color: ['#00ff88', '#00ffff', '#ffff00', '#ff0080', '#ffd700'][i % 5],
     }));
   }, [count]);
 
   return (
     <>
-      {orbs.map((orb, i) => (
-        <Float key={i} speed={0.5 + Math.random() * 0.5} rotationIntensity={0.2} floatIntensity={2}>
-          <group position={orb.position}>
-            {/* Core */}
-            <mesh scale={orb.scale}>
-              <sphereGeometry args={[1, 16, 16]} />
+      {powerUps.map((pu, i) => (
+        <Float key={i} speed={1} rotationIntensity={2} floatIntensity={1}>
+          <group position={pu.position} scale={0.15}>
+            {/* Outer glow */}
+            <mesh>
+              <octahedronGeometry args={[1.5, 0]} />
               <meshStandardMaterial
-                color={orb.color}
-                emissive={orb.color}
-                emissiveIntensity={2}
+                color={pu.color}
+                emissive={pu.color}
+                emissiveIntensity={0.3}
+                transparent
+                opacity={0.3}
+                wireframe
               />
             </mesh>
-            {/* Glow halo */}
-            <mesh scale={orb.scale * 2}>
-              <sphereGeometry args={[1, 16, 16]} />
+            {/* Inner core */}
+            <mesh>
+              <octahedronGeometry args={[0.8, 0]} />
               <meshStandardMaterial
-                color={orb.color}
-                emissive={orb.color}
-                emissiveIntensity={0.5}
-                transparent
-                opacity={0.2}
+                color={pu.color}
+                emissive={pu.color}
+                emissiveIntensity={1.5}
               />
             </mesh>
           </group>
@@ -243,87 +263,92 @@ function EnergyOrbs({ isMobile = false }: { isMobile?: boolean }) {
   );
 }
 
-// Animated grid floor
-function GridFloor() {
-  const meshRef = useRef<THREE.Mesh>(null);
+// Asteroid field
+function Asteroids({ isMobile = false }: { isMobile?: boolean }) {
+  const count = isMobile ? 4 : 8;
+  const groupRef = useRef<THREE.Group>(null);
   
+  const asteroids = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => ({
+      position: [
+        (Math.random() - 0.5) * 12,
+        (Math.random() - 0.5) * 6,
+        -4 - Math.random() * 3,
+      ] as [number, number, number],
+      scale: 0.1 + Math.random() * 0.2,
+      rotation: [Math.random() * Math.PI, Math.random() * Math.PI, 0] as [number, number, number],
+    }));
+  }, [count]);
+
   useFrame((state) => {
-    if (meshRef.current) {
-      (meshRef.current.material as THREE.MeshStandardMaterial).opacity = 
-        0.15 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
+    if (groupRef.current) {
+      groupRef.current.children.forEach((child, i) => {
+        child.rotation.x += 0.002 * (i % 2 === 0 ? 1 : -1);
+        child.rotation.y += 0.003 * (i % 2 === 0 ? -1 : 1);
+      });
     }
   });
 
   return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -3, 0]} receiveShadow>
-      <planeGeometry args={[40, 40, 40, 40]} />
+    <group ref={groupRef}>
+      {asteroids.map((ast, i) => (
+        <mesh key={i} position={ast.position} rotation={ast.rotation} scale={ast.scale}>
+          <dodecahedronGeometry args={[1, 0]} />
+          <meshStandardMaterial
+            color="#2a2a3e"
+            metalness={0.3}
+            roughness={0.8}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// Animated starfield grid
+function StarfieldGrid() {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.position.z = ((state.clock.elapsedTime * 0.5) % 2) - 5;
+    }
+  });
+
+  return (
+    <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -4, -5]}>
+      <planeGeometry args={[50, 30, 50, 30]} />
       <meshStandardMaterial
         color="#00ffff"
         wireframe
         transparent
-        opacity={0.15}
+        opacity={0.08}
       />
     </mesh>
-  );
-}
-
-// Vertical light beams
-function LightBeams({ isMobile = false }: { isMobile?: boolean }) {
-  const count = isMobile ? 2 : 4;
-  
-  const beams = useMemo(() => {
-    return Array.from({ length: count }, (_, i) => ({
-      position: [
-        (i - count / 2 + 0.5) * 3,
-        0,
-        -4,
-      ] as [number, number, number],
-      color: ['#00ffff', '#ff0080', '#a855f7', '#00ff88'][i % 4],
-      height: 8 + Math.random() * 4,
-    }));
-  }, [count]);
-
-  return (
-    <>
-      {beams.map((beam, i) => (
-        <mesh key={i} position={beam.position}>
-          <cylinderGeometry args={[0.02, 0.02, beam.height, 8]} />
-          <meshStandardMaterial
-            color={beam.color}
-            emissive={beam.color}
-            emissiveIntensity={1}
-            transparent
-            opacity={0.3}
-          />
-        </mesh>
-      ))}
-    </>
   );
 }
 
 function Scene({ isMobile = false }: { isMobile?: boolean }) {
   return (
     <>
-      <ambientLight intensity={0.2} />
+      <ambientLight intensity={0.15} />
       <pointLight position={[5, 5, 5]} intensity={1} color="#00ffff" />
       <pointLight position={[-5, 5, 5]} intensity={1} color="#ff0080" />
       <pointLight position={[0, -3, 3]} intensity={0.5} color="#a855f7" />
       
       <GameController position={[0, 0.3, 0]} isMobile={isMobile} />
-      <OrbitalRings isMobile={isMobile} />
-      <FloatingHexagons isMobile={isMobile} />
-      <FloatingCubes isMobile={isMobile} />
-      <EnergyOrbs isMobile={isMobile} />
-      <LightBeams isMobile={isMobile} />
-      <GridFloor />
+      <EnemyFleet isMobile={isMobile} />
+      <PowerUps isMobile={isMobile} />
+      <Asteroids isMobile={isMobile} />
+      <StarfieldGrid />
       
       <Sparkles
-        count={isMobile ? 50 : 100}
-        scale={12}
-        size={1.5}
-        speed={0.3}
-        color="#00ffff"
-        opacity={0.5}
+        count={isMobile ? 30 : 60}
+        scale={15}
+        size={1}
+        speed={0.2}
+        color="#ffffff"
+        opacity={0.4}
       />
       
       <Environment preset="night" />
@@ -335,7 +360,7 @@ export default function GamingSetup3D() {
   const isMobile = useIsMobile();
   
   return (
-    <div className="absolute inset-0 z-0">
+    <div className="absolute inset-0 z-0 cursor-crosshair">
       <Canvas
         camera={{ position: [0, 0, isMobile ? 7 : 6], fov: isMobile ? 50 : 55 }}
         shadows

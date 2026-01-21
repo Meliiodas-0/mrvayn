@@ -24,9 +24,10 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-6"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-primary font-medium">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/30 text-sm text-primary font-medium">
             <Gamepad2 className="w-4 h-4" />
             Game Developer & Creative Technologist
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
           </span>
         </motion.div>
         
