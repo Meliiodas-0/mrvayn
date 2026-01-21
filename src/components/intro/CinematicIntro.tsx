@@ -463,7 +463,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
         <h2 className="text-2xl md:text-4xl font-display font-bold text-gradient">
           MrVayn
         </h2>
-        <p className="text-muted-foreground mt-2">Game Developer</p>
+        <p className="text-muted-foreground mt-2">Founder & Game Developer</p>
       </div>
     </motion.div>
   );

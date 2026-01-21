@@ -1,45 +1,38 @@
 import { motion } from 'framer-motion';
-import { Code2, Gamepad2, Palette, Boxes, Trophy, Target, Zap, Shield } from 'lucide-react';
-import { FloatingPixels, CornerBrackets, LevelIndicator, AchievementBadge } from '@/components/ui/GameElements';
+import { Code2, Gamepad2, Palette, Boxes, Zap } from 'lucide-react';
+import { FloatingPixels, CornerBrackets } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
 
 const skills = [
-  { name: 'Unity', level: 90, max: 100 },
-  { name: 'Unreal Engine', level: 85, max: 100 },
-  { name: 'C#', level: 88, max: 100 },
-  { name: 'C++', level: 75, max: 100 },
-  { name: 'Blender', level: 80, max: 100 },
-  { name: 'React / Web', level: 85, max: 100 },
+  { name: 'Unreal Engine 5', level: 95, max: 100 },
+  { name: 'Gameplay Frameworks', level: 90, max: 100 },
+  { name: 'Niagara VFX + CGI', level: 88, max: 100 },
+  { name: 'Sequencer + Cutscenes', level: 85, max: 100 },
+  { name: 'Multiplayer + Server Architecture', level: 80, max: 100 },
+  { name: 'C++', level: 82, max: 100 },
 ];
 
 const expertise = [
   {
     icon: Gamepad2,
-    title: 'Game Development',
-    description: 'Creating immersive gameplay experiences with Unity and Unreal Engine',
+    title: 'Gameplay Frameworks',
+    description: 'Reusable, data-driven systems built for rapid iteration and scalability.',
   },
   {
     icon: Boxes,
-    title: '3D Environments',
-    description: 'Designing and building detailed 3D worlds and assets',
+    title: 'VFX + CGI (Niagara)',
+    description: 'Real-time VFX and cinematic visuals for premium game presentation.',
   },
   {
     icon: Code2,
-    title: 'Technical Systems',
-    description: 'Implementing complex game mechanics and AI systems',
+    title: 'Multiplayer + Server Architecture',
+    description: 'Cost-optimized PvP and PvE server design built to scale.',
   },
   {
     icon: Palette,
-    title: 'Creative Coding',
-    description: 'Blending art and technology for unique interactive experiences',
+    title: 'Cutscenes + Sequencer',
+    description: 'Cinematic storytelling and polished in-game cutscene pipelines.',
   },
-];
-
-const achievements = [
-  { icon: Trophy, title: '100K Downloads', unlocked: true },
-  { icon: Target, title: '5 Games Shipped', unlocked: true },
-  { icon: Zap, title: 'Speed Coder', unlocked: true },
-  { icon: Shield, title: 'Bug Slayer', unlocked: false },
 ];
 
 // Safe zones: center content area (avoid text/cards)
@@ -70,7 +63,7 @@ export default function AboutSection() {
             About <span className="text-gradient">Me</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-            Passionate game developer with a love for creating memorable digital experiences
+            Creative technologist blending scalable game tech with player psychology and market-focused design.
           </p>
         </motion.div>
 
@@ -91,33 +84,17 @@ export default function AboutSection() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl sm:text-2xl font-bold">MrVayn</h3>
-                  <p className="text-primary text-sm">Game Developer</p>
-                  <LevelIndicator level={42} xp={7500} maxXp={10000} />
+                  <p className="text-primary text-sm">Founder & Game Developer</p>
                 </div>
               </div>
               
               <p className="text-muted-foreground leading-relaxed mb-4 text-sm sm:text-base">
-                I'm a game developer with over X years of experience creating games across multiple platforms. 
-                My journey started with modding games as a teenager, which sparked my passion for interactive entertainment.
+                I'm MrVayn — a founder and creative technologist building next-gen game experiences since 2019. I blend scalable game tech with player psychology and market-focused design, aiming to create products that feel premium, retain players, and grow into breakout communities. My work spans Unreal Engine gameplay frameworks, VFX, cutscenes, and multiplayer-ready systems — with a strong focus on performance, clarity, and shipping.
               </p>
               
               <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
-                Today, I specialize in creating immersive gameplay experiences, from indie projects to larger productions. 
-                I believe in the power of games to tell stories, evoke emotions, and bring people together.
+                My foundation comes from competitive esports and leadership in top orgs (2019-2020), which sharpened my understanding of audience, community, and what makes players stay. Professionally, I've worked across Unreal Engine roles including Environmental Designer at Hidden Beyond, Unreal Engine Developer at Norian Games, and Software Developer at Glazer Games India Pvt. Ltd., where I delivered web work plus UE5 CGI and VFX for teasers and trailers. Today I'm Co-Founder and CTO at Magadha Studios, where we showcased Antarya at IGDC and are building toward a public demo. I also ship and validate fast in Roblox — my horror title Couragely was built in 7 days and within 2 weeks reached 12.2K visits and 601 favorites, supported by 638,391 impressions and 9,432 plays. I've also been invited as a game development judge for AceHack (Jaipur) and HackHub (Chennai), and I've won multiple hackathons during college.
               </p>
-
-              {/* Achievements */}
-              <div className="mt-6 pt-6 border-t border-border">
-                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-primary" />
-                  Achievements Unlocked
-                </h4>
-                <div className="grid grid-cols-4 gap-2">
-                  {achievements.map((achievement) => (
-                    <AchievementBadge key={achievement.title} {...achievement} />
-                  ))}
-                </div>
-              </div>
             </div>
 
             {/* Expertise Cards */}
@@ -195,7 +172,7 @@ export default function AboutSection() {
             <div className="mt-8 pt-6 border-t border-border">
               <h4 className="font-semibold mb-4 text-sm sm:text-base">Inventory (Tools)</h4>
               <div className="flex flex-wrap gap-2">
-                {['Git', 'Photoshop', 'After Effects', 'Substance Painter', 'FMOD', 'Wwise', 'Python', 'JavaScript'].map((tool) => (
+                {['Premiere Pro', 'FL Studio', 'Blender', 'JavaScript', 'Photoshop', 'Git'].map((tool) => (
                   <span
                     key={tool}
                     className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-muted/50 rounded border border-primary/20 text-muted-foreground hover:text-foreground hover:border-primary/50 hover:bg-primary/10 transition-all cursor-default"

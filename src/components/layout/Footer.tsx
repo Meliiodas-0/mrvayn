@@ -1,4 +1,4 @@
-import { Gamepad2, Heart } from 'lucide-react';
+import { Gamepad2 } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -13,8 +13,8 @@ export default function Footer() {
         </a>
 
         {/* Copyright */}
-        <p className="text-sm text-muted-foreground flex items-center gap-1">
-          © {currentYear} Made with <Heart className="w-4 h-4 text-accent" /> by MrVayn
+        <p className="text-sm text-muted-foreground">
+          © 2026 Made by MrVayn
         </p>
 
         {/* Quick Links */}
