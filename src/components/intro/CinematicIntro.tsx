@@ -1,32 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import IntroSpaceship from './IntroSpaceship';
-import LaserBeam from './LaserBeam';
-import Explosion from './Explosion';
-import Starfield from './Starfield';
+import { motion } from 'framer-motion';
 
 interface CinematicIntroProps {
   onComplete: () => void;
 }
 
-interface EnemyState {
-  id: number;
-  x: number;
-  y: number;
-  destroyed: boolean;
-  entryDelay: number;
-}
-
 export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
   const [phase, setPhase] = useState<'playing' | 'fading' | 'done'>('playing');
-  const [heroPosition, setHeroPosition] = useState({ x: -150, y: 50 });
-  const [enemies, setEnemies] = useState<EnemyState[]>([
-    { id: 1, x: 110, y: 30, destroyed: false, entryDelay: 0.6 },
-    { id: 2, x: 115, y: 55, destroyed: false, entryDelay: 1.2 },
-    { id: 3, x: 120, y: 75, destroyed: false, entryDelay: 1.8 },
-  ]);
-  const [lasers, setLasers] = useState<Array<{ id: number; targetId: number; fired: boolean }>>([]);
-  const [explosions, setExplosions] = useState<Array<{ id: number; x: number; y: number }>>([]);
 
   // Check for reduced motion preference
   const prefersReducedMotion = typeof window !== 'undefined' 
@@ -39,70 +19,17 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
     }
   }, [prefersReducedMotion, onComplete]);
 
-  // Main animation timeline
+  // Simple timeline - just fade out and complete
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    // Hero ship enters
-    const heroEnter = setTimeout(() => {
-      setHeroPosition({ x: 25, y: 50 });
-    }, 300);
-
-    // Fire lasers at enemies
-    const fireLaser1 = setTimeout(() => {
-      setLasers(prev => [...prev, { id: 1, targetId: 1, fired: true }]);
-    }, 1000);
-
-    const fireLaser2 = setTimeout(() => {
-      setLasers(prev => [...prev, { id: 2, targetId: 2, fired: true }]);
-    }, 1600);
-
-    const fireLaser3 = setTimeout(() => {
-      setLasers(prev => [...prev, { id: 3, targetId: 3, fired: true }]);
-    }, 2200);
-
-    // Destroy enemies with explosions
-    const destroy1 = setTimeout(() => {
-      const enemy = enemies.find(e => e.id === 1);
-      if (enemy) {
-        setExplosions(prev => [...prev, { id: 1, x: 75, y: 30 }]);
-        setEnemies(prev => prev.map(e => e.id === 1 ? { ...e, destroyed: true } : e));
-      }
-    }, 1150);
-
-    const destroy2 = setTimeout(() => {
-      const enemy = enemies.find(e => e.id === 2);
-      if (enemy) {
-        setExplosions(prev => [...prev, { id: 2, x: 78, y: 55 }]);
-        setEnemies(prev => prev.map(e => e.id === 2 ? { ...e, destroyed: true } : e));
-      }
-    }, 1750);
-
-    const destroy3 = setTimeout(() => {
-      const enemy = enemies.find(e => e.id === 3);
-      if (enemy) {
-        setExplosions(prev => [...prev, { id: 3, x: 80, y: 75 }]);
-        setEnemies(prev => prev.map(e => e.id === 3 ? { ...e, destroyed: true } : e));
-      }
-    }, 2350);
-
-    // Begin fade out
-    const fadeTimer = setTimeout(() => setPhase('fading'), 3000);
-    
-    // Complete
+    const fadeTimer = setTimeout(() => setPhase('fading'), 3200);
     const doneTimer = setTimeout(() => {
       setPhase('done');
       onComplete();
-    }, 3500);
+    }, 3700);
 
     return () => {
-      clearTimeout(heroEnter);
-      clearTimeout(fireLaser1);
-      clearTimeout(fireLaser2);
-      clearTimeout(fireLaser3);
-      clearTimeout(destroy1);
-      clearTimeout(destroy2);
-      clearTimeout(destroy3);
       clearTimeout(fadeTimer);
       clearTimeout(doneTimer);
     };
@@ -120,120 +47,424 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
       initial={{ opacity: 1 }}
       animate={{ opacity: phase === 'fading' ? 0 : 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-50 bg-background cursor-pointer"
+      className="fixed inset-0 z-50 bg-background cursor-pointer overflow-hidden"
       onClick={handleSkip}
     >
-      {/* Starfield background */}
-      <Starfield speed={1.5} />
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes starScroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        
+        @keyframes heroFlyIn {
+          0% { 
+            transform: translate(-200px, -50%);
+            opacity: 0;
+          }
+          15% {
+            opacity: 1;
+          }
+          100% { 
+            transform: translate(20vw, -50%);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes enemyFlyIn {
+          0% { 
+            transform: translate(100vw, -50%);
+            opacity: 0;
+          }
+          20% {
+            opacity: 1;
+          }
+          100% { 
+            transform: translate(0, -50%);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes enemyExplode {
+          0% { 
+            opacity: 1;
+            transform: translate(0, -50%) scale(1);
+          }
+          100% { 
+            opacity: 0;
+            transform: translate(0, -50%) scale(0);
+          }
+        }
+        
+        @keyframes laserFire {
+          0% { 
+            transform: scaleX(0);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          50% {
+            transform: scaleX(1);
+            opacity: 1;
+          }
+          100% { 
+            transform: scaleX(1);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes explosionFlash {
+          0% { 
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 1;
+          }
+          50% {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 0.8;
+          }
+          100% { 
+            transform: translate(-50%, -50%) scale(2);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes explosionRing {
+          0% { 
+            transform: translate(-50%, -50%) scale(0.2);
+            opacity: 0.8;
+          }
+          100% { 
+            transform: translate(-50%, -50%) scale(2.5);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes titleFadeIn {
+          0% { 
+            opacity: 0;
+            transform: translate(-50%, 20px);
+          }
+          100% { 
+            opacity: 1;
+            transform: translate(-50%, 0);
+          }
+        }
+        
+        .hero-ship {
+          animation: heroFlyIn 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+          will-change: transform, opacity;
+        }
+        
+        .enemy-1 {
+          animation: enemyFlyIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s forwards,
+                     enemyExplode 0.15s ease-out 1.25s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .enemy-2 {
+          animation: enemyFlyIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.1s forwards,
+                     enemyExplode 0.15s ease-out 1.85s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .enemy-3 {
+          animation: enemyFlyIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.7s forwards,
+                     enemyExplode 0.15s ease-out 2.45s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .laser-1 {
+          animation: laserFire 0.2s ease-out 1.1s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .laser-2 {
+          animation: laserFire 0.2s ease-out 1.7s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .laser-3 {
+          animation: laserFire 0.2s ease-out 2.3s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .explosion-1 {
+          animation: explosionFlash 0.4s ease-out 1.25s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .explosion-1-ring {
+          animation: explosionRing 0.5s ease-out 1.3s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .explosion-2 {
+          animation: explosionFlash 0.4s ease-out 1.85s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .explosion-2-ring {
+          animation: explosionRing 0.5s ease-out 1.9s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .explosion-3 {
+          animation: explosionFlash 0.4s ease-out 2.45s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .explosion-3-ring {
+          animation: explosionRing 0.5s ease-out 2.5s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .intro-title {
+          animation: titleFadeIn 0.5s ease-out 2.7s forwards;
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+        
+        .starfield-layer {
+          animation: starScroll 8s linear infinite;
+          will-change: transform;
+        }
+        
+        .starfield-layer-fast {
+          animation: starScroll 4s linear infinite;
+          will-change: transform;
+        }
+      `}</style>
+
+      {/* Starfield - Optimized with fewer elements */}
+      <div className="absolute inset-0">
+        {/* Layer 1 - Slow distant stars */}
+        <div className="starfield-layer absolute" style={{ 
+          width: '200%', 
+          height: '100%',
+          background: `
+            radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.8) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 30% 45%, rgba(255,255,255,0.6) 0%, transparent 100%),
+            radial-gradient(1px 1px at 50% 70%, rgba(255,255,255,0.7) 0%, transparent 100%),
+            radial-gradient(2px 2px at 70% 30%, rgba(255,255,255,0.5) 0%, transparent 100%),
+            radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.8) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 15% 80%, rgba(255,255,255,0.6) 0%, transparent 100%),
+            radial-gradient(1px 1px at 45% 15%, rgba(255,255,255,0.7) 0%, transparent 100%),
+            radial-gradient(2px 2px at 85% 85%, rgba(255,255,255,0.5) 0%, transparent 100%)
+          `
+        }} />
+        
+        {/* Layer 2 - Fast close stars */}
+        <div className="starfield-layer-fast absolute" style={{ 
+          width: '200%', 
+          height: '100%',
+          background: `
+            radial-gradient(2px 2px at 5% 35%, rgba(255,255,255,0.9) 0%, transparent 100%),
+            radial-gradient(2.5px 2.5px at 25% 65%, rgba(255,255,255,0.7) 0%, transparent 100%),
+            radial-gradient(2px 2px at 55% 25%, rgba(255,255,255,0.8) 0%, transparent 100%),
+            radial-gradient(3px 3px at 75% 55%, rgba(255,255,255,0.6) 0%, transparent 100%),
+            radial-gradient(2px 2px at 95% 40%, rgba(255,255,255,0.9) 0%, transparent 100%)
+          `
+        }} />
+        
+        {/* Nebula effect */}
+        <div className="absolute inset-0 opacity-20" style={{
+          background: 'radial-gradient(ellipse at 30% 40%, hsl(var(--primary) / 0.3) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, hsl(var(--accent) / 0.2) 0%, transparent 40%)'
+        }} />
+      </div>
       
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background/80 pointer-events-none" />
-      
-      {/* Hero ship */}
-      <motion.div
-        initial={{ x: '-150%', y: '-50%' }}
-        animate={{ 
-          x: `${heroPosition.x}vw`,
-          y: `${heroPosition.y}vh`,
-        }}
-        transition={{ 
-          duration: 1.2,
-          ease: [0.25, 0.46, 0.45, 0.94],
-        }}
-        className="absolute"
-        style={{ 
-          left: 0, 
-          top: '50%',
-          transform: 'translateY(-50%)',
-        }}
+
+      {/* Hero Ship */}
+      <div 
+        className="hero-ship absolute"
+        style={{ left: 0, top: '50%' }}
       >
-        <IntroSpaceship variant="hero" size="lg" />
-      </motion.div>
+        <svg width="80" height="80" viewBox="0 0 100 100" fill="none" style={{
+          filter: 'drop-shadow(0 0 10px hsl(var(--primary) / 0.6)) drop-shadow(0 0 20px hsl(var(--primary) / 0.6))'
+        }}>
+          <path d="M15 50 L35 35 L80 40 L95 50 L80 60 L35 65 Z" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="2"/>
+          <ellipse cx="60" cy="50" rx="12" ry="8" fill="#001a33" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
+          <path d="M40 35 L55 25 L70 35" fill="none" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.8"/>
+          <path d="M40 65 L55 75 L70 65" fill="none" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.8"/>
+          <ellipse cx="18" cy="50" rx="6" ry="10" fill="#00ffff" opacity="0.9">
+            <animate attributeName="rx" values="6;8;6" dur="0.15s" repeatCount="indefinite"/>
+          </ellipse>
+        </svg>
+      </div>
 
-      {/* Enemy ships */}
-      <AnimatePresence>
-        {enemies.map((enemy) => !enemy.destroyed && (
-          <motion.div
-            key={enemy.id}
-            initial={{ x: '110vw', opacity: 0 }}
-            animate={{ 
-              x: `${enemy.x - 35}vw`,
-              opacity: 1,
-            }}
-            exit={{ opacity: 0, scale: 0 }}
-            transition={{ 
-              duration: 0.8,
-              delay: enemy.entryDelay,
-              ease: 'easeOut',
-            }}
-            className="absolute"
-            style={{ 
-              top: `${enemy.y}%`,
-              transform: 'translateY(-50%)',
-            }}
-          >
-            <IntroSpaceship variant="enemy" size="md" />
-          </motion.div>
-        ))}
-      </AnimatePresence>
+      {/* Enemy Ships */}
+      <div className="enemy-1 absolute" style={{ right: '15%', top: '30%' }}>
+        <svg width="60" height="60" viewBox="0 0 100 100" fill="none" style={{
+          filter: 'drop-shadow(0 0 10px rgba(255, 68, 68, 0.6)) drop-shadow(0 0 20px rgba(255, 68, 68, 0.6))',
+          transform: 'scaleX(-1)'
+        }}>
+          <path d="M15 50 L35 35 L80 40 L95 50 L80 60 L35 65 Z" fill="#ff4444" stroke="#ff4444" strokeWidth="2"/>
+          <ellipse cx="60" cy="50" rx="12" ry="8" fill="#330000" stroke="#ff4444" strokeWidth="1.5"/>
+          <ellipse cx="18" cy="50" rx="6" ry="10" fill="#ff6600" opacity="0.9"/>
+        </svg>
+      </div>
 
-      {/* Laser beams */}
-      {lasers.map((laser) => {
-        const enemy = enemies.find(e => e.id === laser.targetId);
-        if (!enemy || !laser.fired) return null;
-        
-        const heroX = window.innerWidth * 0.25 + 70;
-        const heroY = window.innerHeight * 0.5;
-        const enemyX = window.innerWidth * (enemy.x - 35) / 100;
-        const enemyY = window.innerHeight * enemy.y / 100;
-        
-        return (
-          <LaserBeam
-            key={laser.id}
-            startX={heroX}
-            startY={heroY}
-            endX={enemyX}
-            endY={enemyY}
-            color="hsl(var(--primary))"
-            duration={0.15}
-          />
-        );
-      })}
+      <div className="enemy-2 absolute" style={{ right: '12%', top: '50%' }}>
+        <svg width="60" height="60" viewBox="0 0 100 100" fill="none" style={{
+          filter: 'drop-shadow(0 0 10px rgba(255, 68, 68, 0.6)) drop-shadow(0 0 20px rgba(255, 68, 68, 0.6))',
+          transform: 'scaleX(-1)'
+        }}>
+          <path d="M15 50 L35 35 L80 40 L95 50 L80 60 L35 65 Z" fill="#ff4444" stroke="#ff4444" strokeWidth="2"/>
+          <ellipse cx="60" cy="50" rx="12" ry="8" fill="#330000" stroke="#ff4444" strokeWidth="1.5"/>
+          <ellipse cx="18" cy="50" rx="6" ry="10" fill="#ff6600" opacity="0.9"/>
+        </svg>
+      </div>
+
+      <div className="enemy-3 absolute" style={{ right: '10%', top: '70%' }}>
+        <svg width="60" height="60" viewBox="0 0 100 100" fill="none" style={{
+          filter: 'drop-shadow(0 0 10px rgba(255, 68, 68, 0.6)) drop-shadow(0 0 20px rgba(255, 68, 68, 0.6))',
+          transform: 'scaleX(-1)'
+        }}>
+          <path d="M15 50 L35 35 L80 40 L95 50 L80 60 L35 65 Z" fill="#ff4444" stroke="#ff4444" strokeWidth="2"/>
+          <ellipse cx="60" cy="50" rx="12" ry="8" fill="#330000" stroke="#ff4444" strokeWidth="1.5"/>
+          <ellipse cx="18" cy="50" rx="6" ry="10" fill="#ff6600" opacity="0.9"/>
+        </svg>
+      </div>
+
+      {/* Laser Beams */}
+      <div 
+        className="laser-1 absolute"
+        style={{
+          left: 'calc(20vw + 80px)',
+          top: '50%',
+          width: 'calc(65% - 20vw)',
+          height: '4px',
+          transformOrigin: 'left center',
+          transform: 'translateY(-50%) rotate(-12deg)',
+          background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
+          boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
+          borderRadius: '2px'
+        }}
+      />
+      
+      <div 
+        className="laser-2 absolute"
+        style={{
+          left: 'calc(20vw + 80px)',
+          top: '50%',
+          width: 'calc(68% - 20vw)',
+          height: '4px',
+          transformOrigin: 'left center',
+          transform: 'translateY(-50%) rotate(0deg)',
+          background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
+          boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
+          borderRadius: '2px'
+        }}
+      />
+      
+      <div 
+        className="laser-3 absolute"
+        style={{
+          left: 'calc(20vw + 80px)',
+          top: '50%',
+          width: 'calc(70% - 20vw)',
+          height: '4px',
+          transformOrigin: 'left center',
+          transform: 'translateY(-50%) rotate(12deg)',
+          background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
+          boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
+          borderRadius: '2px'
+        }}
+      />
 
       {/* Explosions */}
-      <AnimatePresence>
-        {explosions.map((explosion) => (
-          <Explosion
-            key={explosion.id}
-            x={window.innerWidth * explosion.x / 100}
-            y={window.innerHeight * explosion.y / 100}
-            size={100}
-          />
-        ))}
-      </AnimatePresence>
+      <div className="explosion-1 absolute" style={{ right: '15%', top: '30%', width: '100px', height: '100px' }}>
+        <div style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          width: '100%',
+          height: '100%',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, #fff 0%, #ffaa00 30%, #ff4400 60%, transparent 100%)',
+          boxShadow: '0 0 40px #ff6600, 0 0 80px #ff4400'
+        }} />
+      </div>
+      <div className="explosion-1-ring absolute" style={{ 
+        right: 'calc(15% + 20px)', 
+        top: 'calc(30% + 20px)', 
+        width: '60px', 
+        height: '60px',
+        borderRadius: '50%',
+        border: '3px solid #ff8800',
+        boxShadow: '0 0 20px #ff6600'
+      }} />
+
+      <div className="explosion-2 absolute" style={{ right: '12%', top: '50%', width: '100px', height: '100px' }}>
+        <div style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          width: '100%',
+          height: '100%',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, #fff 0%, #ffaa00 30%, #ff4400 60%, transparent 100%)',
+          boxShadow: '0 0 40px #ff6600, 0 0 80px #ff4400'
+        }} />
+      </div>
+      <div className="explosion-2-ring absolute" style={{ 
+        right: 'calc(12% + 20px)', 
+        top: 'calc(50% + 20px)', 
+        width: '60px', 
+        height: '60px',
+        borderRadius: '50%',
+        border: '3px solid #ff8800',
+        boxShadow: '0 0 20px #ff6600'
+      }} />
+
+      <div className="explosion-3 absolute" style={{ right: '10%', top: '70%', width: '100px', height: '100px' }}>
+        <div style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          width: '100%',
+          height: '100%',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, #fff 0%, #ffaa00 30%, #ff4400 60%, transparent 100%)',
+          boxShadow: '0 0 40px #ff6600, 0 0 80px #ff4400'
+        }} />
+      </div>
+      <div className="explosion-3-ring absolute" style={{ 
+        right: 'calc(10% + 20px)', 
+        top: 'calc(70% + 20px)', 
+        width: '60px', 
+        height: '60px',
+        borderRadius: '50%',
+        border: '3px solid #ff8800',
+        boxShadow: '0 0 20px #ff6600'
+      }} />
 
       {/* Skip hint */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground text-sm"
-      >
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground text-sm animate-fade-in">
         Click anywhere to skip
-      </motion.div>
+      </div>
 
       {/* Title overlay */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2.5, duration: 0.5 }}
-        className="absolute bottom-20 left-1/2 -translate-x-1/2 text-center"
-      >
+      <div className="intro-title absolute bottom-20 left-1/2 text-center">
         <h2 className="text-2xl md:text-4xl font-display font-bold text-gradient">
           MrVayn
         </h2>
         <p className="text-muted-foreground mt-2">Game Developer</p>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
