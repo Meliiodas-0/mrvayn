@@ -225,35 +225,47 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 5 }}>
+      {/* Pure CSS animations for buttery smooth 60fps movement */}
+      <style>{`
+        @keyframes smoothFloat {
+          0%, 100% { transform: translate(-50%, -50%) translateY(0px) rotate(var(--rot)); }
+          50% { transform: translate(-50%, -50%) translateY(-18px) rotate(calc(var(--rot) + 5deg)); }
+        }
+        @keyframes smoothDrift {
+          0%, 100% { transform: translate(-50%, -50%) translate(0px, 0px) rotate(var(--rot)); }
+          25% { transform: translate(-50%, -50%) translate(12px, -8px) rotate(calc(var(--rot) + 3deg)); }
+          50% { transform: translate(-50%, -50%) translate(-8px, 10px) rotate(calc(var(--rot) - 2deg)); }
+          75% { transform: translate(-50%, -50%) translate(6px, 5px) rotate(calc(var(--rot) + 2deg)); }
+        }
+        .spaceship-smooth {
+          animation: smoothDrift var(--duration) cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+          will-change: transform;
+        }
+        .spaceship-smooth:hover {
+          animation-play-state: paused;
+          transform: translate(-50%, -50%) scale(1.25) !important;
+        }
+        .spaceship-smooth:active {
+          transform: translate(-50%, -50%) scale(0.9) !important;
+        }
+      `}</style>
       <AnimatePresence>
         {ships.map((ship, index) => (
           <motion.div
             key={ship.id}
-            initial={{ opacity: 0, scale: 0, x: '-50%', y: '-50%' }}
-            animate={{ 
-              opacity: 1, 
-              scale: 1,
-              x: ['-50%', `calc(-50% + ${15 - index * 3}px)`, `calc(-50% - ${10 + index * 2}px)`, '-50%'],
-              y: ['-50%', `calc(-50% - ${12 + index * 2}px)`, `calc(-50% + ${8 + index * 3}px)`, '-50%'],
-              rotate: [ship.rotation, ship.rotation + 8, ship.rotation - 5, ship.rotation],
-            }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
-            transition={{ 
-              opacity: { duration: 0.3 },
-              scale: { duration: 0.3 },
-              x: { duration: 4 + index * 0.5, repeat: Infinity, ease: 'easeInOut' },
-              y: { duration: 3 + index * 0.4, repeat: Infinity, ease: 'easeInOut' },
-              rotate: { duration: 5 + index * 0.3, repeat: Infinity, ease: 'easeInOut' },
-            }}
+            transition={{ duration: 0.3 }}
             onClick={() => handleShoot(ship)}
-            className="absolute cursor-crosshair pointer-events-auto"
+            className="absolute cursor-crosshair pointer-events-auto spaceship-smooth"
             style={{ 
               left: `${ship.x}%`, 
               top: `${ship.y}%`,
-              willChange: 'transform',
-            }}
-            whileHover={{ scale: 1.25 }}
-            whileTap={{ scale: 0.9 }}
+              '--rot': `${ship.rotation}deg`,
+              '--duration': `${6 + index * 1.5}s`,
+              animationDelay: `${index * -1.2}s`,
+            } as React.CSSProperties}
           >
             <SpaceshipSVG color={ship.color} size={ship.size} />
           </motion.div>
