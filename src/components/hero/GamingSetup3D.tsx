@@ -63,7 +63,7 @@ function GameController({ position = [0, 0, 0], isMobile = false }: { position?:
   );
 }
 
-// Enemy spaceship component
+// Detailed Enemy Spaceship component
 function EnemyShip({ 
   position, 
   onDestroy, 
@@ -78,12 +78,21 @@ function EnemyShip({
   const groupRef = useRef<THREE.Group>(null);
   const [isExploding, setIsExploding] = useState(false);
   const [explosionScale, setExplosionScale] = useState(0);
+  const engineGlowRef = useRef<THREE.Mesh>(null);
   
   useFrame((state) => {
     if (groupRef.current && !isExploding) {
       // Hovering motion
-      groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2 + id) * 0.15;
-      groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 1.5 + id) * 0.1;
+      groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2 + id) * 0.2;
+      groupRef.current.position.x = position[0] + Math.sin(state.clock.elapsedTime * 1.2 + id * 0.5) * 0.1;
+      groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 1.5 + id) * 0.15;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime + id) * 0.1;
+    }
+    
+    // Engine glow pulsing
+    if (engineGlowRef.current && !isExploding) {
+      const scale = 0.12 + Math.sin(state.clock.elapsedTime * 8) * 0.03;
+      engineGlowRef.current.scale.setScalar(scale);
     }
     
     if (isExploding) {
@@ -92,7 +101,7 @@ function EnemyShip({
           onDestroy(id);
           return prev;
         }
-        return prev + 0.08;
+        return prev + 0.06;
       });
     }
   });
@@ -107,78 +116,228 @@ function EnemyShip({
   if (isExploding) {
     return (
       <group position={position}>
+        {/* Explosion ring */}
+        <mesh scale={explosionScale * 1.5}>
+          <ringGeometry args={[0.8, 1, 16]} />
+          <meshStandardMaterial 
+            color={color} 
+            emissive={color} 
+            emissiveIntensity={3}
+            transparent
+            opacity={1 - explosionScale}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
         {/* Explosion particles */}
-        {Array.from({ length: 8 }).map((_, i) => (
+        {Array.from({ length: 12 }).map((_, i) => (
           <mesh 
             key={i} 
             position={[
-              Math.cos(i * Math.PI / 4) * explosionScale * 0.5,
-              Math.sin(i * Math.PI / 4) * explosionScale * 0.5,
-              0
+              Math.cos(i * Math.PI / 6) * explosionScale * 0.8,
+              Math.sin(i * Math.PI / 6) * explosionScale * 0.8,
+              (Math.random() - 0.5) * explosionScale * 0.3
             ]}
-            scale={0.1 * (1 - explosionScale)}
+            scale={0.08 * (1 - explosionScale * 0.8)}
           >
-            <sphereGeometry args={[1, 8, 8]} />
+            <dodecahedronGeometry args={[1, 0]} />
             <meshStandardMaterial 
-              color={color} 
+              color={i % 2 === 0 ? color : '#ffffff'} 
               emissive={color} 
-              emissiveIntensity={3}
+              emissiveIntensity={2}
               transparent
               opacity={1 - explosionScale}
             />
           </mesh>
         ))}
+        {/* Central flash */}
+        <mesh scale={0.5 * (1 - explosionScale)}>
+          <sphereGeometry args={[1, 16, 16]} />
+          <meshStandardMaterial 
+            color="#ffffff" 
+            emissive="#ffffff" 
+            emissiveIntensity={5}
+            transparent
+            opacity={1 - explosionScale}
+          />
+        </mesh>
       </group>
     );
   }
 
   return (
-    <group ref={groupRef} position={position} onClick={handleClick}>
-      {/* Ship body */}
-      <mesh rotation={[0, 0, Math.PI]} scale={0.25}>
-        <coneGeometry args={[0.5, 1.2, 4]} />
+    <group ref={groupRef} position={position} onClick={handleClick} scale={0.4}>
+      {/* Main fuselage - elongated body */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <capsuleGeometry args={[0.15, 0.8, 8, 16]} />
         <meshStandardMaterial 
           color="#1a1a2e" 
           metalness={0.9} 
           roughness={0.1}
         />
       </mesh>
-      {/* Wings */}
-      <mesh position={[-0.2, 0, 0]} rotation={[0, 0, -0.3]} scale={[0.3, 0.08, 0.15]}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#1a1a2e" metalness={0.8} />
+      
+      {/* Nose cone */}
+      <mesh position={[0, 0.6, 0]} rotation={[0, 0, 0]}>
+        <coneGeometry args={[0.15, 0.35, 8]} />
+        <meshStandardMaterial color="#2a2a4e" metalness={0.9} roughness={0.1} />
       </mesh>
-      <mesh position={[0.2, 0, 0]} rotation={[0, 0, 0.3]} scale={[0.3, 0.08, 0.15]}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#1a1a2e" metalness={0.8} />
+      
+      {/* Cockpit window */}
+      <mesh position={[0, 0.3, 0.12]} rotation={[-0.3, 0, 0]}>
+        <sphereGeometry args={[0.08, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial 
+          color={color} 
+          emissive={color} 
+          emissiveIntensity={1.5}
+          transparent
+          opacity={0.8}
+        />
       </mesh>
-      {/* Engine glow */}
-      <mesh position={[0, 0.2, 0]} scale={0.08}>
+      
+      {/* Left wing - angled */}
+      <mesh position={[-0.35, 0, 0]} rotation={[0, 0, -0.2]}>
+        <boxGeometry args={[0.5, 0.03, 0.25]} />
+        <meshStandardMaterial color="#1a1a2e" metalness={0.8} roughness={0.2} />
+      </mesh>
+      {/* Left wing tip */}
+      <mesh position={[-0.55, -0.04, 0]} rotation={[0, 0, -0.4]}>
+        <boxGeometry args={[0.15, 0.02, 0.15]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.5} />
+      </mesh>
+      
+      {/* Right wing - angled */}
+      <mesh position={[0.35, 0, 0]} rotation={[0, 0, 0.2]}>
+        <boxGeometry args={[0.5, 0.03, 0.25]} />
+        <meshStandardMaterial color="#1a1a2e" metalness={0.8} roughness={0.2} />
+      </mesh>
+      {/* Right wing tip */}
+      <mesh position={[0.55, -0.04, 0]} rotation={[0, 0, 0.4]}>
+        <boxGeometry args={[0.15, 0.02, 0.15]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.5} />
+      </mesh>
+      
+      {/* Rear fins */}
+      <mesh position={[0, -0.35, 0.12]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[0.03, 0.2, 0.15]} />
+        <meshStandardMaterial color="#2a2a4e" metalness={0.8} />
+      </mesh>
+      <mesh position={[-0.1, -0.3, 0]} rotation={[0, 0, -0.3]}>
+        <boxGeometry args={[0.03, 0.15, 0.12]} />
+        <meshStandardMaterial color="#2a2a4e" metalness={0.8} />
+      </mesh>
+      <mesh position={[0.1, -0.3, 0]} rotation={[0, 0, 0.3]}>
+        <boxGeometry args={[0.03, 0.15, 0.12]} />
+        <meshStandardMaterial color="#2a2a4e" metalness={0.8} />
+      </mesh>
+      
+      {/* Engine housings */}
+      <mesh position={[-0.18, -0.4, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.06, 0.08, 0.15, 8]} />
+        <meshStandardMaterial color="#0a0a1e" metalness={0.9} roughness={0.1} />
+      </mesh>
+      <mesh position={[0.18, -0.4, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.06, 0.08, 0.15, 8]} />
+        <meshStandardMaterial color="#0a0a1e" metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Engine glow - left */}
+      <mesh ref={engineGlowRef} position={[-0.18, -0.5, 0]}>
         <sphereGeometry args={[1, 16, 16]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={3} />
+        <meshStandardMaterial 
+          color={color} 
+          emissive={color} 
+          emissiveIntensity={3}
+          transparent
+          opacity={0.9}
+        />
       </mesh>
-      {/* Cockpit */}
-      <mesh position={[0, -0.1, 0.08]} scale={0.08}>
+      {/* Engine glow - right */}
+      <mesh position={[0.18, -0.5, 0]} scale={0.12}>
         <sphereGeometry args={[1, 16, 16]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={1} transparent opacity={0.8} />
+        <meshStandardMaterial 
+          color={color} 
+          emissive={color} 
+          emissiveIntensity={3}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+      
+      {/* Engine trails */}
+      <mesh position={[-0.18, -0.65, 0]} scale={[0.04, 0.2, 0.04]}>
+        <coneGeometry args={[1, 1, 8]} />
+        <meshStandardMaterial 
+          color={color} 
+          emissive={color} 
+          emissiveIntensity={2}
+          transparent
+          opacity={0.5}
+        />
+      </mesh>
+      <mesh position={[0.18, -0.65, 0]} scale={[0.04, 0.2, 0.04]}>
+        <coneGeometry args={[1, 1, 8]} />
+        <meshStandardMaterial 
+          color={color} 
+          emissive={color} 
+          emissiveIntensity={2}
+          transparent
+          opacity={0.5}
+        />
+      </mesh>
+      
+      {/* Weapon mounts on wings */}
+      <mesh position={[-0.4, -0.02, 0.08]}>
+        <cylinderGeometry args={[0.015, 0.015, 0.12, 8]} />
+        <meshStandardMaterial color="#3a3a5e" metalness={0.9} />
+      </mesh>
+      <mesh position={[0.4, -0.02, 0.08]}>
+        <cylinderGeometry args={[0.015, 0.015, 0.12, 8]} />
+        <meshStandardMaterial color="#3a3a5e" metalness={0.9} />
       </mesh>
     </group>
   );
 }
 
+// Generate position in outer areas (avoiding center)
+function generateOuterPosition(isMobile: boolean): [number, number, number] {
+  const side = Math.floor(Math.random() * 4); // 0: left, 1: right, 2: top, 3: bottom
+  const spreadX = isMobile ? 5 : 7;
+  const spreadY = isMobile ? 3.5 : 4.5;
+  const minDistFromCenter = isMobile ? 2.5 : 3;
+  
+  let x: number, y: number;
+  
+  switch (side) {
+    case 0: // Left side
+      x = -minDistFromCenter - Math.random() * (spreadX - minDistFromCenter);
+      y = (Math.random() - 0.5) * spreadY * 2;
+      break;
+    case 1: // Right side
+      x = minDistFromCenter + Math.random() * (spreadX - minDistFromCenter);
+      y = (Math.random() - 0.5) * spreadY * 2;
+      break;
+    case 2: // Top
+      x = (Math.random() - 0.5) * spreadX * 2;
+      y = minDistFromCenter + Math.random() * (spreadY - minDistFromCenter);
+      break;
+    default: // Bottom
+      x = (Math.random() - 0.5) * spreadX * 2;
+      y = -minDistFromCenter - Math.random() * (spreadY - minDistFromCenter);
+      break;
+  }
+  
+  return [x, y, -1 - Math.random() * 2];
+}
+
 // Enemy fleet manager
 function EnemyFleet({ isMobile = false }: { isMobile?: boolean }) {
-  const initialCount = isMobile ? 4 : 7;
+  const initialCount = isMobile ? 5 : 8;
   
   const [enemies, setEnemies] = useState(() => 
     Array.from({ length: initialCount }, (_, i) => ({
       id: i,
-      position: [
-        (Math.random() - 0.5) * 8,
-        (Math.random() - 0.5) * 4,
-        -2 - Math.random() * 2,
-      ] as [number, number, number],
-      color: ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7', '#ff3366'][i % 7],
+      position: generateOuterPosition(isMobile),
+      color: ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7', '#ff3366', '#00aaff'][i % 8],
     }))
   );
 
@@ -189,15 +348,11 @@ function EnemyFleet({ isMobile = false }: { isMobile?: boolean }) {
     setTimeout(() => {
       setEnemies(prev => [...prev, {
         id: Date.now(),
-        position: [
-          (Math.random() - 0.5) * 8,
-          (Math.random() - 0.5) * 4,
-          -2 - Math.random() * 2,
-        ] as [number, number, number],
-        color: ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7'][Math.floor(Math.random() * 6)],
+        position: generateOuterPosition(isMobile),
+        color: ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7', '#ff3366', '#00aaff'][Math.floor(Math.random() * 8)],
       }]);
-    }, 2000);
-  }, []);
+    }, 2500);
+  }, [isMobile]);
 
   return (
     <>
@@ -214,21 +369,17 @@ function EnemyFleet({ isMobile = false }: { isMobile?: boolean }) {
   );
 }
 
-// Floating power-ups
+// Floating power-ups - also in outer areas
 function PowerUps({ isMobile = false }: { isMobile?: boolean }) {
   const count = isMobile ? 3 : 5;
   
   const powerUps = useMemo(() => {
     return Array.from({ length: count }, (_, i) => ({
-      position: [
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 5,
-        -3 - Math.random() * 2,
-      ] as [number, number, number],
+      position: generateOuterPosition(isMobile),
       type: ['health', 'shield', 'speed', 'power', 'coin'][i % 5],
       color: ['#00ff88', '#00ffff', '#ffff00', '#ff0080', '#ffd700'][i % 5],
     }));
-  }, [count]);
+  }, [count, isMobile]);
 
   return (
     <>
@@ -263,24 +414,23 @@ function PowerUps({ isMobile = false }: { isMobile?: boolean }) {
   );
 }
 
-// Asteroid field
+// Asteroid field - outer areas
 function Asteroids({ isMobile = false }: { isMobile?: boolean }) {
   const count = isMobile ? 4 : 8;
   const groupRef = useRef<THREE.Group>(null);
   
   const asteroids = useMemo(() => {
-    return Array.from({ length: count }, (_, i) => ({
-      position: [
-        (Math.random() - 0.5) * 12,
-        (Math.random() - 0.5) * 6,
-        -4 - Math.random() * 3,
-      ] as [number, number, number],
-      scale: 0.1 + Math.random() * 0.2,
-      rotation: [Math.random() * Math.PI, Math.random() * Math.PI, 0] as [number, number, number],
-    }));
-  }, [count]);
+    return Array.from({ length: count }, (_, i) => {
+      const pos = generateOuterPosition(isMobile);
+      return {
+        position: [pos[0] * 1.2, pos[1] * 1.1, -4 - Math.random() * 2] as [number, number, number],
+        scale: 0.1 + Math.random() * 0.2,
+        rotation: [Math.random() * Math.PI, Math.random() * Math.PI, 0] as [number, number, number],
+      };
+    });
+  }, [count, isMobile]);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (groupRef.current) {
       groupRef.current.children.forEach((child, i) => {
         child.rotation.x += 0.002 * (i % 2 === 0 ? 1 : -1);
