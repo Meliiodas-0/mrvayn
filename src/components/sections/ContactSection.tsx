@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Twitter, Linkedin, Github, Mail, MessageCircle, ExternalLink, Send, Wifi } from 'lucide-react';
-import { FloatingPixels, CornerBrackets } from '@/components/ui/GameElements';
+import { FloatingPixels, CornerBrackets, SectionSpaceships } from '@/components/ui/GameElements';
 
 const socialLinks = [
   {
@@ -51,6 +51,7 @@ export default function ContactSection() {
   return (
     <section id="contact" className="py-16 sm:py-24 px-4 relative overflow-hidden">
       <FloatingPixels count={8} color="primary" />
+      <SectionSpaceships count={3} />
       
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">

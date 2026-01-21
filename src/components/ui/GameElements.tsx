@@ -29,6 +29,95 @@ export function FloatingPixels({ count = 6, color = 'primary' }: { count?: numbe
   );
 }
 
+// Decorative spaceship SVG for sections
+export function DecorativeSpaceship({ 
+  className = '', 
+  color = '#00ffff',
+  size = 'md',
+  rotation = 0,
+  style = {}
+}: { 
+  className?: string; 
+  color?: string;
+  size?: 'sm' | 'md' | 'lg';
+  rotation?: number;
+  style?: React.CSSProperties;
+}) {
+  const sizeClass = size === 'sm' ? 'w-6 h-8' : size === 'lg' ? 'w-12 h-16' : 'w-8 h-12';
+  
+  return (
+    <motion.div
+      className={`absolute pointer-events-none ${className}`}
+      style={style}
+      animate={{
+        y: [0, -8, 0],
+        rotate: [rotation - 5, rotation + 5, rotation - 5],
+      }}
+      transition={{
+        duration: 4,
+        repeat: Infinity,
+        ease: 'easeInOut',
+      }}
+    >
+      <svg 
+        viewBox="0 0 24 36" 
+        className={sizeClass}
+        style={{ filter: `drop-shadow(0 0 8px ${color})` }}
+      >
+        {/* Fuselage */}
+        <ellipse cx="12" cy="18" rx="4" ry="12" fill="#1a1a2e" />
+        {/* Nose */}
+        <path d="M12 2 L8 10 L16 10 Z" fill="#2a2a4e" />
+        {/* Wings */}
+        <path d="M8 16 L2 22 L2 26 L8 22 Z" fill="#1a1a2e" />
+        <path d="M16 16 L22 22 L22 26 L16 22 Z" fill="#1a1a2e" />
+        {/* Wing tips */}
+        <circle cx="2" cy="24" r="2" fill={color} opacity="0.8" />
+        <circle cx="22" cy="24" r="2" fill={color} opacity="0.8" />
+        {/* Cockpit */}
+        <ellipse cx="12" cy="10" rx="2" ry="3" fill={color} opacity="0.6" />
+        {/* Engines */}
+        <ellipse cx="10" cy="30" rx="1.5" ry="2" fill={color} />
+        <ellipse cx="14" cy="30" rx="1.5" ry="2" fill={color} />
+        {/* Engine trails */}
+        <path d="M10 32 L10 36" stroke={color} strokeWidth="2" opacity="0.5" />
+        <path d="M14 32 L14 36" stroke={color} strokeWidth="2" opacity="0.5" />
+      </svg>
+    </motion.div>
+  );
+}
+
+// Multiple decorative spaceships for a section
+export function SectionSpaceships({ count = 4 }: { count?: number }) {
+  const positions = [
+    { top: '10%', left: '5%', rotation: 15, color: '#ff0080', size: 'md' as const },
+    { top: '20%', right: '8%', rotation: -20, color: '#00ffff', size: 'sm' as const },
+    { bottom: '25%', left: '3%', rotation: 30, color: '#a855f7', size: 'lg' as const },
+    { bottom: '15%', right: '5%', rotation: -10, color: '#00ff88', size: 'md' as const },
+    { top: '40%', left: '2%', rotation: 45, color: '#ffff00', size: 'sm' as const },
+    { top: '60%', right: '4%', rotation: -35, color: '#ff6600', size: 'md' as const },
+  ];
+
+  return (
+    <>
+      {positions.slice(0, count).map((pos, i) => (
+        <DecorativeSpaceship
+          key={i}
+          style={{
+            top: pos.top,
+            bottom: pos.bottom,
+            left: pos.left,
+            right: pos.right,
+          }}
+          rotation={pos.rotation}
+          color={pos.color}
+          size={pos.size}
+        />
+      ))}
+    </>
+  );
+}
+
 // Scan line effect
 export function ScanLines() {
   return (
