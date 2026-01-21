@@ -497,27 +497,73 @@ function StarfieldGrid() {
   );
 }
 
+// Floating glow orbs - subtle ambient decoration
+function GlowOrbs({ isMobile = false }: { isMobile?: boolean }) {
+  const count = isMobile ? 4 : 6;
+  const groupRef = useRef<THREE.Group>(null);
+  
+  const orbs = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => ({
+      position: [
+        (Math.random() - 0.5) * 12,
+        (Math.random() - 0.5) * 8,
+        -3 - Math.random() * 4
+      ] as [number, number, number],
+      color: ['#00ffff', '#ff0080', '#a855f7', '#00ff88', '#ffff00', '#ff6600'][i % 6],
+      scale: 0.15 + Math.random() * 0.2,
+      speed: 0.5 + Math.random() * 0.5,
+    }));
+  }, [count]);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.children.forEach((child, i) => {
+        const orb = orbs[i];
+        if (orb) {
+          child.position.y = orb.position[1] + Math.sin(state.clock.elapsedTime * orb.speed + i) * 0.5;
+          child.position.x = orb.position[0] + Math.cos(state.clock.elapsedTime * orb.speed * 0.7 + i) * 0.3;
+        }
+      });
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      {orbs.map((orb, i) => (
+        <mesh key={i} position={orb.position} scale={orb.scale}>
+          <sphereGeometry args={[1, 16, 16]} />
+          <meshStandardMaterial
+            color={orb.color}
+            emissive={orb.color}
+            emissiveIntensity={2}
+            transparent
+            opacity={0.6}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 function Scene({ isMobile = false }: { isMobile?: boolean }) {
   return (
     <>
-      <ambientLight intensity={0.15} />
-      <pointLight position={[5, 5, 5]} intensity={1} color="#00ffff" />
-      <pointLight position={[-5, 5, 5]} intensity={1} color="#ff0080" />
-      <pointLight position={[0, -3, 3]} intensity={0.5} color="#a855f7" />
+      <ambientLight intensity={0.1} />
+      <pointLight position={[5, 5, 5]} intensity={0.8} color="#00ffff" />
+      <pointLight position={[-5, 5, 5]} intensity={0.8} color="#ff0080" />
+      <pointLight position={[0, -3, 3]} intensity={0.4} color="#a855f7" />
       
-      <GameController position={[0, 0.3, 0]} isMobile={isMobile} />
-      {/* Removed EnemyFleet - using 2D ShootableSpaceships component instead */}
-      <PowerUps isMobile={isMobile} />
-      <Asteroids isMobile={isMobile} />
+      {/* Clean ambient elements only - no controller */}
+      <GlowOrbs isMobile={isMobile} />
       <StarfieldGrid />
       
       <Sparkles
-        count={isMobile ? 40 : 80}
-        scale={20}
-        size={1}
-        speed={0.2}
+        count={isMobile ? 60 : 120}
+        scale={25}
+        size={1.5}
+        speed={0.3}
         color="#ffffff"
-        opacity={0.3}
+        opacity={0.4}
       />
       
       <Environment preset="night" />
