@@ -50,15 +50,15 @@ const socialLinks = [
 
 // Safe zones for contact - social grid and CTA in center
 const contactSafeZones = [
-  { top: 0, left: 20, width: 60, height: 15 }, // Header
-  { top: 15, left: 15, width: 70, height: 80 }, // Social cards and CTA
+  { top: 3, left: 25, width: 50, height: 12 }, // Header
+  { top: 18, left: 10, width: 80, height: 75 }, // Social cards and CTA
 ];
 
 export default function ContactSection() {
   return (
     <section id="contact" className="py-16 sm:py-24 px-4 relative overflow-hidden">
       <FloatingPixels count={8} color="primary" />
-      <ShootableSpaceships sectionId="contact" count={3} safeZones={contactSafeZones} />
+      <ShootableSpaceships sectionId="contact" count={4} safeZones={contactSafeZones} />
       
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">

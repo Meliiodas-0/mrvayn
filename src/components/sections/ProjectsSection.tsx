@@ -48,15 +48,15 @@ const projects = [
 
 // Safe zones for projects - cards take most of center
 const projectsSafeZones = [
-  { top: 0, left: 15, width: 70, height: 12 }, // Header
-  { top: 12, left: 10, width: 80, height: 85 }, // Project cards grid
+  { top: 3, left: 20, width: 60, height: 10 }, // Header
+  { top: 15, left: 5, width: 90, height: 78 }, // Project cards grid
 ];
 
 export default function ProjectsSection() {
   return (
     <section id="projects" className="py-16 sm:py-24 px-4 relative overflow-hidden">
       <FloatingPixels count={10} color="accent" />
-      <ShootableSpaceships sectionId="projects" count={4} safeZones={projectsSafeZones} />
+      <ShootableSpaceships sectionId="projects" count={5} safeZones={projectsSafeZones} />
       
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">

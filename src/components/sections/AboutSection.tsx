@@ -44,15 +44,15 @@ const achievements = [
 
 // Safe zones: center content area (avoid text/cards)
 const aboutSafeZones = [
-  { top: 0, left: 10, width: 80, height: 15 }, // Header area
-  { top: 15, left: 15, width: 70, height: 75 }, // Main content area
+  { top: 5, left: 15, width: 70, height: 10 }, // Header area
+  { top: 18, left: 8, width: 84, height: 75 }, // Main content area
 ];
 
 export default function AboutSection() {
   return (
     <section id="about" className="py-16 sm:py-24 px-4 relative overflow-hidden">
       <FloatingPixels count={8} color="primary" />
-      <ShootableSpaceships sectionId="about" count={4} safeZones={aboutSafeZones} />
+      <ShootableSpaceships sectionId="about" count={5} safeZones={aboutSafeZones} />
       
       <div className="max-w-6xl mx-auto relative">
         <motion.div

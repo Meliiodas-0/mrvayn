@@ -506,7 +506,7 @@ function Scene({ isMobile = false }: { isMobile?: boolean }) {
       <pointLight position={[0, -3, 3]} intensity={0.5} color="#a855f7" />
       
       <GameController position={[0, 0.3, 0]} isMobile={isMobile} />
-      <EnemyFleet isMobile={isMobile} />
+      {/* Removed EnemyFleet - using 2D ShootableSpaceships component instead */}
       <PowerUps isMobile={isMobile} />
       <Asteroids isMobile={isMobile} />
       <StarfieldGrid />
