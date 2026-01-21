@@ -2,6 +2,12 @@ import { Suspense, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Gamepad2, Crosshair, X } from 'lucide-react';
 import GamingSetup3D from './GamingSetup3D';
+import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
+
+// Safe zones for hero - central text and buttons only
+const heroSafeZones = [
+  { top: 30, left: 20, width: 60, height: 45 }, // Central content area
+];
 
 export default function HeroSection() {
   const [showHint, setShowHint] = useState(true);
@@ -31,6 +37,9 @@ export default function HeroSection() {
       }>
         <GamingSetup3D />
       </Suspense>
+      
+      {/* Shootable Spaceships */}
+      <ShootableSpaceships sectionId="hero" count={6} safeZones={heroSafeZones} />
       
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background pointer-events-none z-10" />

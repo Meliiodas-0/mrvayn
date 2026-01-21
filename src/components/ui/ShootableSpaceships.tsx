@@ -25,24 +25,29 @@ interface ShootableSpaceshipsProps {
 const colors = ['#ff0080', '#00ffff', '#ffff00', '#00ff88', '#ff6600', '#a855f7', '#ff3366', '#00aaff'];
 const sizes: Array<'sm' | 'md' | 'lg'> = ['sm', 'md', 'lg'];
 
-// Generate position avoiding safe zones
-function generatePosition(safeZones: ShootableSpaceshipsProps['safeZones'] = []): { x: number; y: number } {
-  // Define spawn zones (edges and corners) - percentages
+// Generate position with better distribution - some areas sparse, some clustered
+function generatePosition(safeZones: ShootableSpaceshipsProps['safeZones'] = [], index: number, total: number): { x: number; y: number } {
+  // Distribute across 8 zones around the periphery
+  const zoneIndex = index % 8;
+  
+  // Define spawn zones with varied density
   const spawnZones = [
-    { minX: 0, maxX: 12, minY: 15, maxY: 85 },  // Left edge
-    { minX: 88, maxX: 100, minY: 15, maxY: 85 }, // Right edge
-    { minX: 0, maxX: 15, minY: 0, maxY: 20 },   // Top left corner
-    { minX: 85, maxX: 100, minY: 0, maxY: 20 }, // Top right corner
-    { minX: 0, maxX: 15, minY: 80, maxY: 100 }, // Bottom left corner
-    { minX: 85, maxX: 100, minY: 80, maxY: 100 }, // Bottom right corner
+    { minX: 0, maxX: 10, minY: 10, maxY: 35 },    // Left upper
+    { minX: 90, maxX: 100, minY: 10, maxY: 35 },  // Right upper
+    { minX: 0, maxX: 10, minY: 65, maxY: 90 },    // Left lower
+    { minX: 90, maxX: 100, minY: 65, maxY: 90 },  // Right lower
+    { minX: 0, maxX: 8, minY: 40, maxY: 60 },     // Left middle
+    { minX: 92, maxX: 100, minY: 40, maxY: 60 },  // Right middle
+    { minX: 15, maxX: 35, minY: 5, maxY: 15 },    // Top left area
+    { minX: 65, maxX: 85, minY: 85, maxY: 95 },   // Bottom right area
   ];
   
   let attempts = 0;
   const maxAttempts = 20;
   
   while (attempts < maxAttempts) {
-    // Pick a random spawn zone
-    const zone = spawnZones[Math.floor(Math.random() * spawnZones.length)];
+    // Pick zone based on index for even distribution
+    const zone = spawnZones[zoneIndex];
     const x = zone.minX + Math.random() * (zone.maxX - zone.minX);
     const y = zone.minY + Math.random() * (zone.maxY - zone.minY);
     
@@ -59,8 +64,8 @@ function generatePosition(safeZones: ShootableSpaceshipsProps['safeZones'] = [])
   }
   
   // Fallback to far edges
-  const edge = Math.random() > 0.5 ? 2 : 98;
-  return { x: edge, y: 20 + Math.random() * 60 };
+  const edge = zoneIndex % 2 === 0 ? 3 : 97;
+  return { x: edge, y: 20 + (zoneIndex * 10) };
 }
 
 function SpaceshipSVG({ color, size }: { color: string; size: 'sm' | 'md' | 'lg' }) {
@@ -175,10 +180,10 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
   const [ships, setShips] = useState<Spaceship[]>([]);
   const [explosions, setExplosions] = useState<Array<{ id: number; x: number; y: number; color: string }>>([]);
 
-  // Initialize ships
+  // Initialize ships with better distribution
   useEffect(() => {
     const initialShips: Spaceship[] = Array.from({ length: count }, (_, i) => {
-      const pos = generatePosition(safeZones);
+      const pos = generatePosition(safeZones, i, count);
       return {
         id: Date.now() + i,
         x: pos.x,
@@ -198,9 +203,10 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
     // Remove ship
     setShips(prev => prev.filter(s => s.id !== ship.id));
     
-    // Respawn after delay
+    // Respawn after delay with new position in a different zone
     setTimeout(() => {
-      const pos = generatePosition(safeZones);
+      const newIndex = Math.floor(Math.random() * 8);
+      const pos = generatePosition(safeZones, newIndex, count);
       const newShip: Spaceship = {
         id: Date.now(),
         x: pos.x,
@@ -211,7 +217,7 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
       };
       setShips(prev => [...prev, newShip]);
     }, 2000 + Math.random() * 1000);
-  }, [safeZones]);
+  }, [safeZones, count]);
 
   const removeExplosion = useCallback((id: number) => {
     setExplosions(prev => prev.filter(e => e.id !== id));
