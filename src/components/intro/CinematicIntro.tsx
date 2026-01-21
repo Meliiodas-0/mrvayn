@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 interface CinematicIntroProps {
@@ -7,6 +7,11 @@ interface CinematicIntroProps {
 
 export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
   const [phase, setPhase] = useState<'playing' | 'fading' | 'done'>('playing');
+  const fadeTimerRef = useRef<number | null>(null);
+  const doneTimerRef = useRef<number | null>(null);
+  const completedRef = useRef(false);
+
+  const FADE_DURATION_MS = 1200;
 
   // Check for reduced motion preference
   const prefersReducedMotion = typeof window !== 'undefined' 
@@ -23,21 +28,33 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    const fadeTimer = setTimeout(() => setPhase('fading'), 7000);
-    const doneTimer = setTimeout(() => {
+    fadeTimerRef.current = window.setTimeout(() => setPhase('fading'), 7000);
+    doneTimerRef.current = window.setTimeout(() => {
       setPhase('done');
-      onComplete();
-    }, 8200);
+      if (!completedRef.current) {
+        completedRef.current = true;
+        onComplete();
+      }
+    }, 7000 + FADE_DURATION_MS);
 
     return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(doneTimer);
+      if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+      if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
     };
   }, [onComplete, prefersReducedMotion]);
 
   const handleSkip = useCallback(() => {
-    setPhase('done');
-    onComplete();
+    if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+    if (doneTimerRef.current) window.clearTimeout(doneTimerRef.current);
+
+    setPhase('fading');
+    doneTimerRef.current = window.setTimeout(() => {
+      setPhase('done');
+      if (!completedRef.current) {
+        completedRef.current = true;
+        onComplete();
+      }
+    }, FADE_DURATION_MS);
   }, [onComplete]);
 
   if (phase === 'done' || prefersReducedMotion) return null;
