@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Calendar, Trophy, Briefcase, GraduationCap, Rocket, Flag, Star } from 'lucide-react';
-import { FloatingPixels, CornerBrackets, SectionSpaceships } from '@/components/ui/GameElements';
+import { FloatingPixels, CornerBrackets } from '@/components/ui/GameElements';
+import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
 
 const journeyItems = [
   {
@@ -50,11 +51,17 @@ const journeyItems = [
   },
 ];
 
+// Safe zones for journey section - timeline in center, cards on sides
+const journeySafeZones = [
+  { top: 0, left: 20, width: 60, height: 15 }, // Header
+  { top: 15, left: 25, width: 50, height: 80 }, // Timeline and cards
+];
+
 export default function JourneySection() {
   return (
     <section id="journey" className="py-16 sm:py-24 px-4 relative overflow-hidden">
       <FloatingPixels count={6} color="secondary" />
-      <SectionSpaceships count={3} />
+      <ShootableSpaceships sectionId="journey" count={4} safeZones={journeySafeZones} />
       
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">

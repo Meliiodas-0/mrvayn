@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Twitter, Linkedin, Github, Mail, MessageCircle, ExternalLink, Send, Wifi } from 'lucide-react';
-import { FloatingPixels, CornerBrackets, SectionSpaceships } from '@/components/ui/GameElements';
+import { FloatingPixels, CornerBrackets } from '@/components/ui/GameElements';
+import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
 
 const socialLinks = [
   {
@@ -47,11 +48,17 @@ const socialLinks = [
   },
 ];
 
+// Safe zones for contact - social grid and CTA in center
+const contactSafeZones = [
+  { top: 0, left: 20, width: 60, height: 15 }, // Header
+  { top: 15, left: 15, width: 70, height: 80 }, // Social cards and CTA
+];
+
 export default function ContactSection() {
   return (
     <section id="contact" className="py-16 sm:py-24 px-4 relative overflow-hidden">
       <FloatingPixels count={8} color="primary" />
-      <SectionSpaceships count={3} />
+      <ShootableSpaceships sectionId="contact" count={3} safeZones={contactSafeZones} />
       
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">

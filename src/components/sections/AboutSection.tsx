@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Code2, Gamepad2, Palette, Boxes, Trophy, Target, Zap, Shield } from 'lucide-react';
-import { FloatingPixels, CornerBrackets, LevelIndicator, AchievementBadge, SectionSpaceships } from '@/components/ui/GameElements';
+import { FloatingPixels, CornerBrackets, LevelIndicator, AchievementBadge } from '@/components/ui/GameElements';
+import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
 
 const skills = [
   { name: 'Unity', level: 90, max: 100 },
@@ -41,11 +42,17 @@ const achievements = [
   { icon: Shield, title: 'Bug Slayer', unlocked: false },
 ];
 
+// Safe zones: center content area (avoid text/cards)
+const aboutSafeZones = [
+  { top: 0, left: 10, width: 80, height: 15 }, // Header area
+  { top: 15, left: 15, width: 70, height: 75 }, // Main content area
+];
+
 export default function AboutSection() {
   return (
     <section id="about" className="py-16 sm:py-24 px-4 relative overflow-hidden">
       <FloatingPixels count={8} color="primary" />
-      <SectionSpaceships count={4} />
+      <ShootableSpaceships sectionId="about" count={4} safeZones={aboutSafeZones} />
       
       <div className="max-w-6xl mx-auto relative">
         <motion.div
