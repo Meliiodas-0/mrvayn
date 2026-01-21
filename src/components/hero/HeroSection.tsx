@@ -9,7 +9,11 @@ const heroSafeZones = [
   { top: 30, left: 20, width: 60, height: 45 }, // Central content area
 ];
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  introComplete?: boolean;
+}
+
+export default function HeroSection({ introComplete = true }: HeroSectionProps) {
   const [showHint, setShowHint] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
 
