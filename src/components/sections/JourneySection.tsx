@@ -7,7 +7,7 @@ const journeyItems = [
   {
     year: '2024',
     title: 'Esports',
-    company: 'Your Current Studio',
+    company: 'Current Studio',
     description: 'Leading development of multiple AAA-quality indie titles. Managing a team of developers and artists.',
     icon: Rocket,
     type: 'work',
@@ -43,7 +43,7 @@ const journeyItems = [
   {
     year: '2019',
     title: 'Computer Science Degree',
-    company: 'Your University',
+    company: 'University',
     description: 'Graduated with a focus on computer graphics and game development.',
     icon: GraduationCap,
     type: 'education',

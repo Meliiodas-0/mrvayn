@@ -97,7 +97,7 @@ export default function HeroSection() {
           className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-4 sm:mb-6 tracking-tight"
         >
           <span className="text-foreground">Hi, I'm </span>
-          <span className="text-gradient">Your Name</span>
+          <span className="text-gradient">MrVayn</span>
         </motion.h1>
         
         <motion.p
