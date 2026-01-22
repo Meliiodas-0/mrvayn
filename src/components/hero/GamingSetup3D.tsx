@@ -548,22 +548,21 @@ function GlowOrbs({ isMobile = false }: { isMobile?: boolean }) {
 function Scene({ isMobile = false }: { isMobile?: boolean }) {
   return (
     <>
-      <ambientLight intensity={0.1} />
-      <pointLight position={[5, 5, 5]} intensity={0.8} color="#00ffff" />
-      <pointLight position={[-5, 5, 5]} intensity={0.8} color="#ff0080" />
-      <pointLight position={[0, -3, 3]} intensity={0.4} color="#a855f7" />
+      <ambientLight intensity={0.15} />
+      <pointLight position={[5, 5, 5]} intensity={0.6} color="#00ffff" />
+      <pointLight position={[-5, 5, 5]} intensity={0.6} color="#ff0080" />
+      <pointLight position={[0, -3, 3]} intensity={0.3} color="#a855f7" />
       
-      {/* Clean ambient elements only - no controller */}
-      <GlowOrbs isMobile={isMobile} />
+      {/* Clean starfield only - no floating orbs */}
       <StarfieldGrid />
       
       <Sparkles
-        count={isMobile ? 60 : 120}
-        scale={25}
-        size={1.5}
-        speed={0.3}
+        count={isMobile ? 80 : 150}
+        scale={30}
+        size={1.2}
+        speed={0.2}
         color="#ffffff"
-        opacity={0.4}
+        opacity={0.3}
       />
       
       <Environment preset="night" />
