@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ExternalLink, Gamepad2, Sparkles, Trophy, Lock, ArrowUpRight } from 'lucide-react';
+import { ExternalLink, Gamepad2, Trophy, Lock, ArrowUpRight, Mountain, Film, Globe, Bot, Code, Wrench } from 'lucide-react';
 import { FloatingPixels } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
 
@@ -58,6 +58,33 @@ const projects: Project[] = [
 
 const expandedProjects = projects.filter((p): p is ExpandedProject => p.expanded === true);
 const minimalProjects = projects.filter((p): p is MinimalProject => !p.expanded);
+
+// Determine icon based on project title keywords
+function getProjectIcon(title: string) {
+  const lowerTitle = title.toLowerCase();
+  if (lowerTitle.includes('game') || lowerTitle.includes('horror') || lowerTitle.includes('minecraft') || lowerTitle.includes('rpg') || lowerTitle.includes('shooting')) {
+    return Gamepad2;
+  }
+  if (lowerTitle.includes('environment') || lowerTitle.includes('design')) {
+    return Mountain;
+  }
+  if (lowerTitle.includes('cgi') || lowerTitle.includes('animated') || lowerTitle.includes('teaser')) {
+    return Film;
+  }
+  if (lowerTitle.includes('website') || lowerTitle.includes('web') || lowerTitle.includes('bharatverse')) {
+    return Globe;
+  }
+  if (lowerTitle.includes('ai') || lowerTitle.includes('therapist')) {
+    return Bot;
+  }
+  if (lowerTitle.includes('hackathon') || lowerTitle.includes('techademy')) {
+    return Code;
+  }
+  if (lowerTitle.includes('multiplayer')) {
+    return Wrench;
+  }
+  return Gamepad2;
+}
 
 const projectsSafeZones = [
   { top: 3, left: 20, width: 60, height: 10 },
@@ -125,7 +152,12 @@ export default function ProjectsSection() {
                   <h3 className="text-2xl sm:text-3xl font-display font-bold tracking-tight group-hover:text-primary transition-colors">
                     {project.title}
                   </h3>
-                  <ArrowUpRight className="w-6 h-6 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0" />
+                  <motion.div
+                    animate={{ x: [0, 3, 0], y: [0, -3, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <ArrowUpRight className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                  </motion.div>
                 </div>
                 
                 <p className="text-primary/80 text-sm font-medium mb-6">{project.subtext}</p>
@@ -184,12 +216,20 @@ export default function ProjectsSection() {
                   rel="noopener noreferrer"
                   className="card-cinematic-glow p-4 sm:p-5 block group"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors truncate">
-                      {project.title}
-                    </span>
-                    <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-                  </div>
+                  {(() => {
+                    const Icon = getProjectIcon(project.title);
+                    return (
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <Icon className="w-4 h-4 text-primary/70 group-hover:text-primary transition-colors flex-shrink-0" />
+                          <span className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors truncate">
+                            {project.title}
+                          </span>
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                      </div>
+                    );
+                  })()}
                 </a>
               )}
             </motion.div>
