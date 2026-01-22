@@ -83,14 +83,14 @@ export default function AboutSection() {
                 </div>
               </div>
               
-              <div className="space-y-4 text-muted-foreground leading-relaxed text-sm sm:text-base">
-                <p>
+              <div className="space-y-4 leading-relaxed text-sm sm:text-base">
+                <p className="text-foreground/80">
                   I'm MrVayn - a founder and creative technologist building next-gen game experiences since 2019. I blend scalable game tech with player psychology and market-focused design, aiming to create products that feel premium, retain players, and grow into breakout communities.
                 </p>
-                <p>
+                <p className="text-muted-foreground">
                   My work spans Unreal Engine gameplay frameworks, VFX, cutscenes, and multiplayer-ready systems - with a strong focus on performance, clarity, and shipping.
                 </p>
-                <p className="text-foreground/80">
+                <p className="text-muted-foreground">
                   My foundation comes from competitive esports and leadership in top orgs (2019-2020), which sharpened my understanding of audience, community, and what makes players stay. This experience sparked my transition into game development, where I could build the experiences I once competed in.
                 </p>
               </div>
