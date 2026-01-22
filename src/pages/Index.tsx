@@ -48,7 +48,7 @@ const Index = () => {
         
         <AboutSection />
         
-        <SectionDivider3D variant="portal" fromColor="secondary" toColor="primary" />
+        <SectionDivider3D variant="data" fromColor="secondary" toColor="primary" />
         
         <JourneySection />
         
