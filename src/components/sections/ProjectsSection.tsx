@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { ExternalLink, Gamepad2, Lock } from 'lucide-react';
+import { ExternalLink, Gamepad2, Sparkles, Trophy } from 'lucide-react';
 import { FloatingPixels, CornerBrackets } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
+import ProjectCard from '@/components/ui/ProjectCard';
 
 interface ExpandedProject {
   id: number;
@@ -10,6 +11,7 @@ interface ExpandedProject {
   highlights: string[];
   link: string;
   expanded: true;
+  badge?: string;
 }
 
 interface MinimalProject {
@@ -31,6 +33,7 @@ const projects: Project[] = [
     highlights: ['Showcased at IGDC', 'Built on scalable gameplay frameworks'],
     link: '#', // Placeholder - ADD_ANTARYA_LINK
     expanded: true,
+    badge: 'IGDC 2024',
   },
   {
     id: 2,
@@ -39,6 +42,7 @@ const projects: Project[] = [
     highlights: ['12.2K visits, 601 favorites (first 2 weeks)', '638,391 impressions, 9,432 plays'],
     link: 'https://www.roblox.com/games/137847988705947/Couragely',
     expanded: true,
+    badge: 'LIVE',
   },
   // MINIMAL CARDS (title-only, clickable)
   { id: 3, title: 'Unreal Horror Game', link: 'https://drive.google.com/file/d/1X1QuGVAsIcP6mcX-Q5LFw_Sr0XxBt8Xb/view?usp=sharing' },
@@ -97,7 +101,7 @@ export default function ProjectsSection() {
         </motion.div>
 
         {/* Expanded Projects Grid */}
-        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8">
+        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-10">
           {expandedProjects.map((project, index) => (
             <motion.a
               key={project.id}
@@ -108,74 +112,98 @@ export default function ProjectsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group cursor-pointer"
+              whileHover={{ scale: 1.02, rotateY: 2, rotateX: -2 }}
+              className="group cursor-pointer perspective-1000"
             >
-              <div className="glass rounded-2xl p-6 sm:p-8 neon-border hover-glow transition-all duration-300 relative h-full">
+              <div className="glass-premium rounded-2xl p-6 sm:p-8 neon-border hover-glow transition-all duration-300 relative h-full card-3d overflow-hidden">
                 <CornerBrackets />
                 
-                {/* Featured badge */}
-                <div className="absolute top-3 left-3 z-20 px-2 py-1 rounded bg-primary text-primary-foreground text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-                  Featured
+                {/* Holographic overlay */}
+                <div className="absolute inset-0 holographic opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                
+                {/* Featured badge with glow */}
+                <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
+                  <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-primary to-secondary text-primary-foreground text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-lg">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3" />
+                      Featured
+                    </span>
+                  </div>
+                  {project.badge && (
+                    <div className="px-2 py-1 rounded bg-accent/20 text-accent text-[10px] font-mono border border-accent/30">
+                      {project.badge}
+                    </div>
+                  )}
                 </div>
 
-                <div className="pt-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Gamepad2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                    <h3 className="text-xl sm:text-2xl font-bold group-hover:text-primary transition-colors">{project.title}</h3>
+                <div className="pt-8 relative z-10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 group-hover:border-primary/60 group-hover:bg-primary/30 transition-all duration-300">
+                      <Gamepad2 className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-bold group-hover:text-primary transition-colors text-glow">{project.title}</h3>
                   </div>
                   
-                  <p className="text-primary text-sm mb-4">{project.subtext}</p>
+                  <p className="text-primary/80 text-sm mb-4 font-medium">{project.subtext}</p>
                   
-                  {/* Highlights */}
-                  <ul className="space-y-2 mb-4">
+                  {/* Highlights with better styling */}
+                  <ul className="space-y-2.5 mb-5">
                     {project.highlights.map((highlight, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
+                      <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">
+                        <Trophy className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
                         {highlight}
                       </li>
                     ))}
                   </ul>
 
-                  <div className="flex items-center gap-2 text-sm text-primary group-hover:gap-3 transition-all">
-                    <ExternalLink className="w-4 h-4" />
-                    <span>View Project</span>
+                  <div className="flex items-center gap-2 text-sm text-primary font-medium group-hover:gap-4 transition-all duration-300">
+                    <ExternalLink className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                    <span>Explore Project</span>
+                    <motion.span
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      →
+                    </motion.span>
                   </div>
+                </div>
+                
+                {/* Animated corner accents */}
+                <div className="absolute top-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-0 right-0 w-full h-px bg-gradient-to-l from-primary via-primary/50 to-transparent" />
+                  <div className="absolute top-0 right-0 h-full w-px bg-gradient-to-b from-primary via-primary/50 to-transparent" />
+                </div>
+                <div className="absolute bottom-0 left-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-secondary via-secondary/50 to-transparent" />
+                  <div className="absolute bottom-0 left-0 h-full w-px bg-gradient-to-t from-secondary via-secondary/50 to-transparent" />
                 </div>
               </div>
             </motion.a>
           ))}
         </div>
 
-        {/* Minimal Projects Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Section subtitle for other projects */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="mb-6 flex items-center gap-4"
+        >
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+          <span className="text-xs text-muted-foreground font-mono uppercase tracking-widest">More Projects</span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+        </motion.div>
+
+        {/* Minimal Projects Grid - 3 columns on desktop for better sizing */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {minimalProjects.map((project, index) => (
-            <motion.div
+            <ProjectCard
               key={project.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.3 + index * 0.05 }}
-            >
-              {project.locked ? (
-                <div className="glass rounded-xl p-4 sm:p-5 border border-primary/30 opacity-60 cursor-not-allowed h-full flex items-center justify-center text-center">
-                  <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-2 flex-wrap justify-center">
-                    {project.title}
-                    <Lock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  </span>
-                </div>
-              ) : (
-                <a
-                  href={project.link || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="glass rounded-xl p-4 sm:p-5 neon-border hover:bg-primary/5 transition-all duration-300 group h-full flex items-center justify-center text-center"
-                >
-                  <span className="text-xs sm:text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                    {project.title}
-                  </span>
-                </a>
-              )}
-            </motion.div>
+              title={project.title}
+              link={project.link}
+              locked={project.locked}
+              index={index}
+            />
           ))}
         </div>
       </div>
