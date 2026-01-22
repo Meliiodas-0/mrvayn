@@ -1,7 +1,6 @@
-import { Suspense, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Crosshair, X } from 'lucide-react';
-import GamingSetup3D from './GamingSetup3D';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
 
 // Safe zones for hero - central text only
@@ -31,32 +30,11 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
 
   return (
     <section 
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
       onClick={handleSectionClick}
     >
-      {/* Subtle cinematic bars */}
-      <div className="absolute top-0 left-0 right-0 h-[2vh] bg-gradient-to-b from-black/60 to-transparent z-30 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 right-0 h-[2vh] bg-gradient-to-t from-black/60 to-transparent z-30 pointer-events-none" />
-      
-      {/* 3D Background */}
-      <Suspense fallback={
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
-      }>
-        <GamingSetup3D />
-      </Suspense>
-      
-      {/* Film grain overlay */}
-      <div className="absolute inset-0 pointer-events-none z-10 opacity-[0.015]" 
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
-      />
-      
       {/* Shootable Spaceships */}
       <ShootableSpaceships sectionId="hero" count={6} safeZones={heroSafeZones} />
-      
-      {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background pointer-events-none z-10" />
 
       {/* Shooting hint */}
       <AnimatePresence>
@@ -92,7 +70,7 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
       {/* Content - GOLDEN RATIO BALANCED */}
       <div className="relative z-20 text-center px-6 max-w-3xl mx-auto pointer-events-none">
         
-        {/* Role tag - Smallest element (base / PHI^2) */}
+        {/* Role tag */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -104,7 +82,7 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
           </span>
         </motion.div>
         
-        {/* NAME - Balanced size, still impactful */}
+        {/* NAME */}
         <motion.h1
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -117,7 +95,7 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
           </span>
         </motion.h1>
         
-        {/* Tagline - Size = Name / PHI (1.618x smaller) */}
+        {/* Tagline */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
