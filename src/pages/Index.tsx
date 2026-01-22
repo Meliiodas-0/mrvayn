@@ -43,21 +43,9 @@ const Index = () => {
       <Navbar />
       <main className="relative z-10">
         <HeroSection introComplete={introComplete} />
-        
-        <SectionDivider3D variant="energy" fromColor="primary" toColor="secondary" />
-        
         <AboutSection />
-        
-        <SectionDivider3D variant="data" fromColor="secondary" toColor="primary" />
-        
         <JourneySection />
-        
-        <SectionDivider3D variant="data" fromColor="primary" toColor="accent" />
-        
         <ProjectsSection />
-        
-        <SectionDivider3D variant="wave" fromColor="accent" toColor="primary" />
-        
         <ContactSection />
       </main>
       <Footer />
