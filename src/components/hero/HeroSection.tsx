@@ -111,9 +111,9 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
           transition={{ duration: 0.8, delay: 0.35 }}
           className="mb-5"
         >
-          <span className="block text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-black tracking-tight leading-none">
-            <span className="text-foreground">MR</span>
-            <span className="text-gradient text-glow-strong">VAYN</span>
+          <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight leading-tight">
+            <span className="text-foreground">Hi, I'm </span>
+            <span className="text-gradient text-glow-strong">MrVayn</span>
           </span>
         </motion.h1>
         

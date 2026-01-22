@@ -91,7 +91,7 @@ export default function AboutSection() {
                   My work spans Unreal Engine gameplay frameworks, VFX, cutscenes, and multiplayer-ready systems - with a strong focus on performance, clarity, and shipping.
                 </p>
                 <p className="text-foreground/80">
-                  My foundation comes from competitive esports and leadership in top orgs (2019-2020), which sharpened my understanding of audience, community, and what makes players stay.
+                  My foundation comes from competitive esports and leadership in top orgs (2019-2020), which sharpened my understanding of audience, community, and what makes players stay. This experience sparked my transition into game development, where I could build the experiences I once competed in.
                 </p>
               </div>
             </div>
