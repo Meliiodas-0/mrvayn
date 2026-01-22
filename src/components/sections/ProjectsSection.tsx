@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
-import { ExternalLink, Gamepad2, Sparkles, Trophy } from 'lucide-react';
-import { FloatingPixels, CornerBrackets } from '@/components/ui/GameElements';
+import { ExternalLink, Gamepad2, Sparkles, Trophy, Lock, ArrowUpRight } from 'lucide-react';
+import { FloatingPixels } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
-import ProjectCard from '@/components/ui/ProjectCard';
 
 interface ExpandedProject {
   id: number;
@@ -25,13 +24,12 @@ interface MinimalProject {
 type Project = ExpandedProject | MinimalProject;
 
 const projects: Project[] = [
-  // EXPANDED CARDS (with highlights)
   {
     id: 1,
     title: 'Antarya',
     subtext: 'Magadha Studios - Demo in progress',
     highlights: ['Showcased at IGDC', 'Built on scalable gameplay frameworks'],
-    link: '#', // Placeholder - ADD_ANTARYA_LINK
+    link: '#',
     expanded: true,
     badge: 'IGDC 2024',
   },
@@ -44,7 +42,6 @@ const projects: Project[] = [
     expanded: true,
     badge: 'LIVE',
   },
-  // MINIMAL CARDS (title-only, clickable)
   { id: 3, title: 'Unreal Horror Game', link: 'https://drive.google.com/file/d/1X1QuGVAsIcP6mcX-Q5LFw_Sr0XxBt8Xb/view?usp=sharing' },
   { id: 4, title: 'Multiplayer Project (Private - To Be Announced)', link: null, locked: true },
   { id: 5, title: 'Sasta Minecraft', link: 'https://drive.google.com/file/d/1BkugwIClcTx4aLtK-34aaelw40YbYxDk/view?usp=drive_link' },
@@ -62,148 +59,140 @@ const projects: Project[] = [
 const expandedProjects = projects.filter((p): p is ExpandedProject => p.expanded === true);
 const minimalProjects = projects.filter((p): p is MinimalProject => !p.expanded);
 
-// Safe zones for projects - cards take most of center
 const projectsSafeZones = [
-  { top: 3, left: 20, width: 60, height: 10 }, // Header
-  { top: 15, left: 5, width: 90, height: 78 }, // Project cards grid
+  { top: 3, left: 20, width: 60, height: 10 },
+  { top: 15, left: 5, width: 90, height: 78 },
 ];
 
 export default function ProjectsSection() {
   return (
-    <section id="projects" className="py-16 sm:py-24 px-4 relative overflow-hidden">
-      <FloatingPixels count={10} color="accent" />
+    <section id="projects" className="py-20 sm:py-32 px-4 relative overflow-hidden">
+      <FloatingPixels count={8} color="accent" />
       <ShootableSpaceships sectionId="projects" count={5} safeZones={projectsSafeZones} />
       
-      {/* Background decoration */}
+      {/* Subtle background glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-accent/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px]" />
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
+        {/* Chapter Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-10 sm:mb-16"
+          className="text-center mb-16 sm:mb-20 section-chapter"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs sm:text-sm mb-4">
-            <Gamepad2 className="w-3 h-3 sm:w-4 sm:h-4" />
-            Game Library
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-            Featured <span className="text-gradient">Projects</span>
+          <span className="inline-block text-xs font-mono tracking-[0.4em] uppercase text-primary/60 mb-6">
+            Chapter 03
+          </span>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
+            FEATURED <span className="text-gradient">PROJECTS</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-            A showcase of games and interactive experiences I've built and shipped
-          </p>
         </motion.div>
 
-        {/* Expanded Projects Grid */}
-        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-10">
+        {/* Featured Projects - Poster Style */}
+        <div className="grid sm:grid-cols-2 gap-6 lg:gap-8 mb-16">
           {expandedProjects.map((project, index) => (
             <motion.a
               key={project.id}
               href={project.link}
               target="_blank"
               rel="noopener noreferrer"
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ scale: 1.02, rotateY: 2, rotateX: -2 }}
-              className="group cursor-pointer perspective-1000"
+              transition={{ duration: 0.6, delay: index * 0.15 }}
+              className="group block"
             >
-              <div className="glass rounded-2xl p-6 sm:p-8 neon-border hover-glow transition-all duration-300 relative h-full card-3d overflow-hidden">
-                <CornerBrackets />
-                
-                {/* Holographic overlay */}
-                <div className="absolute inset-0 holographic opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
-                
-                {/* Featured badge with glow */}
-                <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
-                  <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-primary to-secondary text-primary-foreground text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-lg">
-                    <span className="flex items-center gap-1.5">
-                      <Sparkles className="w-3 h-3" />
-                      Featured
-                    </span>
+              <div className="card-cinematic-featured p-6 sm:p-8 h-full relative overflow-hidden transition-all duration-500">
+                {/* Badge row */}
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-wider bg-primary text-primary-foreground">
+                    Featured
                   </div>
                   {project.badge && (
-                    <div className="px-2 py-1 rounded bg-accent/20 text-accent text-[10px] font-mono border border-accent/30">
+                    <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-accent border border-accent/40">
                       {project.badge}
                     </div>
                   )}
                 </div>
 
-                <div className="pt-8 relative z-10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 group-hover:border-primary/60 group-hover:bg-primary/30 transition-all duration-300">
-                      <Gamepad2 className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
-                    </div>
-                    <h3 className="text-xl sm:text-2xl font-bold group-hover:text-primary transition-colors text-glow">{project.title}</h3>
-                  </div>
-                  
-                  <p className="text-primary/80 text-sm mb-4 font-medium">{project.subtext}</p>
-                  
-                  {/* Highlights with better styling */}
-                  <ul className="space-y-2.5 mb-5">
-                    {project.highlights.map((highlight, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">
-                        <Trophy className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
-                        {highlight}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="flex items-center gap-2 text-sm text-primary font-medium group-hover:gap-4 transition-all duration-300">
-                    <ExternalLink className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                    <span>Explore Project</span>
-                    <motion.span
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      →
-                    </motion.span>
-                  </div>
+                {/* Title - Large */}
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <h3 className="text-2xl sm:text-3xl font-display font-bold tracking-tight group-hover:text-primary transition-colors">
+                    {project.title}
+                  </h3>
+                  <ArrowUpRight className="w-6 h-6 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0" />
                 </div>
                 
-                {/* Animated corner accents */}
-                <div className="absolute top-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="absolute top-0 right-0 w-full h-px bg-gradient-to-l from-primary via-primary/50 to-transparent" />
-                  <div className="absolute top-0 right-0 h-full w-px bg-gradient-to-b from-primary via-primary/50 to-transparent" />
-                </div>
-                <div className="absolute bottom-0 left-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-secondary via-secondary/50 to-transparent" />
-                  <div className="absolute bottom-0 left-0 h-full w-px bg-gradient-to-t from-secondary via-secondary/50 to-transparent" />
-                </div>
+                <p className="text-primary/80 text-sm font-medium mb-6">{project.subtext}</p>
+                
+                {/* Highlights */}
+                <ul className="space-y-3">
+                  {project.highlights.map((highlight, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">
+                      <Trophy className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+                      <span>{highlight}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Hover line */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
               </div>
             </motion.a>
           ))}
         </div>
 
-        {/* Section subtitle for other projects */}
+        {/* Divider */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="mb-6 flex items-center gap-4"
+          className="mb-10 flex items-center gap-6"
         >
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-          <span className="text-xs text-muted-foreground font-mono uppercase tracking-widest">More Projects</span>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+          <div className="h-px flex-1 bg-border/50" />
+          <span className="text-xs text-muted-foreground font-mono uppercase tracking-[0.3em]">More Projects</span>
+          <div className="h-px flex-1 bg-border/50" />
         </motion.div>
 
-        {/* Minimal Projects Grid - 3 columns on desktop for better sizing */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Minimal Projects Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {minimalProjects.map((project, index) => (
-            <ProjectCard
+            <motion.div
               key={project.id}
-              title={project.title}
-              link={project.link}
-              locked={project.locked}
-              index={index}
-            />
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+            >
+              {project.locked ? (
+                <div className="card-cinematic p-4 sm:p-5 opacity-50 cursor-not-allowed relative overflow-hidden">
+                  <div className="flex items-center gap-3">
+                    <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-sm font-medium text-muted-foreground truncate">{project.title}</span>
+                  </div>
+                  <div className="scanlines absolute inset-0 pointer-events-none" />
+                </div>
+              ) : (
+                <a
+                  href={project.link || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card-cinematic p-4 sm:p-5 block group hover:border-primary/40 transition-all duration-300"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors truncate">
+                      {project.title}
+                    </span>
+                    <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                  </div>
+                </a>
+              )}
+            </motion.div>
           ))}
         </div>
       </div>
