@@ -88,14 +88,30 @@ export default function ContactSection() {
                   href={link.url}
                   target={link.url.startsWith('mailto:') ? undefined : '_blank'}
                   rel="noopener noreferrer"
-                  className="card-cinematic p-5 sm:p-6 text-center block group hover:border-primary/40 transition-all duration-300 h-full"
+                  className="card-cinematic p-5 sm:p-6 text-center block group hover:border-primary/40 transition-all duration-300 h-full relative overflow-hidden"
                 >
+                  {/* Corner accents */}
+                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-primary/50 group-hover:border-primary transition-colors" />
+                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-primary/50 group-hover:border-primary transition-colors" />
+                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-primary/50 group-hover:border-primary transition-colors" />
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary/50 group-hover:border-primary transition-colors" />
+                  {/* Top center dot */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-accent rounded-full" />
+                  
                   <link.icon className="w-7 h-7 mx-auto mb-3 text-muted-foreground group-hover:text-primary group-hover:scale-110 transition-all" />
                   <h3 className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{link.name}</h3>
                   <p className="text-xs text-muted-foreground hidden sm:block">{link.description}</p>
                 </a>
               ) : (
-                <div className="card-cinematic p-5 sm:p-6 text-center cursor-default h-full">
+                <div className="card-cinematic p-5 sm:p-6 text-center cursor-default h-full relative overflow-hidden">
+                  {/* Corner accents */}
+                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-primary/50" />
+                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-primary/50" />
+                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-primary/50" />
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary/50" />
+                  {/* Top center dot */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-accent rounded-full" />
+                  
                   <link.icon className="w-7 h-7 mx-auto mb-3 text-muted-foreground" />
                   <h3 className="font-semibold text-sm mb-1">{link.name}</h3>
                   <p className="text-xs text-primary font-mono">{link.displayText}</p>
