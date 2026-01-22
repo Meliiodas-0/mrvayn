@@ -27,8 +27,8 @@ const projects: Project[] = [
   {
     id: 1,
     title: 'Antarya',
-    subtext: 'Magadha Studios - Demo in progress',
-    highlights: ['Showcased at IGDC', 'Built on scalable gameplay frameworks'],
+    subtext: 'Co-Founder & CTO at Magadha Studios',
+    highlights: ['Showcased at IGDC 2024', 'Built on scalable gameplay frameworks', 'Demo in progress'],
     link: '#',
     expanded: true,
     badge: 'IGDC 2024',
@@ -147,16 +147,16 @@ export default function ProjectsSection() {
           ))}
         </div>
 
-        {/* Divider */}
+        {/* Divider - More visible */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           className="mb-10 flex items-center gap-6"
         >
-          <div className="h-px flex-1 bg-border/50" />
-          <span className="text-xs text-muted-foreground font-mono uppercase tracking-[0.3em]">More Projects</span>
-          <div className="h-px flex-1 bg-border/50" />
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <span className="text-sm text-foreground/70 font-mono uppercase tracking-[0.3em]">More Projects</span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         </motion.div>
 
         {/* Minimal Projects Grid */}
@@ -170,7 +170,7 @@ export default function ProjectsSection() {
               transition={{ duration: 0.4, delay: index * 0.05 }}
             >
               {project.locked ? (
-                <div className="card-cinematic p-4 sm:p-5 opacity-50 cursor-not-allowed relative overflow-hidden">
+                <div className="card-cinematic p-4 sm:p-5 opacity-50 cursor-not-allowed relative overflow-hidden border-muted/30">
                   <div className="flex items-center gap-3">
                     <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <span className="text-sm font-medium text-muted-foreground truncate">{project.title}</span>
@@ -182,7 +182,7 @@ export default function ProjectsSection() {
                   href={project.link || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="card-cinematic p-4 sm:p-5 block group hover:border-primary/40 transition-all duration-300"
+                  className="card-cinematic p-4 sm:p-5 block group transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)]"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors truncate">
