@@ -182,7 +182,7 @@ export default function ProjectsSection() {
                   href={project.link || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="card-cinematic p-4 sm:p-5 block group transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)]"
+                  className="card-cinematic p-4 sm:p-5 block group transition-all duration-300 hover:border-primary/60 hover:shadow-[0_0_30px_hsl(var(--primary)/0.25),0_0_60px_hsl(var(--primary)/0.1)]"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors truncate">
