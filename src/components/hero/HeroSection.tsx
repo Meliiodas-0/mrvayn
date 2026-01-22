@@ -100,7 +100,7 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.55 }}
-          className="text-sm sm:text-base md:text-lg text-muted-foreground mb-8 max-w-lg mx-auto font-light leading-relaxed"
+          className="text-sm sm:text-base md:text-lg text-foreground/70 mb-8 max-w-lg mx-auto font-normal leading-relaxed"
         >
           Building next-gen game experiences with{' '}
           <span className="text-foreground font-normal">strong tech foundations</span>
