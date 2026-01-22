@@ -103,7 +103,7 @@ export default function ProjectCard({ title, link, locked, index }: ProjectCardP
         href={link || '#'}
         target="_blank"
         rel="noopener noreferrer"
-        className={`glass rounded-xl p-5 sm:p-6 neon-border-animated hover-glow transition-all duration-300 h-full flex flex-col relative overflow-hidden block`}
+        className={`glass rounded-xl p-5 sm:p-6 neon-border hover-glow transition-all duration-300 h-full flex flex-col relative overflow-hidden block`}
       >
         <CornerBrackets className="opacity-0 group-hover:opacity-100 transition-opacity" />
         
