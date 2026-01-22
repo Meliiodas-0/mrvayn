@@ -83,55 +83,54 @@
   }
 
   .dark {
-    /* Original Dark Futuristic Gaming Theme */
-    --background: 222 47% 5%;
+    /* Original Theme from Screenshot */
+    --background: 210 20% 4%;
     --foreground: 210 40% 98%;
     
-    --card: 222 47% 8%;
+    --card: 210 20% 7%;
     --card-foreground: 210 40% 98%;
     
-    --popover: 222 47% 10%;
+    --popover: 210 20% 10%;
     --popover-foreground: 210 40% 98%;
     
-    /* Neon Cyan as Primary */
+    /* Primary: #00ffff cyan */
     --primary: 180 100% 50%;
-    --primary-foreground: 222 47% 5%;
+    --primary-foreground: 210 20% 4%;
     
-    /* Purple Secondary */
-    --secondary: 280 100% 60%;
+    /* Secondary: #bb33ff purple */
+    --secondary: 274 100% 60%;
     --secondary-foreground: 210 40% 98%;
     
-    --muted: 222 30% 20%;
+    --muted: 210 20% 20%;
     --muted-foreground: 210 40% 70%;
     
-    /* Dark accent with cyan tint */
-    --accent: 200 50% 12%;
-    --accent-foreground: 180 100% 70%;
+    /* Accent: #ff1ab2 pink */
+    --accent: 320 100% 55%;
+    --accent-foreground: 210 40% 98%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 85% 97%;
     
-    /* Cyan-tinted borders */
-    --border: 200 30% 20%;
-    --input: 200 30% 15%;
+    --border: 210 20% 18%;
+    --input: 210 20% 15%;
     --ring: 180 100% 50%;
     
-    --sidebar-background: 222 47% 4%;
+    --sidebar-background: 210 20% 3%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 180 100% 50%;
-    --sidebar-primary-foreground: 222 47% 5%;
-    --sidebar-accent: 280 100% 60%;
+    --sidebar-primary-foreground: 210 20% 4%;
+    --sidebar-accent: 320 100% 55%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 200 30% 20%;
+    --sidebar-border: 210 20% 18%;
     --sidebar-ring: 180 100% 50%;
     
     --chart-1: 180 100% 50%;
-    --chart-2: 280 100% 60%;
+    --chart-2: 274 100% 60%;
     --chart-3: 320 100% 55%;
     --chart-4: 220 100% 60%;
     --chart-5: 260 100% 65%;
     
-    --sidebar: 222 47% 8%;
+    --sidebar: 210 20% 7%;
     
     --shadow-2xs: 0 1px 3px 0px hsl(180 100% 50% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(180 100% 50% / 0.05);
