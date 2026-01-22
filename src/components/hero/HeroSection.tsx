@@ -4,6 +4,9 @@ import { ChevronDown, Crosshair, X } from 'lucide-react';
 import GamingSetup3D from './GamingSetup3D';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
 
+// Golden Ratio: 1.618
+const PHI = 1.618;
+
 // Safe zones for hero - central text only
 const heroSafeZones = [
   { top: 25, left: 10, width: 80, height: 55 },
@@ -31,12 +34,12 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
 
   return (
     <section 
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
       onClick={handleSectionClick}
     >
-      {/* Letterbox bars for cinematic effect */}
-      <div className="fixed top-0 left-0 right-0 h-[5vh] bg-black z-50 pointer-events-none" />
-      <div className="fixed bottom-0 left-0 right-0 h-[5vh] bg-black z-50 pointer-events-none" />
+      {/* Cinematic letterbox - only visible within hero, not fixed */}
+      <div className="absolute top-0 left-0 right-0 h-[3vh] bg-black/80 z-30 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-[3vh] bg-black/80 z-30 pointer-events-none" />
       
       {/* 3D Background */}
       <Suspense fallback={
@@ -46,7 +49,7 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
       </Suspense>
       
       {/* Film grain overlay */}
-      <div className="absolute inset-0 pointer-events-none z-10 opacity-[0.015]" 
+      <div className="absolute inset-0 pointer-events-none z-10 opacity-[0.02]" 
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
@@ -89,45 +92,51 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
         )}
       </AnimatePresence>
       
-      {/* Content - CINEMATIC STYLE */}
+      {/* Content - GOLDEN RATIO PROPORTIONS */}
       <div className="relative z-20 text-center px-4 max-w-5xl mx-auto pointer-events-none">
-        {/* Small role tag */}
+        {/* Role tag - Size based on golden ratio (name size / PHI^3) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-8"
+          className="mb-[2.5vh]" // Golden spacing
         >
-          <span className="inline-block px-4 py-2 text-xs sm:text-sm font-mono tracking-[0.3em] uppercase text-primary/80 border border-primary/30 bg-primary/5">
+          <span className="inline-block px-5 py-2.5 text-[0.7rem] sm:text-xs font-mono tracking-[0.35em] uppercase text-primary/80 border border-primary/30 bg-primary/5">
             Founder & Game Developer
           </span>
         </motion.div>
         
-        {/* MASSIVE NAME - The hero moment */}
+        {/* MASSIVE NAME - Primary focal point */}
         <motion.h1
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="relative mb-6"
+          className="relative mb-[3vh]" // Golden spacing to tagline
         >
-          <span className="block text-6xl sm:text-8xl md:text-9xl lg:text-[12rem] font-display font-black tracking-tight leading-none">
+          {/* Golden ratio typography: base size with PHI scaling */}
+          <span 
+            className="block font-display font-black tracking-tighter leading-[0.85]"
+            style={{
+              fontSize: 'clamp(4rem, 15vw, 14rem)', // Responsive massive text
+            }}
+          >
             <span className="text-foreground">MR</span>
             <span className="text-gradient text-glow-strong">VAYN</span>
           </span>
         </motion.h1>
         
-        {/* Tagline - Clean and bold */}
+        {/* Tagline - Size = Name / PHI^2 ≈ 2.618 times smaller */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.7 }}
-          className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto font-light tracking-wide"
+          className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-[5vh] max-w-xl mx-auto font-light tracking-wide leading-relaxed"
         >
           Building next-gen game experiences with{' '}
           <span className="text-foreground font-medium">strong tech foundations</span>
         </motion.p>
         
-        {/* CTA Buttons - Minimal */}
+        {/* CTA Buttons - Spacing follows golden ratio */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -149,12 +158,12 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
         </motion.div>
       </div>
       
-      {/* Scroll indicator - Minimal */}
+      {/* Scroll indicator - Positioned at golden ratio from bottom */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 0.8 }}
-        className="absolute bottom-[8vh] left-1/2 -translate-x-1/2 z-20"
+        className="absolute bottom-[6vh] left-1/2 -translate-x-1/2 z-20"
       >
         <motion.a
           href="#about"
