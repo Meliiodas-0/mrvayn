@@ -115,7 +115,7 @@ export default function ProjectsSection() {
               whileHover={{ scale: 1.02, rotateY: 2, rotateX: -2 }}
               className="group cursor-pointer perspective-1000"
             >
-              <div className="glass-premium rounded-2xl p-6 sm:p-8 neon-border hover-glow transition-all duration-300 relative h-full card-3d overflow-hidden">
+              <div className="glass rounded-2xl p-6 sm:p-8 neon-border hover-glow transition-all duration-300 relative h-full card-3d overflow-hidden">
                 <CornerBrackets />
                 
                 {/* Holographic overlay */}
