@@ -113,19 +113,35 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           100% { transform: translateX(-50%); }
         }
         
-        @keyframes heroFlyIn {
-          0% { 
-            transform: translate(-200px, -50%);
-            opacity: 0;
+          @keyframes heroFlyIn {
+            0% { 
+              transform: translate(-200px, -50%);
+              opacity: 0;
+            }
+            15% {
+              opacity: 1;
+            }
+            100% { 
+              transform: translate(20vw, -50%);
+              opacity: 1;
+            }
           }
-          15% {
-            opacity: 1;
+          
+          @media (max-width: 640px) {
+            @keyframes heroFlyIn {
+              0% { 
+                transform: translate(-200px, -50%);
+                opacity: 0;
+              }
+              15% {
+                opacity: 1;
+              }
+              100% { 
+                transform: translate(5vw, -50%);
+                opacity: 1;
+              }
+            }
           }
-          100% { 
-            transform: translate(20vw, -50%);
-            opacity: 1;
-          }
-        }
         
         @keyframes enemyFlyIn {
           0% { 
