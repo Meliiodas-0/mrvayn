@@ -18,18 +18,12 @@ interface CollaborationGroup {
 const collaborations: CollaborationGroup[] = [
   {
     id: 1,
-    name: 'Instagram - Glazer / Funpunch Outreach',
+    name: 'Instagram - Glazer / Funpunch Outreach / AceHack Hackathon Judge',
     items: [
       { id: 1, title: 'Glazer Games Reel 1', link: 'https://www.instagram.com/glazer.games/reel/Cw4-K2LtG-O/' },
       { id: 2, title: 'Glazer Games Reel 2', link: 'https://www.instagram.com/glazer.games/reel/CxLFe4QSr7g/' },
       { id: 3, title: 'Funpunch India Reel', link: 'https://www.instagram.com/funpunch_india/reel/DBKPov_hWC3/' },
       { id: 4, title: 'Instagram Post', link: 'https://www.instagram.com/p/Cm16kKABqVD/' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Instagram - AceHack Hackathon Judge',
-    items: [
       { id: 5, title: 'AceHack Judge Reel', link: 'https://www.instagram.com/reel/DHmFXt8gQ55/' },
     ],
   },
