@@ -66,7 +66,7 @@ export default function ContactSection() {
           className="text-center mb-16 sm:mb-20 section-chapter"
         >
           <span className="inline-block text-xs font-mono tracking-[0.4em] uppercase text-primary/60 mb-6">
-            Chapter 04
+            Chapter 05
           </span>
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
             LET'S <span className="text-gradient">CONNECT</span>
