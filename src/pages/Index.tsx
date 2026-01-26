@@ -6,6 +6,7 @@ import AboutSection from '@/components/sections/AboutSection';
 import JourneySection from '@/components/sections/JourneySection';
 import ProjectsSection from '@/components/sections/ProjectsSection';
 import ContactSection from '@/components/sections/ContactSection';
+import CollaborationsSection from '@/components/sections/CollaborationsSection';
 import CinematicIntro from '@/components/intro/CinematicIntro';
 import SectionDivider3D from '@/components/3d/SectionDivider3D';
 
@@ -46,6 +47,7 @@ const Index = () => {
         <AboutSection />
         <JourneySection />
         <ProjectsSection />
+        <CollaborationsSection />
         <ContactSection />
       </main>
       <Footer />
