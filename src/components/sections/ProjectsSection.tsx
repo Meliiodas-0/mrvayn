@@ -29,7 +29,7 @@ const projects: Project[] = [
     title: 'Antarya',
     subtext: 'Co-Founder & CTO at Magadha Studios',
     highlights: ['Showcased at IGDC 2025', 'Built on scalable gameplay frameworks', 'Demo in progress'],
-    link: '#',
+    link: 'https://magadhastudios.com/category',
     expanded: true,
     badge: 'IGDC 2025',
   },
