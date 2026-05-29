@@ -11,6 +11,8 @@ const generateParticles = (count: number) => {
     id: i,
     x: Math.random() * 100 - 50,
     y: Math.random() * 100 - 50,
+    initialLeft: Math.random() * 100,
+    initialTop: Math.random() * 100,
     size: Math.random() * 4 + 2,
     delay: Math.random() * 0.8,
     duration: Math.random() * 1.2 + 0.8,
@@ -103,7 +105,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
       initial={{ opacity: 1 }}
       animate={{ opacity: phase === 'fading' ? 0 : 1 }}
       transition={{ duration: FADE_DURATION_MS / 1000, ease: [0.4, 0, 0.2, 1] }}
-      className="fixed inset-0 z-50 bg-background cursor-pointer overflow-hidden"
+      className="fixed inset-0 z-[100] bg-background cursor-pointer overflow-hidden"
       onClick={handleSkip}
     >
       {/* CSS Animations */}
@@ -154,6 +156,17 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           100% { 
             transform: translate(0, -50%);
             opacity: 1;
+          }
+        }
+
+        @media (max-width: 768px) {
+          @keyframes heroFlyIn {
+            0% { transform: translate(-100px, -50%); opacity: 0; }
+            100% { transform: translate(10vw, -50%); opacity: 1; }
+          }
+          @keyframes enemyFlyIn {
+            0% { transform: translate(80vw, -50%); opacity: 0; }
+            100% { transform: translate(0, -50%); opacity: 1; }
           }
         }
         
@@ -210,6 +223,17 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
             transform: translate(-50%, -50%) scale(2.5);
             opacity: 0;
           }
+        }
+        
+        @keyframes screenShake {
+          0%, 100% { transform: translate(0, 0); }
+          10%, 30%, 50%, 70%, 90% { transform: translate(-2px, -2px); }
+          20%, 40%, 60%, 80% { transform: translate(2px, 2px); }
+        }
+
+        @keyframes engineGlow {
+          0%, 100% { opacity: 0.5; filter: blur(2px); }
+          50% { opacity: 1; filter: blur(4px); }
         }
         
         @keyframes titleGlitchIn {
@@ -339,7 +363,8 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
         }
         
         .explosion-1-ring {
-          animation: explosionRing 0.6s ease-out 2.05s forwards;
+          animation: explosionRing 0.6s ease-out 2.05s forwards,
+                     screenShake 0.4s ease-out 2s;
           opacity: 0;
           will-change: transform, opacity;
         }
@@ -351,7 +376,8 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
         }
         
         .explosion-2-ring {
-          animation: explosionRing 0.6s ease-out 3.05s forwards;
+          animation: explosionRing 0.6s ease-out 3.05s forwards,
+                     screenShake 0.4s ease-out 3s;
           opacity: 0;
           will-change: transform, opacity;
         }
@@ -363,7 +389,8 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
         }
         
         .explosion-3-ring {
-          animation: explosionRing 0.6s ease-out 4.05s forwards;
+          animation: explosionRing 0.6s ease-out 4.05s forwards,
+                     screenShake 0.4s ease-out 4s;
           opacity: 0;
           will-change: transform, opacity;
         }
@@ -463,7 +490,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           <ellipse cx="60" cy="50" rx="12" ry="8" fill="#001a33" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
           <path d="M40 35 L55 25 L70 35" fill="none" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.8"/>
           <path d="M40 65 L55 75 L70 65" fill="none" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.8"/>
-          <ellipse cx="18" cy="50" rx="6" ry="10" fill="#00ffff" opacity="0.9">
+          <ellipse cx="18" cy="50" rx="6" ry="10" fill="#00ffff" opacity="0.9" style={{ animation: 'engineGlow 0.2s ease-in-out infinite' }}>
             <animate attributeName="rx" values="6;8;6" dur="0.15s" repeatCount="indefinite"/>
           </ellipse>
         </svg>
@@ -508,9 +535,9 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
       <div 
         className="laser-wrapper laser-1"
         style={{
-          left: 'calc(20vw + 80px)',
+          left: 'clamp(100px, 20vw + 40px, 250px)',
           top: '50%',
-          width: 'calc(65vw - 20vw)',
+          width: 'calc(100% - clamp(200px, 30vw, 400px))',
           height: '4px',
           transform: 'translateY(-50%) rotate(-15deg)',
         }}
@@ -529,9 +556,9 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
       <div 
         className="laser-wrapper laser-2"
         style={{
-          left: 'calc(20vw + 80px)',
+          left: 'clamp(100px, 20vw + 40px, 250px)',
           top: '50%',
-          width: 'calc(68vw - 20vw)',
+          width: 'calc(100% - clamp(200px, 30vw, 400px))',
           height: '4px',
           transform: 'translateY(-50%) rotate(0deg)',
         }}
@@ -550,9 +577,9 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
       <div 
         className="laser-wrapper laser-3"
         style={{
-          left: 'calc(20vw + 80px)',
+          left: 'clamp(100px, 20vw + 40px, 250px)',
           top: '50%',
-          width: 'calc(70vw - 20vw)',
+          width: 'calc(100% - clamp(200px, 30vw, 400px))',
           height: '4px',
           transform: 'translateY(-50%) rotate(15deg)',
         }}
@@ -655,8 +682,8 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                   key={particle.id}
                   className="particle active"
                   style={{
-                    left: `${50 + (Math.random() - 0.5) * 100}%`,
-                    top: `${50 + (Math.random() - 0.5) * 100}%`,
+                    left: `${particle.initialLeft}%`,
+                    top: `${particle.initialTop}%`,
                     width: `${particle.size}px`,
                     height: `${particle.size}px`,
                     background: `linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))`,
@@ -687,8 +714,8 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                   key={particle.id}
                   className="particle active"
                   style={{
-                    left: `${50 + (Math.random() - 0.5) * 100}%`,
-                    top: `${50 + (Math.random() - 0.5) * 100}%`,
+                    left: `${particle.initialLeft}%`,
+                    top: `${particle.initialTop}%`,
                     width: `${particle.size * 0.8}px`,
                     height: `${particle.size * 0.8}px`,
                     background: `hsl(var(--muted-foreground))`,
