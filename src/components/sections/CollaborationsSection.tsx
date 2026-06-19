@@ -60,7 +60,7 @@ export default function CollaborationsSection() {
             Chapter 04
           </span>
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight mb-6">
-            SOCIAL MEDIA AND BRAND <span className="text-gradient">COLLABORATIONS</span>
+            SOCIAL MEDIA AND BRAND COLLABORATIONS
           </h2>
           <div className="flex justify-center mb-4">
             <div className="px-4 py-1.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-primary text-primary-foreground">

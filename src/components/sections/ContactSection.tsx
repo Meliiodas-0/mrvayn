@@ -40,7 +40,7 @@ const socialLinks: SocialLink[] = [
   {
     name: 'Email',
     icon: Mail,
-    url: 'mailto:aayush007work@gmail.com',
+    url: 'https://mail.google.com/mail/?view=cm&fs=1&to=aayush007work@gmail.com',
     description: 'Direct contact',
   },
 ];
@@ -69,7 +69,7 @@ export default function ContactSection() {
             Chapter 05
           </span>
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
-            LET'S <span className="text-gradient">CONNECT</span>
+            LET'S CONNECT
           </h2>
         </motion.div>
 
@@ -86,7 +86,7 @@ export default function ContactSection() {
               {link.url ? (
                 <a
                   href={link.url}
-                  target={link.url.startsWith('mailto:') ? undefined : '_blank'}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="card-cinematic p-5 sm:p-6 text-center block group hover:border-primary/40 transition-all duration-300 h-full relative overflow-hidden"
                 >
@@ -141,7 +141,9 @@ export default function ContactSection() {
           </p>
           
           <motion.a
-            href="mailto:aayush007work@gmail.com"
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=aayush007work@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
             className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-semibold uppercase tracking-wider text-sm transition-all duration-300 hover:shadow-[0_0_40px_hsl(var(--primary)/0.4)]"

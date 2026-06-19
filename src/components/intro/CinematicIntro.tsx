@@ -181,21 +181,183 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           }
         }
         
-        @keyframes laserBeamFire {
-          0% { 
-            transform: scaleX(0);
+        @keyframes laserTravel1 {
+          0% {
+            left: 20vw;
+            top: 50%;
+            transform: translate(60px, -50%) rotate(-12deg);
+            width: 0px;
             opacity: 0;
           }
-          10% {
+          15% {
+            width: 50px;
             opacity: 1;
           }
-          50% {
-            transform: scaleX(1);
+          85% {
             opacity: 1;
           }
-          100% { 
-            transform: scaleX(1);
+          100% {
+            left: 85%;
+            top: 30%;
+            transform: translate(-30px, -50%) rotate(-12deg);
+            width: 0px;
             opacity: 0;
+          }
+        }
+        
+        @keyframes laserTravel2 {
+          0% {
+            left: 20vw;
+            top: 50%;
+            transform: translate(60px, -50%) rotate(0deg);
+            width: 0px;
+            opacity: 0;
+          }
+          15% {
+            width: 50px;
+            opacity: 1;
+          }
+          85% {
+            opacity: 1;
+          }
+          100% {
+            left: 88%;
+            top: 50%;
+            transform: translate(-30px, -50%) rotate(0deg);
+            width: 0px;
+            opacity: 0;
+          }
+        }
+        
+        @keyframes laserTravel3 {
+          0% {
+            left: 20vw;
+            top: 50%;
+            transform: translate(60px, -50%) rotate(12deg);
+            width: 0px;
+            opacity: 0;
+          }
+          15% {
+            width: 50px;
+            opacity: 1;
+          }
+          85% {
+            opacity: 1;
+          }
+          100% {
+            left: 90%;
+            top: 70%;
+            transform: translate(-30px, -50%) rotate(12deg);
+            width: 0px;
+            opacity: 0;
+          }
+        }
+
+        @media (max-width: 640px) {
+          @keyframes laserTravel1 {
+            0% {
+              left: 5vw;
+              top: 50%;
+              transform: translate(60px, -50%) rotate(-15deg);
+              width: 0px;
+              opacity: 0;
+            }
+            15% { width: 30px; opacity: 1; }
+            100% {
+              left: 85%;
+              top: 30%;
+              transform: translate(-30px, -50%) rotate(-15deg);
+              width: 0px;
+              opacity: 0;
+            }
+          }
+          @keyframes laserTravel2 {
+            0% {
+              left: 5vw;
+              top: 50%;
+              transform: translate(60px, -50%) rotate(0deg);
+              width: 0px;
+              opacity: 0;
+            }
+            15% { width: 30px; opacity: 1; }
+            100% {
+              left: 88%;
+              top: 50%;
+              transform: translate(-30px, -50%) rotate(0deg);
+              width: 0px;
+              opacity: 0;
+            }
+          }
+          @keyframes laserTravel3 {
+            0% {
+              left: 5vw;
+              top: 50%;
+              transform: translate(60px, -50%) rotate(15deg);
+              width: 0px;
+              opacity: 0;
+            }
+            15% { width: 30px; opacity: 1; }
+            100% {
+              left: 90%;
+              top: 70%;
+              transform: translate(-30px, -50%) rotate(15deg);
+              width: 0px;
+              opacity: 0;
+            }
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 768px) {
+          @keyframes laserTravel1 {
+            0% {
+              left: 10vw;
+              top: 50%;
+              transform: translate(60px, -50%) rotate(-15deg);
+              width: 0px;
+              opacity: 0;
+            }
+            15% { width: 40px; opacity: 1; }
+            100% {
+              left: 85%;
+              top: 30%;
+              transform: translate(-30px, -50%) rotate(-15deg);
+              width: 0px;
+              opacity: 0;
+            }
+          }
+          @keyframes laserTravel2 {
+            0% {
+              left: 10vw;
+              top: 50%;
+              transform: translate(60px, -50%) rotate(0deg);
+              width: 0px;
+              opacity: 0;
+            }
+            15% { width: 40px; opacity: 1; }
+            100% {
+              left: 88%;
+              top: 50%;
+              transform: translate(-30px, -50%) rotate(0deg);
+              width: 0px;
+              opacity: 0;
+            }
+          }
+          @keyframes laserTravel3 {
+            0% {
+              left: 10vw;
+              top: 50%;
+              transform: translate(60px, -50%) rotate(15deg);
+              width: 0px;
+              opacity: 0;
+            }
+            15% { width: 40px; opacity: 1; }
+            100% {
+              left: 90%;
+              top: 70%;
+              transform: translate(-30px, -50%) rotate(15deg);
+              width: 0px;
+              opacity: 0;
+            }
           }
         }
         
@@ -329,31 +491,37 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           will-change: transform, opacity;
         }
         
-        .laser-wrapper {
+        .laser-1 {
+          animation: laserTravel1 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.8s forwards;
           position: absolute;
+          height: 4px;
+          background: hsl(var(--primary));
+          box-shadow: 0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary));
+          border-radius: 2px;
+          opacity: 0;
           transform-origin: left center;
         }
         
-        .laser-beam {
-          width: 100%;
-          height: 100%;
+        .laser-2 {
+          animation: laserTravel2 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) 2.8s forwards;
+          position: absolute;
+          height: 4px;
+          background: hsl(var(--primary));
+          box-shadow: 0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary));
+          border-radius: 2px;
+          opacity: 0;
           transform-origin: left center;
-          will-change: transform, opacity;
         }
         
-        .laser-1 .laser-beam {
-          animation: laserBeamFire 0.25s ease-out 1.8s forwards;
+        .laser-3 {
+          animation: laserTravel3 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) 3.8s forwards;
+          position: absolute;
+          height: 4px;
+          background: hsl(var(--primary));
+          box-shadow: 0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary));
+          border-radius: 2px;
           opacity: 0;
-        }
-        
-        .laser-2 .laser-beam {
-          animation: laserBeamFire 0.25s ease-out 2.8s forwards;
-          opacity: 0;
-        }
-        
-        .laser-3 .laser-beam {
-          animation: laserBeamFire 0.25s ease-out 3.8s forwards;
-          opacity: 0;
+          transform-origin: left center;
         }
         
         .explosion-1 {
@@ -530,69 +698,10 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
         </svg>
       </div>
 
-      {/* Laser Beams - wrapper holds rotation, inner beam animates scaleX */}
-      {/* Laser 1: aims UP at enemy at top:30%, right:15% */}
-      <div 
-        className="laser-wrapper laser-1"
-        style={{
-          left: 'clamp(100px, 20vw + 40px, 250px)',
-          top: '50%',
-          width: 'calc(100% - clamp(200px, 30vw, 400px))',
-          height: '4px',
-          transform: 'translateY(-50%) rotate(-15deg)',
-        }}
-      >
-        <div 
-          className="laser-beam"
-          style={{
-            background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
-            boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
-            borderRadius: '2px'
-          }}
-        />
-      </div>
-      
-      {/* Laser 2: aims STRAIGHT at enemy at top:50%, right:12% */}
-      <div 
-        className="laser-wrapper laser-2"
-        style={{
-          left: 'clamp(100px, 20vw + 40px, 250px)',
-          top: '50%',
-          width: 'calc(100% - clamp(200px, 30vw, 400px))',
-          height: '4px',
-          transform: 'translateY(-50%) rotate(0deg)',
-        }}
-      >
-        <div 
-          className="laser-beam"
-          style={{
-            background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
-            boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
-            borderRadius: '2px'
-          }}
-        />
-      </div>
-      
-      {/* Laser 3: aims DOWN at enemy at top:70%, right:10% */}
-      <div 
-        className="laser-wrapper laser-3"
-        style={{
-          left: 'clamp(100px, 20vw + 40px, 250px)',
-          top: '50%',
-          width: 'calc(100% - clamp(200px, 30vw, 400px))',
-          height: '4px',
-          transform: 'translateY(-50%) rotate(15deg)',
-        }}
-      >
-        <div 
-          className="laser-beam"
-          style={{
-            background: 'linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--primary)), transparent)',
-            boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
-            borderRadius: '2px'
-          }}
-        />
-      </div>
+      {/* Laser Beams */}
+      <div className="laser-1" />
+      <div className="laser-2" />
+      <div className="laser-3" />
 
       {/* Explosions */}
       <div className="explosion-1 absolute" style={{ right: '15%', top: '30%', width: '100px', height: '100px' }}>

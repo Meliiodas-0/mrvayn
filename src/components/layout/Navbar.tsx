@@ -50,7 +50,9 @@ export default function Navbar() {
               </a>
             ))}
             <a
-              href="#contact"
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=aayush007work@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:scale-105 transition-transform"
             >
               Let's Talk
@@ -88,7 +90,9 @@ export default function Navbar() {
                 </a>
               ))}
               <a
-                href="#contact"
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=aayush007work@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="px-8 py-3 rounded-lg bg-primary text-primary-foreground font-semibold mt-4"
               >

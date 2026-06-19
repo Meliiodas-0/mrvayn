@@ -59,7 +59,7 @@ export default function AboutSection() {
             Chapter 01
           </span>
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
-            ABOUT <span className="text-gradient">ME</span>
+            ABOUT ME
           </h2>
         </motion.div>
 

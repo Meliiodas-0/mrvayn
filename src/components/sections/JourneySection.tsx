@@ -120,7 +120,7 @@ export default function JourneySection() {
             Chapter 02
           </span>
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
-            MY <span className="text-gradient">JOURNEY</span>
+            MY JOURNEY
           </h2>
         </motion.div>
 

@@ -116,7 +116,7 @@ export default function ProjectsSection() {
             Chapter 03
           </span>
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
-            FEATURED <span className="text-gradient">PROJECTS</span>
+            FEATURED PROJECTS
           </h2>
         </motion.div>
 
