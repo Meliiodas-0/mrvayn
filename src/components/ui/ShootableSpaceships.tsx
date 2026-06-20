@@ -33,13 +33,15 @@ interface ShootableSpaceshipsProps {
   safeZones?: SafeZone[];
 }
 
-const colors = ['#19d4ff', '#ff3ea5', '#a78bfa', '#4aa8ff', '#22d3ee', '#f472d0'];
+const colors = ['#ecb53e', '#3fb3a8', '#e8923f', '#f0d28a', '#4fcabe', '#d99a4a'];
 const sizes: Array<'sm' | 'md' | 'lg'> = ['sm', 'md', 'lg'];
 
 // Minimum distance between ships (percentage of viewport diagonal-ish)
 const MIN_SHIP_DISTANCE = 9;
 // Boundary padding (percentage from edges) — keeps ships clear of navbar/footer.
 const BOUNDARY = { top: 12, bottom: 8, left: 3, right: 3 };
+// Extra clearance from text/content safe-zones so sketch rockets never crowd copy.
+const SAFE_PAD = 4;
 
 // ---- unique id generator (monotonic — no Date.now() collisions) ----
 let UID = 1;
@@ -48,7 +50,7 @@ const nextUid = () => UID++;
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
 const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
-function inSafeZone(x: number, y: number, safeZones: SafeZone[], pad = 2): boolean {
+function inSafeZone(x: number, y: number, safeZones: SafeZone[], pad = SAFE_PAD): boolean {
   return safeZones.some(
     (sz) =>
       x >= sz.left - pad &&
@@ -120,42 +122,51 @@ function makeShip(safeZones: SafeZone[], others: ShipData[]): ShipData {
   };
 }
 
-function SpaceshipSVG({ color, size }: { color: string; size: 'sm' | 'md' | 'lg' }) {
-  const dimensions = size === 'sm' ? 'w-9 h-12' : size === 'lg' ? 'w-14 h-[4.5rem]' : 'w-11 h-15';
+// Hand-drawn "sketch" rocket: pure line-art roughened by a per-ship turbulence
+// displacement filter (the RoughJS/pencil-wobble look). The filter rasterises
+// once on mount, so the drift animation stays cheap. Kept subtle and small.
+function SpaceshipSVG({ color, size, uid }: { color: string; size: 'sm' | 'md' | 'lg'; uid: number }) {
+  const dimensions = size === 'sm' ? 'w-6 h-10' : size === 'lg' ? 'w-10 h-16' : 'w-8 h-12';
+  const fid = `sk${uid}`;
 
   return (
     <svg
-      viewBox="0 0 24 36"
+      viewBox="0 0 40 64"
       className={dimensions}
-      style={{ filter: `drop-shadow(0 0 10px ${color}) drop-shadow(0 0 22px ${color}55)` }}
+      style={{ filter: `drop-shadow(0 0 3px ${color}55)`, opacity: 0.82 }}
     >
-      <ellipse cx="12" cy="16" rx="5" ry="10" fill="#13131f" stroke={color} strokeWidth="0.6" />
-      <path d="M12 2 L7 12 L17 12 Z" fill="#23233e" stroke={color} strokeWidth="0.4" />
-      <path d="M7 14 L1 22 L1 28 L7 24 Z" fill="#13131f" stroke={color} strokeWidth="0.4" />
-      <path d="M17 14 L23 22 L23 28 L17 24 Z" fill="#13131f" stroke={color} strokeWidth="0.4" />
-      <circle cx="1" cy="25" r="2" fill={color}>
-        <animate attributeName="opacity" values="0.5;1;0.5" dur="1s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="23" cy="25" r="2" fill={color}>
-        <animate attributeName="opacity" values="0.5;1;0.5" dur="1s" repeatCount="indefinite" />
-      </circle>
-      <ellipse cx="12" cy="10" rx="2.5" ry="3.5" fill={color} opacity="0.75">
-        <animate attributeName="opacity" values="0.5;0.9;0.5" dur="2s" repeatCount="indefinite" />
-      </ellipse>
-      <rect x="9" y="24" width="2" height="4" rx="0.5" fill="#08080f" />
-      <rect x="13" y="24" width="2" height="4" rx="0.5" fill="#08080f" />
-      <ellipse cx="10" cy="29" rx="1.5" ry="2" fill={color}>
-        <animate attributeName="ry" values="2;3;2" dur="0.3s" repeatCount="indefinite" />
-      </ellipse>
-      <ellipse cx="14" cy="29" rx="1.5" ry="2" fill={color}>
-        <animate attributeName="ry" values="2;3;2" dur="0.3s" repeatCount="indefinite" />
-      </ellipse>
-      <path d="M10 31 L10 36" stroke={color} strokeWidth="2" opacity="0.4">
-        <animate attributeName="opacity" values="0.2;0.6;0.2" dur="0.2s" repeatCount="indefinite" />
-      </path>
-      <path d="M14 31 L14 36" stroke={color} strokeWidth="2" opacity="0.4">
-        <animate attributeName="opacity" values="0.2;0.6;0.2" dur="0.2s" repeatCount="indefinite" />
-      </path>
+      <defs>
+        <filter id={fid} x="-25%" y="-25%" width="150%" height="150%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed={uid % 97} result="t" />
+          <feDisplacementMap in="SourceGraphic" in2="t" scale="2.4" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+      <g
+        filter={`url(#${fid})`}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {/* fuselage */}
+        <path d="M20 5 C28 15, 28 38, 25 47 L15 47 C12 38, 12 15, 20 5 Z" />
+        {/* nose seam */}
+        <path d="M14 21 Q20 17 26 21" strokeWidth="1.1" />
+        {/* porthole + hatch */}
+        <circle cx="20" cy="27" r="3.6" />
+        <path d="M17.5 26 L22.5 28 M17.6 28.4 L22.4 25.6" strokeWidth="0.7" opacity="0.7" />
+        {/* fins */}
+        <path d="M15 43 L6 55 L15 49" />
+        <path d="M25 43 L34 55 L25 49" />
+        {/* nozzle */}
+        <path d="M16 47 L16 50 L24 50 L24 47" strokeWidth="1.2" />
+        {/* sketchy flame */}
+        <path d="M18 51 Q20 60 22 51" strokeWidth="1.2" opacity="0.8" />
+        <path d="M19.5 51 Q20 56 20.5 51" strokeWidth="0.9" opacity="0.6" />
+        {/* body shading hatch */}
+        <path d="M24 31 l-2.2 3 M24.3 36 l-2.2 3 M23.8 40.5 l-2 2.6" strokeWidth="0.7" opacity="0.55" />
+      </g>
     </svg>
   );
 }
@@ -334,8 +345,8 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
               }
             >
               {/* Padded hit-area for comfortable tapping on touch screens */}
-              <div className="ship-inner p-3 -m-3">
-                <SpaceshipSVG color={ship.color} size={ship.size} />
+              <div className="ship-inner p-4 -m-4">
+                <SpaceshipSVG color={ship.color} size={ship.size} uid={ship.uid} />
               </div>
             </motion.div>
           ) : null,

@@ -6,90 +6,90 @@
 
 @layer base {
   :root {
-    /* === "Neon Nebula" — electric-cyan dominant, magenta + violet accents === */
-    --background: 222 47% 4.5%;
-    --foreground: 200 28% 97%;
+    /* === "Lacquer & Gold" — warm near-black, kinpaku gold + verdigris teal === */
+    --background: 40 14% 5%;
+    --foreground: 42 28% 92%;
 
-    --card: 220 40% 7.5%;
-    --card-foreground: 200 28% 97%;
+    --card: 38 14% 8.5%;
+    --card-foreground: 42 28% 92%;
 
-    --popover: 221 44% 6%;
-    --popover-foreground: 200 28% 97%;
+    --popover: 40 16% 6.5%;
+    --popover-foreground: 42 28% 92%;
 
-    --primary: 192 100% 52%;
-    --primary-foreground: 222 47% 5%;
+    --primary: 43 90% 58%;
+    --primary-foreground: 40 40% 7%;
 
-    --secondary: 322 100% 62%;
-    --secondary-foreground: 200 28% 98%;
+    --secondary: 178 48% 46%;
+    --secondary-foreground: 40 30% 95%;
 
-    --muted: 220 24% 14%;
-    --muted-foreground: 211 18% 63%;
+    --muted: 40 9% 15%;
+    --muted-foreground: 42 12% 64%;
 
-    --accent: 258 92% 70%;
-    --accent-foreground: 222 47% 6%;
+    --accent: 28 82% 60%;
+    --accent-foreground: 40 40% 8%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 200 28% 98%;
+    --destructive: 6 70% 52%;
+    --destructive-foreground: 42 28% 95%;
 
-    --border: 218 32% 15%;
-    --input: 218 32% 15%;
-    --ring: 192 100% 52%;
+    --border: 40 12% 16%;
+    --input: 40 12% 16%;
+    --ring: 43 90% 58%;
 
     --radius: 0.75rem;
 
     /* Signature accents */
-    --neon-cyan: 192 100% 52%;
-    --neon-magenta: 322 100% 62%;
-    --neon-violet: 258 92% 70%;
-    --neon-blue: 214 100% 60%;
+    --neon-gold: 43 90% 58%;
+    --neon-teal: 178 48% 46%;
+    --neon-copper: 28 82% 60%;
+    --neon-champagne: 42 40% 88%;
 
-    /* Gradients — cyan → azure → magenta (cool neon sweep) */
-    --gradient-primary: linear-gradient(115deg, hsl(192 100% 58%) 0%, hsl(214 100% 64%) 46%, hsl(322 100% 64%) 100%);
-    --gradient-accent: linear-gradient(115deg, hsl(322 100% 64%) 0%, hsl(192 100% 58%) 100%);
+    /* Gradients — gold → pale gold → verdigris (warm cinematic sweep) */
+    --gradient-primary: linear-gradient(115deg, hsl(44 92% 60%) 0%, hsl(42 80% 76%) 46%, hsl(178 52% 52%) 100%);
+    --gradient-accent: linear-gradient(115deg, hsl(178 52% 52%) 0%, hsl(44 92% 60%) 100%);
 
     /* Shadows */
-    --glow-primary: 0 0 22px hsl(192 100% 52% / 0.5);
-    --glow-secondary: 0 0 22px hsl(322 100% 62% / 0.5);
-    --glow-accent: 0 0 22px hsl(258 92% 70% / 0.5);
+    --glow-primary: 0 0 22px hsl(43 90% 58% / 0.45);
+    --glow-secondary: 0 0 22px hsl(178 48% 46% / 0.45);
+    --glow-accent: 0 0 22px hsl(28 82% 60% / 0.45);
 
-    --sidebar-background: 221 44% 6%;
-    --sidebar-foreground: 200 28% 97%;
-    --sidebar-primary: 192 100% 52%;
-    --sidebar-primary-foreground: 222 47% 5%;
-    --sidebar-accent: 220 24% 12%;
-    --sidebar-accent-foreground: 200 28% 97%;
-    --sidebar-border: 218 32% 15%;
-    --sidebar-ring: 192 100% 52%;
+    --sidebar-background: 40 16% 6.5%;
+    --sidebar-foreground: 42 28% 92%;
+    --sidebar-primary: 43 90% 58%;
+    --sidebar-primary-foreground: 40 40% 7%;
+    --sidebar-accent: 40 9% 13%;
+    --sidebar-accent-foreground: 42 28% 92%;
+    --sidebar-border: 40 12% 16%;
+    --sidebar-ring: 43 90% 58%;
   }
 
   .dark {
-    --background: 222 47% 4.5%;
-    --foreground: 200 28% 97%;
-    --card: 220 40% 7.5%;
-    --card-foreground: 200 28% 97%;
-    --popover: 221 44% 6%;
-    --popover-foreground: 200 28% 97%;
-    --primary: 192 100% 52%;
-    --primary-foreground: 222 47% 5%;
-    --secondary: 322 100% 62%;
-    --secondary-foreground: 200 28% 98%;
-    --muted: 220 24% 14%;
-    --muted-foreground: 211 18% 63%;
-    --accent: 258 92% 70%;
-    --accent-foreground: 222 47% 6%;
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 200 28% 98%;
-    --border: 218 32% 15%;
-    --input: 218 32% 15%;
-    --ring: 192 100% 52%;
-    --sidebar-background: 221 44% 6%;
-    --sidebar-foreground: 200 28% 97%;
-    --sidebar-primary: 192 100% 52%;
-    --sidebar-primary-foreground: 222 47% 5%;
-    --sidebar-accent: 220 24% 12%;
-    --sidebar-accent-foreground: 200 28% 97%;
-    --sidebar-border: 218 32% 15%;
-    --sidebar-ring: 192 100% 52%;
+    --background: 40 14% 5%;
+    --foreground: 42 28% 92%;
+    --card: 38 14% 8.5%;
+    --card-foreground: 42 28% 92%;
+    --popover: 40 16% 6.5%;
+    --popover-foreground: 42 28% 92%;
+    --primary: 43 90% 58%;
+    --primary-foreground: 40 40% 7%;
+    --secondary: 178 48% 46%;
+    --secondary-foreground: 40 30% 95%;
+    --muted: 40 9% 15%;
+    --muted-foreground: 42 12% 64%;
+    --accent: 28 82% 60%;
+    --accent-foreground: 40 40% 8%;
+    --destructive: 6 50% 40%;
+    --destructive-foreground: 42 28% 95%;
+    --border: 40 12% 16%;
+    --input: 40 12% 16%;
+    --ring: 43 90% 58%;
+    --sidebar-background: 40 16% 6.5%;
+    --sidebar-foreground: 42 28% 92%;
+    --sidebar-primary: 43 90% 58%;
+    --sidebar-primary-foreground: 40 40% 7%;
+    --sidebar-accent: 40 9% 13%;
+    --sidebar-accent-foreground: 42 28% 92%;
+    --sidebar-border: 40 12% 16%;
+    --sidebar-ring: 43 90% 58%;
   }
 }
 
@@ -103,9 +103,9 @@
     /* Layered atmosphere: warm core bloom + cool corners over deep blue-black */
     background-color: hsl(var(--background));
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(192 100% 52% / 0.10), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 100% 0%, hsl(322 100% 62% / 0.06), transparent 55%),
-      radial-gradient(ellipse 70% 60% at 0% 100%, hsl(258 92% 70% / 0.06), transparent 55%);
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(43 90% 58% / 0.10), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 0%, hsl(178 48% 46% / 0.06), transparent 55%),
+      radial-gradient(ellipse 70% 60% at 0% 100%, hsl(28 82% 60% / 0.05), transparent 55%);
     background-attachment: fixed;
     font-feature-settings: "ss01", "cv01";
   }

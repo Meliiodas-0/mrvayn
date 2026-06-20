@@ -42,7 +42,7 @@ function ParallaxStars({ scrollRef }: { scrollRef: ScrollRef }) {
         <mesh key={i} position={star.position}>
           <sphereGeometry args={[star.size, 8, 8]} />
           <meshBasicMaterial
-            color={i % 5 === 0 ? '#19d4ff' : i % 7 === 0 ? '#ff3ea5' : '#ffffff'}
+            color={i % 5 === 0 ? '#ecb53e' : i % 7 === 0 ? '#3fb3a8' : '#ffffff'}
             transparent
             opacity={0.85}
           />
@@ -98,7 +98,7 @@ function EnergyParticles({ scrollRef, isMobile }: { scrollRef: ScrollRef; isMobi
       size: Math.random() * 0.05 + 0.02,
       phase: Math.random() * Math.PI * 2,
       speed: Math.random() * 0.5 + 0.3,
-      color: ['#19d4ff', '#ff3ea5', '#a78bfa', '#4aa8ff'][i % 4],
+      color: ['#ecb53e', '#3fb3a8', '#e8923f', '#f0d28a'][i % 4],
     }));
   }, [count]);
 
@@ -148,7 +148,7 @@ function FloatingGeometry({ scrollRef, isMobile }: { scrollRef: ScrollRef; isMob
         -8 - Math.random() * 10,
       ] as [number, number, number],
       type: ['octahedron', 'tetrahedron', 'icosahedron'][i % 3],
-      color: ['#19d4ff', '#ff3ea5', '#a78bfa'][i % 3],
+      color: ['#ecb53e', '#3fb3a8', '#e8923f'][i % 3],
       scale: 0.2 + Math.random() * 0.3,
     }));
   }, [count]);
@@ -193,7 +193,7 @@ function InfiniteGrid({ scrollRef }: { scrollRef: ScrollRef }) {
   return (
     <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -8, -15]}>
       <planeGeometry args={[100, 80, 80, 60]} />
-      <meshBasicMaterial ref={matRef} color="#19d4ff" wireframe transparent opacity={0.1} />
+      <meshBasicMaterial ref={matRef} color="#ecb53e" wireframe transparent opacity={0.1} />
     </mesh>
   );
 }
@@ -201,9 +201,9 @@ function InfiniteGrid({ scrollRef }: { scrollRef: ScrollRef }) {
 // Color-shifting key light that tracks scroll position through the sections.
 function SectionLight({ scrollRef }: { scrollRef: ScrollRef }) {
   const lightRef = useRef<THREE.PointLight>(null);
-  const cyan = useMemo(() => new THREE.Color('#19d4ff'), []);
-  const violet = useMemo(() => new THREE.Color('#a78bfa'), []);
-  const magenta = useMemo(() => new THREE.Color('#ff3ea5'), []);
+  const cyan = useMemo(() => new THREE.Color('#ecb53e'), []);
+  const violet = useMemo(() => new THREE.Color('#e8923f'), []);
+  const magenta = useMemo(() => new THREE.Color('#3fb3a8'), []);
   const tmp = useMemo(() => new THREE.Color(), []);
 
   useFrame(() => {
@@ -238,14 +238,14 @@ function Scene({ scrollRef, isMobile }: { scrollRef: ScrollRef; isMobile: boolea
     <>
       <ambientLight intensity={0.25} />
       <SectionLight scrollRef={scrollRef} />
-      <pointLight position={[-10, -5, -10]} intensity={0.3} color="#a78bfa" />
-      <pointLight position={[10, 5, -5]} intensity={0.3} color="#19d4ff" />
+      <pointLight position={[-10, -5, -10]} intensity={0.3} color="#e8923f" />
+      <pointLight position={[10, 5, -5]} intensity={0.3} color="#ecb53e" />
 
       <ParallaxStars scrollRef={scrollRef} />
 
-      <NebulaCloud position={[-15, 10, -20]} color="#19d4ff" scrollRef={scrollRef} />
-      <NebulaCloud position={[20, -5, -25]} color="#a78bfa" scrollRef={scrollRef} />
-      <NebulaCloud position={[-10, -15, -18]} color="#ff3ea5" scrollRef={scrollRef} />
+      <NebulaCloud position={[-15, 10, -20]} color="#ecb53e" scrollRef={scrollRef} />
+      <NebulaCloud position={[20, -5, -25]} color="#e8923f" scrollRef={scrollRef} />
+      <NebulaCloud position={[-10, -15, -18]} color="#3fb3a8" scrollRef={scrollRef} />
 
       <EnergyParticles scrollRef={scrollRef} isMobile={isMobile} />
       <FloatingGeometry scrollRef={scrollRef} isMobile={isMobile} />

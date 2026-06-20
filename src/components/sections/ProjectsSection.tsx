@@ -96,7 +96,7 @@ export default function ProjectsSection() {
   return (
     <section id="projects" className="py-20 sm:py-32 px-4 relative overflow-hidden">
       <FloatingPixels count={8} color="accent" />
-      <ShootableSpaceships sectionId="projects" count={5} safeZones={projectsSafeZones} />
+      <ShootableSpaceships sectionId="projects" count={3} safeZones={projectsSafeZones} />
       
       {/* Subtle background glow */}
       <div className="absolute inset-0 pointer-events-none">

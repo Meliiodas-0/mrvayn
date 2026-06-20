@@ -100,7 +100,7 @@ export default function JourneySection() {
   return (
     <section id="journey" className="py-20 sm:py-32 px-4 relative overflow-hidden">
       <FloatingPixels count={6} color="secondary" />
-      <ShootableSpaceships sectionId="journey" count={5} safeZones={journeySafeZones} />
+      <ShootableSpaceships sectionId="journey" count={3} safeZones={journeySafeZones} />
       
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">

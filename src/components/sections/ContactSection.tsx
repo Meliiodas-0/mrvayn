@@ -55,7 +55,7 @@ export default function ContactSection() {
   return (
     <section id="contact" className="py-20 sm:py-32 px-4 relative overflow-hidden">
       <FloatingPixels count={6} color="primary" />
-      <ShootableSpaceships sectionId="contact" count={4} safeZones={contactSafeZones} />
+      <ShootableSpaceships sectionId="contact" count={3} safeZones={contactSafeZones} />
 
       <div className="max-w-4xl mx-auto relative z-10">
         <SectionHeading chapter="05" title="Let's Connect" />

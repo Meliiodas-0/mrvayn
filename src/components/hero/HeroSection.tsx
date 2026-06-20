@@ -85,7 +85,7 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
       onClick={handleSectionClick}
     >
       {/* Shootable Spaceships */}
-      <ShootableSpaceships sectionId="hero" count={6} safeZones={heroSafeZones} />
+      <ShootableSpaceships sectionId="hero" count={4} safeZones={heroSafeZones} />
 
       {/* HUD corner brackets framing the viewport */}
       <div className="absolute inset-4 sm:inset-6 pointer-events-none z-10">

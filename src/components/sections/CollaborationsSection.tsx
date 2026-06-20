@@ -41,7 +41,7 @@ export default function CollaborationsSection() {
   return (
     <section id="collaborations" className="py-20 sm:py-32 px-4 relative overflow-hidden">
       <FloatingPixels count={6} color="primary" />
-      <ShootableSpaceships sectionId="collaborations" count={4} safeZones={collaborationsSafeZones} />
+      <ShootableSpaceships sectionId="collaborations" count={3} safeZones={collaborationsSafeZones} />
       
       {/* Subtle background glow */}
       <div className="absolute inset-0 pointer-events-none">

@@ -45,7 +45,7 @@ export default function AboutSection() {
   return (
     <section id="about" className="py-20 sm:py-32 px-4 relative overflow-hidden">
       <FloatingPixels count={6} color="primary" />
-      <ShootableSpaceships sectionId="about" count={5} safeZones={aboutSafeZones} />
+      <ShootableSpaceships sectionId="about" count={3} safeZones={aboutSafeZones} />
       
       <div className="max-w-6xl mx-auto relative">
         <SectionHeading chapter="01" title="About Me" />

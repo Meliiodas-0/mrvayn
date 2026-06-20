@@ -1,9 +1,9 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="v" x1="14" y1="14" x2="50" y2="50" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#19e8cf" />
-      <stop offset="0.55" stop-color="#2bd4ff" />
-      <stop offset="1" stop-color="#ff8a1e" />
+      <stop offset="0" stop-color="#f0c95e" />
+      <stop offset="0.55" stop-color="#ecb53e" />
+      <stop offset="1" stop-color="#3fb3a8" />
     </linearGradient>
     <filter id="g" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur stdDeviation="2" result="b" />
@@ -13,8 +13,8 @@
       </feMerge>
     </filter>
   </defs>
-  <rect width="64" height="64" rx="14" fill="#070a12" />
-  <rect x="1.5" y="1.5" width="61" height="61" rx="12.5" fill="none" stroke="#19e8cf" stroke-opacity="0.18" />
+  <rect width="64" height="64" rx="14" fill="#0d0c0a" />
+  <rect x="1.5" y="1.5" width="61" height="61" rx="12.5" fill="none" stroke="#ecb53e" stroke-opacity="0.22" />
   <path
     d="M16 16 L32 46 L48 16"
     stroke="url(#v)"
@@ -24,5 +24,5 @@
     fill="none"
     filter="url(#g)"
   />
-  <path d="M16 16 L32 46 L48 16" stroke="#ffffff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  <path d="M16 16 L32 46 L48 16" stroke="#fbe6b8" stroke-opacity="0.8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
 </svg>
