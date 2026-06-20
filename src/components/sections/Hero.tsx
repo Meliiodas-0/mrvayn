@@ -3,6 +3,7 @@ import { profile } from "@/data/profile";
 import { BevelButton } from "@/components/ui/BevelButton";
 import { PlayButton } from "@/components/PlayButton";
 import { HudFrame } from "@/components/ui/HudFrame";
+import { GameMount } from "@/components/GameMount";
 import { Reveal } from "@/components/motion/Reveal";
 
 export function Hero() {
@@ -57,17 +58,8 @@ export function Hero() {
 
         {/* Right: the optional game canvas mounts here (Phase 3). */}
         <Reveal delay={0.2} skew>
-          <HudFrame scanlines className="bevel aspect-[4/3] w-full bg-carbon">
-            <div
-              id="game-mount"
-              className="flex h-full w-full flex-col items-center justify-center gap-3 text-center"
-            >
-              <span className="font-hud text-sm uppercase tracking-[0.3em] text-surge">Press start</span>
-              <span className="font-display text-2xl font-black uppercase text-bone">OVERDRIVE</span>
-              <span className="font-mono text-[0.7rem] tracking-widest text-mist/70">
-                optional mini-game — coming online
-              </span>
-            </div>
+          <HudFrame scanlines className="bevel aspect-[4/3] w-full overflow-hidden bg-carbon">
+            <GameMount />
           </HudFrame>
         </Reveal>
       </div>
