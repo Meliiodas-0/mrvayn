@@ -1,0 +1,75 @@
+import type { Metadata, Viewport } from "next";
+import { Archivo, Chakra_Petch, Inter, JetBrains_Mono, Anton } from "next/font/google";
+import "./globals.css";
+
+// Headlines — Archivo (variable; used heavy/expanded). Hero word alt — Anton.
+const archivo = Archivo({ subsets: ["latin"], variable: "--font-archivo", display: "swap" });
+const anton = Anton({ subsets: ["latin"], weight: "400", variable: "--font-anton", display: "swap" });
+// HUD / labels — Chakra Petch. Body — Inter. Mono — JetBrains Mono.
+const chakra = Chakra_Petch({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-chakra", display: "swap" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
+
+const SITE = "https://mrvayn.live";
+const DESCRIPTION =
+  "MrVayn — Founder & Game Developer. Unreal Engine 5, Niagara VFX, multiplayer & netcode, and gameplay systems, with shipped titles. A portfolio built like a playable game client.";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE),
+  title: {
+    default: "MrVayn — Founder & Game Developer",
+    template: "%s — MrVayn",
+  },
+  description: DESCRIPTION,
+  keywords: [
+    "MrVayn",
+    "game developer",
+    "Unreal Engine 5",
+    "Niagara VFX",
+    "multiplayer",
+    "netcode",
+    "gameplay systems",
+    "game portfolio",
+  ],
+  authors: [{ name: "MrVayn" }],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: SITE,
+    siteName: "MrVayn",
+    title: "MrVayn — Founder & Game Developer",
+    description: DESCRIPTION,
+    // TODO(MrVayn): replace with a real 1200x630 OG share image.
+    images: [{ url: "/favicon.png", width: 1024, height: 1024, alt: "MrVayn" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MrVayn — Founder & Game Developer",
+    description: DESCRIPTION,
+    images: ["/favicon.png"],
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    apple: "/favicon.png",
+  },
+  manifest: "/site.webmanifest",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#07090F",
+  colorScheme: "dark",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html
+      lang="en"
+      className={`${archivo.variable} ${anton.variable} ${chakra.variable} ${inter.variable} ${jetbrains.variable}`}
+    >
+      <body className="font-sans antialiased">{children}</body>
+    </html>
+  );
+}

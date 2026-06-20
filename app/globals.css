@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== OVERDRIVE tokens (docs/DESIGN_SYSTEM.md) — RGB channels for alpha ===== */
+:root {
+  --void: 7 9 15; /* #07090F page bg */
+  --carbon: 14 19 32; /* #0E1320 panel base */
+  --steel: 26 34 51; /* #1A2233 raised/borders */
+  --mist: 138 148 167; /* #8A94A7 muted text */
+  --bone: 234 240 255; /* #EAF0FF primary text */
+  --surge: 255 45 107; /* #FF2D6B signature accent */
+  --volt: 25 224 255; /* #19E0FF VFX cyan */
+  --ion: 178 107 255; /* #B26BFF VFX violet */
+  --bevel: 14px; /* signature clipped-corner size */
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: rgb(var(--void));
+    color: rgb(var(--bone));
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: rgb(var(--surge) / 0.3);
+    color: rgb(var(--bone));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer utilities {
+  /* Signature bevel: consistent clipped corners (top-right + bottom-left). */
+  .bevel {
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--bevel)) 0,
+      100% var(--bevel),
+      100% 100%,
+      var(--bevel) 100%,
+      0 calc(100% - var(--bevel))
+    );
+  }
+  .bevel-sm {
+    --bevel: 8px;
+  }
+}
