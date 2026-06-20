@@ -60,14 +60,17 @@ export default function AboutSection() {
           >
             <div className="card-cinematic-featured p-6 sm:p-8 relative">
               {/* Profile Header */}
-              <div className="flex items-center gap-5 mb-8 pb-6 border-b border-border/50">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-sm bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-3xl sm:text-4xl font-display font-black border-2 border-primary/30">
-                  MV
+              <div className="mb-8 pb-6 border-b border-border/50">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="font-mono text-[10px] tracking-[0.28em] uppercase text-accent">Profile</span>
+                  <span className="h-px flex-1 bg-border" />
+                  <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))] animate-pulse" />
+                    Since 2019
+                  </span>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl sm:text-3xl font-display font-bold tracking-tight">MrVayn</h3>
-                  <p className="text-primary text-sm font-mono tracking-wide">GAME DEVELOPER</p>
-                </div>
+                <h3 className="text-3xl sm:text-4xl font-display font-bold tracking-tight leading-none">MrVayn</h3>
+                <p className="text-primary text-sm font-mono tracking-[0.18em] uppercase mt-2.5">Game Developer</p>
               </div>
               
               <div className="space-y-4 leading-relaxed text-sm sm:text-base">
