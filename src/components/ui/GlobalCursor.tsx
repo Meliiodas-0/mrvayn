@@ -62,10 +62,10 @@ export default function GlobalCursor() {
           left: 50%;
           width: 32px;
           height: 32px;
-          border: 2px solid #16e0c8;
+          border: 2px solid #19d4ff;
           border-radius: 50%;
           transform: translate(-50%, -50%);
-          box-shadow: 0 0 10px #16e0c8, inset 0 0 10px rgba(0, 255, 255, 0.1);
+          box-shadow: 0 0 10px #19d4ff, inset 0 0 10px rgba(0, 255, 255, 0.1);
         }
         .cursor-scifi-global::after {
           content: '';
@@ -74,15 +74,15 @@ export default function GlobalCursor() {
           left: 50%;
           width: 6px;
           height: 6px;
-          background: #16e0c8;
+          background: #19d4ff;
           border-radius: 50%;
           transform: translate(-50%, -50%);
-          box-shadow: 0 0 8px #16e0c8;
+          box-shadow: 0 0 8px #19d4ff;
         }
         .cursor-scifi-global .crosshair-line {
           position: absolute;
-          background: #16e0c8;
-          box-shadow: 0 0 4px #16e0c8;
+          background: #19d4ff;
+          box-shadow: 0 0 4px #19d4ff;
         }
         .cursor-scifi-global .line-top {
           top: 0;

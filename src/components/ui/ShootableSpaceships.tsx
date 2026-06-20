@@ -33,7 +33,7 @@ interface ShootableSpaceshipsProps {
   safeZones?: SafeZone[];
 }
 
-const colors = ['#ff8a1e', '#16e0c8', '#ff2d78', '#ffc24d', '#2bd4ff', '#c084fc'];
+const colors = ['#19d4ff', '#ff3ea5', '#a78bfa', '#4aa8ff', '#22d3ee', '#f472d0'];
 const sizes: Array<'sm' | 'md' | 'lg'> = ['sm', 'md', 'lg'];
 
 // Minimum distance between ships (percentage of viewport diagonal-ish)
@@ -234,7 +234,9 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
   const prefersReducedMotion =
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Initialise ships once per section (and when density changes).
+  // Initialise ships per section, and whenever the density OR the safe zones
+  // change (e.g. desktop↔mobile, which swaps the hero's zones). safeZones are
+  // stable module constants, so this never loops.
   useEffect(() => {
     const initial: (ShipData | null)[] = [];
     for (let i = 0; i < effectiveCount; i++) {
@@ -242,7 +244,7 @@ export default function ShootableSpaceships({ sectionId, count = 4, safeZones = 
     }
     setShips(initial);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectiveCount, sectionId]);
+  }, [effectiveCount, sectionId, safeZones]);
 
   // Clear any pending respawn timers on unmount.
   useEffect(() => {

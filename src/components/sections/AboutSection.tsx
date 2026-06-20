@@ -66,7 +66,7 @@ export default function AboutSection() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-2xl sm:text-3xl font-display font-bold tracking-tight">MrVayn</h3>
-                  <p className="text-primary text-sm font-mono tracking-wide">FOUNDER & GAME DEVELOPER</p>
+                  <p className="text-primary text-sm font-mono tracking-wide">GAME DEVELOPER</p>
                 </div>
               </div>
               

@@ -32,7 +32,7 @@ export function FloatingPixels({ count = 6, color = 'primary' }: { count?: numbe
 // Decorative spaceship SVG for sections
 export function DecorativeSpaceship({ 
   className = '', 
-  color = '#16e0c8',
+  color = '#19d4ff',
   size = 'md',
   rotation = 0,
   style = {}
@@ -91,8 +91,8 @@ export function DecorativeSpaceship({
 export function SectionSpaceships({ count = 4 }: { count?: number }) {
   const positions = [
     { top: '10%', left: '5%', rotation: 15, color: '#ff0080', size: 'md' as const },
-    { top: '20%', right: '8%', rotation: -20, color: '#16e0c8', size: 'sm' as const },
-    { bottom: '25%', left: '3%', rotation: 30, color: '#a855f7', size: 'lg' as const },
+    { top: '20%', right: '8%', rotation: -20, color: '#19d4ff', size: 'sm' as const },
+    { bottom: '25%', left: '3%', rotation: 30, color: '#a78bfa', size: 'lg' as const },
     { bottom: '15%', right: '5%', rotation: -10, color: '#00ff88', size: 'md' as const },
     { top: '40%', left: '2%', rotation: 45, color: '#ffff00', size: 'sm' as const },
     { top: '60%', right: '4%', rotation: -35, color: '#ff6600', size: 'md' as const },

@@ -2,14 +2,22 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Crosshair, X, ArrowUpRight } from 'lucide-react';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-// Safe zones for hero - central text only
-const heroSafeZones = [
+// Desktop: protect the central text column only (ships live in the margins).
+const heroSafeZonesDesktop = [
   { top: 24, left: 8, width: 84, height: 58 },
 ];
 
+// Mobile: the content stack nearly fills the width, so reserve the whole
+// centre full-width — ships are confined to thin top/bottom bands and can
+// never overlap the "MrVayn" title.
+const heroSafeZonesMobile = [
+  { top: 21, left: 0, width: 100, height: 64 },
+];
+
 const roles = [
-  'Founder & Game Developer',
+  'Game Developer',
   'Unreal Engine 5 Specialist',
   'Multiplayer Architect',
   'Niagara VFX & Cutscenes',
@@ -56,6 +64,8 @@ export default function HeroSection({ introComplete = true }: HeroSectionProps) 
   const [showHint, setShowHint] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
   const role = useTypewriter(roles);
+  const isMobile = useIsMobile();
+  const heroSafeZones = isMobile ? heroSafeZonesMobile : heroSafeZonesDesktop;
 
   useEffect(() => {
     const timer = setTimeout(() => setShowHint(false), 8000);
