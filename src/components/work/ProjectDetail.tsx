@@ -4,8 +4,10 @@ import { useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { X, ArrowUpRight, Lock } from "lucide-react";
 import type { Project } from "@/data/projects";
+import { driveEmbed, driveThumb } from "@/lib/drive";
 import { Tag } from "@/components/ui/Tag";
 import { HudFrame } from "@/components/ui/HudFrame";
+import { Thumb } from "@/components/ui/Thumb";
 
 /** Agent-detail panel (BRIEF §3): Problem -> Approach -> Result + media + links.
  *  Renders only while a project is selected (unmounts on close — robust, no
@@ -20,6 +22,10 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
   const reduce = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+
+  const primaryHref = project.links[0]?.href;
+  const embed = primaryHref ? driveEmbed(primaryHref) : null;
+  const image = project.media || (primaryHref ? driveThumb(primaryHref, 1280) : null);
 
   useEffect(() => {
     const prevFocus = document.activeElement as HTMLElement | null;
@@ -85,14 +91,25 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
         </h3>
         <p className="mt-1 font-hud text-xs uppercase tracking-wide text-surge/80">{project.role}</p>
 
-        {/* media — TODO(MrVayn): replace with real trailer/gif/thumbnail. */}
+        {/* media — pulled from the project's own links (Drive preview / thumbnail). */}
         <HudFrame scanlines className="mt-5 aspect-video w-full overflow-hidden bevel-sm">
-          <div
-            className="grid h-full w-full place-items-center"
-            style={{ background: "linear-gradient(120deg, rgb(var(--surge)/0.18), rgb(var(--ion)/0.14) 50%, rgb(var(--volt)/0.12))" }}
-          >
-            <span className="font-mono text-[0.7rem] uppercase tracking-widest text-bone/70">Media coming soon</span>
-          </div>
+          {embed ? (
+            <iframe
+              src={embed}
+              title={`${project.title} preview`}
+              allow="autoplay"
+              className="h-full w-full border-0"
+            />
+          ) : image ? (
+            <Thumb src={image} alt={`${project.title} preview`} />
+          ) : (
+            <div
+              className="grid h-full w-full place-items-center"
+              style={{ background: "linear-gradient(120deg, rgb(var(--surge)/0.18), rgb(var(--ion)/0.14) 50%, rgb(var(--volt)/0.12))" }}
+            >
+              <span className="font-mono text-[0.7rem] uppercase tracking-widest text-bone/70">Open the link below</span>
+            </div>
+          )}
         </HudFrame>
 
         <p className="mt-5 font-sans leading-relaxed text-mist">{project.summary}</p>

@@ -1,28 +1,25 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Crosshair, RotateCcw, Trophy } from "lucide-react";
-import { Overdrive, type GameState } from "@/game/Overdrive";
+import { Swords, Trophy } from "lucide-react";
+import { StickArena } from "@/game/StickArena";
 
 /**
- * Thin React wrapper + HUD for the OVERDRIVE engine (GAME_SPEC §D).
- * Lazy-loaded (ssr:false) so it never blocks first paint / LCP. Pauses when
- * off-screen (IntersectionObserver) and when the tab is hidden. Input only
- * fires from the canvas itself (pointer / Space-when-focused) — never traps
- * page scroll or keyboard.
+ * Thin React wrapper + HUD for the STICK ARENA game (stickman swordsman).
+ * Lazy-loaded (ssr:false). The stickman runs toward the cursor; click/Space
+ * swings the sword and cuts down scattered enemies. Pure power-fantasy loop —
+ * no death, no abrupt end. Pauses off-screen + on tab hide; input only from the
+ * focused canvas, so it never traps page scroll or the keyboard.
  */
 export default function GameCanvas() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const gameRef = useRef<Overdrive | null>(null);
+  const gameRef = useRef<StickArena | null>(null);
 
-  const [state, setState] = useState<GameState>("idle");
-  const [score, setScore] = useState(0);
+  const [kills, setKills] = useState(0);
   const [best, setBest] = useState(0);
-  const [combo, setCombo] = useState(0);
-  const [toast, setToast] = useState<string | null>(null);
+  const [hint, setHint] = useState(true);
 
-  // SFX — off by default, enabled via the Nav sound toggle (a user gesture).
   const soundOn = useRef(false);
   const audioRef = useRef<AudioContext | null>(null);
 
@@ -48,26 +45,25 @@ export default function GameCanvas() {
     if (!canvas || !wrap) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let toastTimer: ReturnType<typeof setTimeout> | undefined;
-
-    const game = new Overdrive(canvas, {
-      onState: setState,
-      onScore: (s, c) => { setScore(s); setCombo(c); },
-      onBest: setBest,
-      onMilestone: (label) => {
-        setToast(label);
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => setToast(null), 1400);
-      },
-      onSfx: (t) => {
-        if (t === "jump") beep(420, 0.08, "square", 0.03);
-        else if (t === "shard") beep(880, 0.09, "triangle", 0.04);
-        else beep(120, 0.28, "sawtooth", 0.05);
-      },
+    const game = new StickArena(canvas, {
+      onScore: (k, b) => { setKills(k); setBest(b); },
+      onSfx: (t) => (t === "slash" ? beep(300, 0.07, "square", 0.025) : beep(660, 0.1, "triangle", 0.04)),
     });
     game.setReducedMotion(reduced);
     game.init();
     gameRef.current = game;
+
+    let lastX = 0;
+    let lastY = 0;
+    const onMove = (e: PointerEvent) => {
+      const r = canvas.getBoundingClientRect();
+      lastX = e.clientX - r.left;
+      lastY = e.clientY - r.top;
+      game.setPointer(lastX, lastY, true);
+    };
+    const onLeave = () => game.setPointer(lastX, lastY, false);
+    canvas.addEventListener("pointermove", onMove);
+    canvas.addEventListener("pointerleave", onLeave);
 
     const ro = new ResizeObserver(() => game.resize());
     ro.observe(wrap);
@@ -81,14 +77,9 @@ export default function GameCanvas() {
     const onVis = () => game.setVisible(!document.hidden && isOnScreen(wrap));
     document.addEventListener("visibilitychange", onVis);
 
-    const onPlay = () => {
-      wrap.querySelector("canvas")?.focus();
-      game.action();
-    };
+    const onPlay = () => canvas.focus();
     window.addEventListener("overdrive:play", onPlay);
 
-    // Sound toggle (from Nav). Lazily create + resume the AudioContext while
-    // inside the toggle's user gesture so playback is allowed.
     const onSound = (e: Event) => {
       const muted = (e as CustomEvent<{ muted: boolean }>).detail?.muted;
       soundOn.current = muted === false;
@@ -104,7 +95,8 @@ export default function GameCanvas() {
     window.addEventListener("overdrive:sound", onSound);
 
     return () => {
-      clearTimeout(toastTimer);
+      canvas.removeEventListener("pointermove", onMove);
+      canvas.removeEventListener("pointerleave", onLeave);
       ro.disconnect();
       io.disconnect();
       document.removeEventListener("visibilitychange", onVis);
@@ -115,97 +107,48 @@ export default function GameCanvas() {
     };
   }, [beep]);
 
-  const act = useCallback(() => gameRef.current?.action(), []);
-
-  const onKey = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === " " || e.key === "Enter" || e.key === "ArrowUp") {
-      e.preventDefault(); // only fires when the canvas is focused → no page-scroll trap
-      gameRef.current?.action();
-    } else if (e.key === "Escape") {
-      gameRef.current?.pause();
-    }
+  const slash = useCallback(() => {
+    setHint(false);
+    gameRef.current?.attack();
   }, []);
 
-  const playing = state === "playing";
+  const onKey = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault(); // only when canvas focused → no page-scroll trap
+      slash();
+    }
+  }, [slash]);
 
   return (
     <div ref={wrapRef} className="relative h-full w-full select-none">
       <canvas
         ref={canvasRef}
-        onPointerDown={act}
+        onPointerDown={slash}
         onKeyDown={onKey}
         tabIndex={0}
         role="img"
-        aria-label="OVERDRIVE — optional mini-game. Press Space or tap to dash."
-        className="block h-full w-full cursor-pointer outline-none"
+        aria-label="Stick Arena — optional mini-game. Move the cursor to run; click or press Space to swing your sword."
+        className="block h-full w-full cursor-crosshair outline-none"
       />
 
-      {/* HUD */}
       <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-4 font-mono text-[0.7rem] uppercase tracking-widest">
-        <span className="text-bone">
-          <span className="text-mist">SCORE </span>
-          {score.toLocaleString()}
+        <span className="flex items-center gap-1.5 text-bone">
+          <Swords className="h-3 w-3 text-surge" />
+          {kills}
         </span>
         <span className="flex items-center gap-1 text-mist">
           <Trophy className="h-3 w-3 text-surge" />
-          {best.toLocaleString()}
+          {best}
         </span>
-        {combo > 1 && <span className="text-volt">x{combo}</span>}
       </div>
 
-      {/* milestone toast (non-gating) */}
-      {toast && (
-        <div className="pointer-events-none absolute right-3 top-3 bg-surge/15 px-2 py-1 font-mono text-[0.65rem] uppercase tracking-widest text-surge bevel-sm">
-          {toast}
+      {hint && (
+        <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 text-center">
+          <span className="font-hud text-[0.7rem] uppercase tracking-[0.25em] text-bone/80">Move to run</span>
+          <span className="mt-0.5 block font-mono text-[0.6rem] uppercase tracking-widest text-mist/70">click / space to slash</span>
         </div>
-      )}
-
-      {/* exit hint while playing */}
-      {playing && (
-        <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 font-mono text-[0.6rem] uppercase tracking-widest text-mist/60">
-          Space / tap to dash · Esc to pause
-        </div>
-      )}
-
-      {/* overlays */}
-      {state !== "playing" && (
-        <Overlay state={state} score={score} best={best} onAction={act} />
       )}
     </div>
-  );
-}
-
-function Overlay({ state, score, best, onAction }: { state: GameState; score: number; best: number; onAction: () => void }) {
-  return (
-    <button
-      onClick={onAction}
-      className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-3 bg-void/45 text-center backdrop-blur-[1px]"
-      aria-label={state === "dead" ? "Retry" : "Start OVERDRIVE"}
-    >
-      {state === "dead" ? (
-        <>
-          <span className="font-hud text-xs uppercase tracking-[0.3em] text-surge">Run ended</span>
-          <span className="font-display text-3xl font-black uppercase text-bone">{score.toLocaleString()}</span>
-          <span className="font-mono text-[0.7rem] uppercase tracking-widest text-mist">Best {best.toLocaleString()}</span>
-          <span className="mt-1 inline-flex items-center gap-2 border border-bone/25 px-4 py-2 font-hud text-xs uppercase tracking-[0.16em] text-bone bevel-sm">
-            <RotateCcw className="h-3.5 w-3.5" /> Retry
-          </span>
-        </>
-      ) : state === "paused" ? (
-        <>
-          <span className="font-hud text-xs uppercase tracking-[0.3em] text-mist">Paused</span>
-          <span className="font-display text-xl font-black uppercase text-bone">Resume</span>
-        </>
-      ) : (
-        <>
-          <span className="font-hud text-xs uppercase tracking-[0.3em] text-surge">Press start</span>
-          <span className="font-display text-2xl font-black uppercase text-bone">OVERDRIVE</span>
-          <span className="mt-1 inline-flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-widest text-mist">
-            <Crosshair className="h-3.5 w-3.5 text-surge" /> click / space to dash
-          </span>
-        </>
-      )}
-    </button>
   );
 }
 

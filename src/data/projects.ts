@@ -40,10 +40,13 @@ export const projects: Project[] = [
     badge: "IGDC 2025",
     featured: true,
     shipped: false,
-    // TODO(MrVayn): media + case study.
-    problem: "PLACEHOLDER — the core problem Antarya set out to solve.",
-    approach: "PLACEHOLDER — the framework/tech approach and key decisions.",
-    result: "PLACEHOLDER — outcome, reception, metrics (IGDC 2025, demo).",
+    // TODO(MrVayn): add a trailer/screenshot for media; refine the case study.
+    problem:
+      "Small teams iterate slowly when gameplay is hard-coded — every new mechanic risks rewriting core systems.",
+    approach:
+      "As CTO I built a reusable, data-driven gameplay framework in Unreal Engine 5: modular systems, designer-tunable data assets, and a multiplayer-ready architecture, so features slot in without touching the core.",
+    result:
+      "The framework powered Antarya's showcase at IGDC 2025; a playable demo is in progress.",
   },
   {
     id: "couragely",
@@ -57,9 +60,13 @@ export const projects: Project[] = [
     badge: "LIVE",
     featured: true,
     shipped: true,
-    problem: "PLACEHOLDER — the design goal for a fast, sticky horror loop.",
-    approach: "PLACEHOLDER — 7-day build process and what you prioritized.",
-    result: "12.2K visits · 601 favorites · 638,391 impressions · 9,432 plays (first 2 weeks).",
+    media: "https://tr.rbxcdn.com/180DAY-8c1ca43249f81b505fa0eb47531f04ee/500/280/Image/Jpeg/noFilter",
+    problem:
+      "Could a sticky, shareable horror loop be built and shipped in a week — and actually find an audience?",
+    approach:
+      "A solo Roblox/Luau build: a tight scare loop, fast onboarding, and live-ops tuning for retention — shipped in 7 days.",
+    result:
+      "12.2K visits · 601 favorites · 638,391 impressions · 9,432 plays in the first two weeks.",
   },
   { id: "unreal-horror", title: "Unreal Horror Game", role: "Developer", year: "2023", summary: "An atmospheric horror prototype in Unreal Engine 5.", tech: ["Unreal Engine 5", "Horror"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1X1QuGVAsIcP6mcX-Q5LFw_Sr0XxBt8Xb/view?usp=sharing" }] },
   { id: "multiplayer-tba", title: "Multiplayer Project", role: "Developer", year: "TBA", summary: "A multiplayer title — private, to be announced.", tech: ["Unreal Engine 5", "Multiplayer", "Netcode"], links: [], locked: true },

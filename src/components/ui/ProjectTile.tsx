@@ -1,8 +1,10 @@
 import { ArrowUpRight, Lock } from "lucide-react";
 import type { Project } from "@/data/projects";
 import { cn } from "@/lib/cn";
+import { projectThumb } from "@/lib/drive";
 import { Panel } from "@/components/ui/Panel";
 import { Tag } from "@/components/ui/Tag";
+import { Thumb } from "@/components/ui/Thumb";
 
 /** Agent-select style project tile (DESIGN_SYSTEM §4 / BRIEF §3). */
 export function ProjectTile({
@@ -26,6 +28,12 @@ export function ProjectTile({
         project.locked ? "opacity-60" : "hover:border-surge/40",
       )}
     >
+      {featured && (
+        <div className="relative mb-5 aspect-video w-full overflow-hidden border border-steel bevel-sm">
+          <Thumb src={projectThumb(project.media, project.links)} alt={`${project.title} preview`} />
+          <span aria-hidden className="scanlines pointer-events-none absolute inset-0" />
+        </div>
+      )}
       <div className="flex items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {project.badge && <Tag accent>{project.badge}</Tag>}
