@@ -15,6 +15,7 @@ export interface OverdriveCallbacks {
   onScore?: (score: number, combo: number) => void;
   onBest?: (best: number) => void;
   onMilestone?: (label: string) => void;
+  onSfx?: (t: "jump" | "shard" | "hit") => void;
 }
 
 const C = {
@@ -54,7 +55,7 @@ export class Overdrive {
 
   // world
   private speed = 0;
-  private baseSpeed = 320;
+  private baseSpeed = 280;
   private distance = 0;
   private score = 0;
   private combo = 0;
@@ -173,6 +174,7 @@ export class Overdrive {
     if (this.onGround) {
       this.vy = -Math.min(640, this.H * 0.95);
       this.onGround = false;
+      this.cb.onSfx?.("jump");
       if (!this.reduced) this.burst(this.px, this.py + this.playerSize, C.volt, 6, 120);
     }
   }
@@ -183,8 +185,8 @@ export class Overdrive {
     this.score = 0;
     this.combo = 0;
     this.shake = 0;
-    this.spawnTimer = 0.6;
-    this.shardTimer = 1.2;
+    this.spawnTimer = 1.1;
+    this.shardTimer = 1.4;
     this.nextMilestone = 600;
     this.vy = 0;
     this.onGround = true;
@@ -202,8 +204,8 @@ export class Overdrive {
     if (!o) return;
     o.active = true;
     o.passed = false;
-    o.w = 16 + Math.random() * 18;
-    o.h = 26 + Math.random() * Math.min(90, this.H * 0.22);
+    o.w = 16 + Math.random() * 16;
+    o.h = 22 + Math.random() * Math.min(68, this.H * 0.17);
     o.x = this.W + o.w;
   }
   private spawnShard() {
@@ -251,7 +253,7 @@ export class Overdrive {
 
   private update(dt: number, attract: boolean) {
     // difficulty ramp
-    this.speed = this.baseSpeed + Math.min(360, this.distance * 0.05);
+    this.speed = this.baseSpeed + Math.min(300, this.distance * 0.04);
     this.distance += this.speed * dt;
     this.bgScroll = (this.bgScroll + this.speed * dt * 0.3) % 2000;
 
@@ -295,7 +297,7 @@ export class Overdrive {
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
       this.spawnObstacle();
-      const gap = Math.max(0.7, 1.5 - this.distance * 0.00008);
+      const gap = Math.max(0.85, 1.7 - this.distance * 0.00006);
       this.spawnTimer = gap + Math.random() * 0.5;
     }
     this.shardTimer -= dt;
@@ -333,6 +335,7 @@ export class Overdrive {
         this.combo++;
         this.score += 10 * Math.max(1, Math.floor(this.combo / 3) + 1);
         this.cb.onScore?.(this.score, this.combo);
+        this.cb.onSfx?.("shard");
         this.burst(s.x, s.y, C.volt, 10, 180);
       }
       if (s.x < -20) s.active = false;
@@ -351,6 +354,7 @@ export class Overdrive {
 
   private die() {
     this.combo = 0;
+    this.cb.onSfx?.("hit");
     if (this.score > this.best) { this.best = this.score; saveBest(this.best); this.cb.onBest?.(this.best); }
     if (!this.reduced) { this.shake = 14; this.burst(this.px, this.py + this.playerSize / 2, C.surge, 28, 320); }
     this.setState("dead");

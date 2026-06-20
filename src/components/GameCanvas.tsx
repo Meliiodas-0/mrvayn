@@ -22,6 +22,26 @@ export default function GameCanvas() {
   const [combo, setCombo] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
 
+  // SFX — off by default, enabled via the Nav sound toggle (a user gesture).
+  const soundOn = useRef(false);
+  const audioRef = useRef<AudioContext | null>(null);
+
+  const beep = useCallback((freq: number, dur: number, type: OscillatorType, gain: number) => {
+    if (!soundOn.current || !audioRef.current) return;
+    const ac = audioRef.current;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    o.connect(g);
+    g.connect(ac.destination);
+    const t = ac.currentTime;
+    g.gain.setValueAtTime(gain, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.start(t);
+    o.stop(t + dur);
+  }, []);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
@@ -38,6 +58,11 @@ export default function GameCanvas() {
         setToast(label);
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => setToast(null), 1400);
+      },
+      onSfx: (t) => {
+        if (t === "jump") beep(420, 0.08, "square", 0.03);
+        else if (t === "shard") beep(880, 0.09, "triangle", 0.04);
+        else beep(120, 0.28, "sawtooth", 0.05);
       },
     });
     game.setReducedMotion(reduced);
@@ -62,16 +87,33 @@ export default function GameCanvas() {
     };
     window.addEventListener("overdrive:play", onPlay);
 
+    // Sound toggle (from Nav). Lazily create + resume the AudioContext while
+    // inside the toggle's user gesture so playback is allowed.
+    const onSound = (e: Event) => {
+      const muted = (e as CustomEvent<{ muted: boolean }>).detail?.muted;
+      soundOn.current = muted === false;
+      if (soundOn.current) {
+        try {
+          audioRef.current ??= new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+          audioRef.current.resume?.();
+        } catch {
+          soundOn.current = false;
+        }
+      }
+    };
+    window.addEventListener("overdrive:sound", onSound);
+
     return () => {
       clearTimeout(toastTimer);
       ro.disconnect();
       io.disconnect();
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("overdrive:play", onPlay);
+      window.removeEventListener("overdrive:sound", onSound);
       game.destroy();
       gameRef.current = null;
     };
-  }, []);
+  }, [beep]);
 
   const act = useCallback(() => gameRef.current?.action(), []);
 
