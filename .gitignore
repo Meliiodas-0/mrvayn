@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Impeccable design tooling (local only; reinstall via `npx impeccable install`)
+.claude/skills/impeccable/
+.claude/settings.local.json
+.gemini/
