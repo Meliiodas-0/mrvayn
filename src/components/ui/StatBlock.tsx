@@ -10,9 +10,9 @@ interface StatBlockProps {
 /** Big value + small HUD label, for specialties/metrics (DESIGN_SYSTEM §4). */
 export function StatBlock({ value, label, className }: StatBlockProps) {
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
+    <div className={cn("flex min-w-0 flex-col gap-1.5", className)}>
       <span
-        className="font-display font-black uppercase leading-none text-bone"
+        className="break-words font-display font-black uppercase leading-none text-bone"
         style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}
       >
         {value}

@@ -1,24 +1,36 @@
-// Phase 0 placeholder — a server-rendered hero so the build/deploy gate is green
-// and crawlers get real HTML. Real sections land in Phase 1–2.
+import { BootSequence } from "@/components/BootSequence";
+import { Nav } from "@/components/nav/Nav";
+import { Footer } from "@/components/layout/Footer";
+import { Hero } from "@/components/sections/Hero";
+import { About } from "@/components/sections/About";
+import { Work } from "@/components/sections/Work";
+import { Skills } from "@/components/sections/Skills";
+import { Timeline } from "@/components/sections/Timeline";
+import { Contact } from "@/components/sections/Contact";
+
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-5 px-6 text-center">
-      <p className="font-hud uppercase tracking-[0.35em] text-surge text-xs sm:text-sm">
-        Build v2.0 // booting
-      </p>
-      <h1
-        className="font-display font-black uppercase text-bone leading-[0.92]"
-        style={{ fontSize: "clamp(3rem, 8vw, 7rem)", fontStretch: "expanded" }}
+    <>
+      <a
+        href="#content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:bg-surge focus:px-4 focus:py-2 focus:font-hud focus:text-xs focus:uppercase focus:tracking-widest focus:text-void"
       >
-        MrVayn
-      </h1>
-      <p className="font-sans text-mist max-w-md text-base sm:text-lg leading-relaxed">
-        Founder &amp; Game Developer. Unreal Engine 5, Niagara VFX, multiplayer &amp; gameplay
-        systems. The new build is being assembled.
-      </p>
-      <span className="font-mono text-mist/60 text-xs tracking-widest">
-        OVERDRIVE // rebuild in progress
-      </span>
-    </main>
+        Skip to content
+      </a>
+
+      <BootSequence />
+      <Nav />
+
+      <main id="content" className="grain relative">
+        <Hero />
+        <About />
+        <Work />
+        <Skills />
+        <Timeline />
+        <Contact />
+      </main>
+
+      <Footer />
+    </>
   );
 }
