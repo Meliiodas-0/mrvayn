@@ -6,89 +6,90 @@
 
 @layer base {
   :root {
-    --background: 220 20% 4%;
-    --foreground: 210 40% 98%;
+    /* === Cinematic "Amber & Teal" — dominant warm, sharp cool accent === */
+    --background: 224 40% 4.5%;
+    --foreground: 40 30% 96%;
 
-    --card: 220 20% 8%;
-    --card-foreground: 210 40% 98%;
+    --card: 223 32% 7.5%;
+    --card-foreground: 40 30% 96%;
 
-    --popover: 220 20% 6%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 223 36% 6%;
+    --popover-foreground: 40 30% 96%;
 
-    --primary: 15 100% 60%;
-    --primary-foreground: 220 20% 4%;
+    --primary: 24 100% 56%;
+    --primary-foreground: 224 45% 5%;
 
-    --secondary: 325 100% 55%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 330 92% 58%;
+    --secondary-foreground: 40 30% 98%;
 
-    --muted: 220 15% 15%;
-    --muted-foreground: 215 20% 55%;
+    --muted: 223 22% 14%;
+    --muted-foreground: 220 13% 62%;
 
-    --accent: 265 100% 60%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 174 88% 47%;
+    --accent-foreground: 224 45% 5%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 40 30% 98%;
 
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 15 100% 60%;
+    --border: 222 26% 15%;
+    --input: 222 26% 15%;
+    --ring: 24 100% 56%;
 
     --radius: 0.75rem;
 
-    /* Custom Portfolio Colors */
-    --neon-cyan: 15 100% 60%;
-    --neon-purple: 325 100% 55%;
-    --neon-pink: 265 100% 60%;
-    --neon-blue: 220 100% 60%;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(15 100% 60%) 0%, hsl(325 100% 55%) 50%, hsl(265 100% 60%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(325 100% 55%) 0%, hsl(15 100% 60%) 100%);
-    
-    /* Shadows */
-    --glow-primary: 0 0 20px hsl(15 100% 60% / 0.5);
-    --glow-secondary: 0 0 20px hsl(325 100% 55% / 0.5);
-    --glow-accent: 0 0 20px hsl(265 100% 60% / 0.5);
+    /* Signature accents */
+    --neon-amber: 24 100% 56%;
+    --neon-teal: 174 88% 47%;
+    --neon-magenta: 330 92% 58%;
+    --neon-gold: 40 100% 62%;
 
-    --sidebar-background: 220 20% 6%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 15 100% 60%;
-    --sidebar-primary-foreground: 220 20% 4%;
-    --sidebar-accent: 220 15% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 220 15% 18%;
-    --sidebar-ring: 15 100% 60%;
+    /* Gradients — amber → gold → teal (the cinematic orange/teal grade) */
+    --gradient-primary: linear-gradient(118deg, hsl(24 100% 58%) 0%, hsl(40 100% 64%) 46%, hsl(174 88% 52%) 100%);
+    --gradient-accent: linear-gradient(118deg, hsl(174 88% 52%) 0%, hsl(24 100% 58%) 100%);
+
+    /* Shadows */
+    --glow-primary: 0 0 22px hsl(24 100% 56% / 0.5);
+    --glow-secondary: 0 0 22px hsl(330 92% 58% / 0.5);
+    --glow-accent: 0 0 22px hsl(174 88% 47% / 0.5);
+
+    --sidebar-background: 223 36% 6%;
+    --sidebar-foreground: 40 30% 96%;
+    --sidebar-primary: 24 100% 56%;
+    --sidebar-primary-foreground: 224 45% 5%;
+    --sidebar-accent: 223 22% 12%;
+    --sidebar-accent-foreground: 40 30% 96%;
+    --sidebar-border: 222 26% 15%;
+    --sidebar-ring: 24 100% 56%;
   }
 
   .dark {
-    --background: 220 20% 4%;
-    --foreground: 210 40% 98%;
-    --card: 220 20% 8%;
-    --card-foreground: 210 40% 98%;
-    --popover: 220 20% 6%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 15 100% 60%;
-    --primary-foreground: 220 20% 4%;
-    --secondary: 325 100% 55%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 220 15% 15%;
-    --muted-foreground: 215 20% 55%;
-    --accent: 265 100% 60%;
-    --accent-foreground: 210 40% 98%;
+    --background: 224 40% 4.5%;
+    --foreground: 40 30% 96%;
+    --card: 223 32% 7.5%;
+    --card-foreground: 40 30% 96%;
+    --popover: 223 36% 6%;
+    --popover-foreground: 40 30% 96%;
+    --primary: 24 100% 56%;
+    --primary-foreground: 224 45% 5%;
+    --secondary: 330 92% 58%;
+    --secondary-foreground: 40 30% 98%;
+    --muted: 223 22% 14%;
+    --muted-foreground: 220 13% 62%;
+    --accent: 174 88% 47%;
+    --accent-foreground: 224 45% 5%;
     --destructive: 0 62% 30%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 15 100% 60%;
-    --sidebar-background: 220 20% 6%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 15 100% 60%;
-    --sidebar-primary-foreground: 220 20% 4%;
-    --sidebar-accent: 220 15% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 220 15% 18%;
-    --sidebar-ring: 15 100% 60%;
+    --destructive-foreground: 40 30% 98%;
+    --border: 222 26% 15%;
+    --input: 222 26% 15%;
+    --ring: 24 100% 56%;
+    --sidebar-background: 223 36% 6%;
+    --sidebar-foreground: 40 30% 96%;
+    --sidebar-primary: 24 100% 56%;
+    --sidebar-primary-foreground: 224 45% 5%;
+    --sidebar-accent: 223 22% 12%;
+    --sidebar-accent-foreground: 40 30% 96%;
+    --sidebar-border: 222 26% 15%;
+    --sidebar-ring: 24 100% 56%;
   }
 }
 
@@ -98,11 +99,34 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased font-body;
+    /* Layered atmosphere: warm core bloom + cool corners over deep blue-black */
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(24 100% 56% / 0.10), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 0%, hsl(174 88% 47% / 0.07), transparent 55%),
+      radial-gradient(ellipse 70% 60% at 0% 100%, hsl(330 92% 58% / 0.06), transparent 55%);
+    background-attachment: fixed;
+    font-feature-settings: "ss01", "cv01";
   }
 
   html {
     scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.3);
+    color: hsl(var(--foreground));
+  }
+
+  /* Fluid display type for cinematic scale across ratios */
+  .text-fluid-hero {
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    line-height: 1.02;
+  }
+  .text-fluid-section {
+    font-size: clamp(2.25rem, 6vw, 4.75rem);
+    line-height: 1.04;
   }
 }
 

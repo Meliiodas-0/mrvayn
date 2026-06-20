@@ -658,7 +658,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           <ellipse cx="60" cy="50" rx="12" ry="8" fill="#001a33" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
           <path d="M40 35 L55 25 L70 35" fill="none" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.8"/>
           <path d="M40 65 L55 75 L70 65" fill="none" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.8"/>
-          <ellipse cx="18" cy="50" rx="6" ry="10" fill="#00ffff" opacity="0.9" style={{ animation: 'engineGlow 0.2s ease-in-out infinite' }}>
+          <ellipse cx="18" cy="50" rx="6" ry="10" fill="#16e0c8" opacity="0.9" style={{ animation: 'engineGlow 0.2s ease-in-out infinite' }}>
             <animate attributeName="rx" values="6;8;6" dur="0.15s" repeatCount="indefinite"/>
           </ellipse>
         </svg>

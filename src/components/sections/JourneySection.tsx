@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Calendar, Trophy, Briefcase, Rocket, Flag, Star } from 'lucide-react';
 import { FloatingPixels } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
+import SectionHeading from '@/components/ui/SectionHeading';
 
 interface JourneyItem {
   year: string;
@@ -108,21 +109,7 @@ export default function JourneySection() {
       </div>
 
       <div className="max-w-5xl mx-auto relative z-10">
-        {/* Chapter Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16 sm:mb-20 section-chapter"
-        >
-          <span className="inline-block text-xs font-mono tracking-[0.4em] uppercase text-primary/60 mb-6">
-            Chapter 02
-          </span>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
-            MY JOURNEY
-          </h2>
-        </motion.div>
+        <SectionHeading chapter="02" title="My Journey" />
 
         {/* Timeline */}
         <div className="relative">

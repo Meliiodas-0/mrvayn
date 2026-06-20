@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Instagram, ExternalLink } from 'lucide-react';
 import { FloatingPixels } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
+import SectionHeading from '@/components/ui/SectionHeading';
 
 interface CollaborationItem {
   id: number;
@@ -48,29 +49,12 @@ export default function CollaborationsSection() {
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Chapter Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16 sm:mb-20 section-chapter"
-        >
-          <span className="inline-block text-xs font-mono tracking-[0.4em] uppercase text-primary/60 mb-6">
-            Chapter 04
-          </span>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight mb-6">
-            SOCIAL MEDIA AND BRAND COLLABORATIONS
-          </h2>
-          <div className="flex justify-center mb-4">
-            <div className="px-4 py-1.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-primary text-primary-foreground">
-              Collaboration Hub
-            </div>
-          </div>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
-            Selected outreach and collaborations - for brand deals, partnerships, and community work.
-          </p>
-        </motion.div>
+        <SectionHeading
+          chapter="04"
+          title="Collaborations"
+          badge="Collaboration Hub"
+          subtitle="Social media & brand collaborations — selected outreach, partnerships, and community work."
+        />
 
         {/* Collaboration Groups */}
         {collaborations.map((group, groupIndex) => (

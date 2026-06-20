@@ -70,8 +70,10 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        display: ["Orbitron", "sans-serif"],
-        body: ["Inter", "sans-serif"],
+        sans: ["Sora", "ui-sans-serif", "system-ui", "sans-serif"],
+        body: ["Sora", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["'Chakra Petch'", "ui-sans-serif", "sans-serif"],
+        mono: ["'Space Mono'", "ui-monospace", "monospace"],
       },
       keyframes: {
         "accordion-down": {

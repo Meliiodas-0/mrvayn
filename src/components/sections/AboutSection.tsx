@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Code2, Gamepad2, Palette, Boxes, Zap } from 'lucide-react';
 import { FloatingPixels } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
+import SectionHeading from '@/components/ui/SectionHeading';
 
 const skills = [
   { name: 'Unreal Engine 5', level: 9, max: 10 },
@@ -47,21 +48,7 @@ export default function AboutSection() {
       <ShootableSpaceships sectionId="about" count={5} safeZones={aboutSafeZones} />
       
       <div className="max-w-6xl mx-auto relative">
-        {/* Chapter Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16 sm:mb-20 section-chapter"
-        >
-          <span className="inline-block text-xs font-mono tracking-[0.4em] uppercase text-primary/60 mb-6">
-            Chapter 01
-          </span>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
-            ABOUT ME
-          </h2>
-        </motion.div>
+        <SectionHeading chapter="01" title="About Me" />
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           {/* Bio Section */}

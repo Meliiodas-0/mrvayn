@@ -9,6 +9,8 @@ import ContactSection from '@/components/sections/ContactSection';
 import CollaborationsSection from '@/components/sections/CollaborationsSection';
 import CinematicIntro from '@/components/intro/CinematicIntro';
 import SectionDivider3D from '@/components/3d/SectionDivider3D';
+import CinematicOverlay from '@/components/ui/CinematicOverlay';
+import GameHUD from '@/components/ui/GameHUD';
 
 // Lazy load the heavy 3D background
 const ScrollReactive3DScene = lazy(() => import('@/components/3d/ScrollReactive3DScene'));
@@ -39,15 +41,24 @@ const Index = () => {
       <Suspense fallback={null}>
         <ScrollReactive3DScene />
       </Suspense>
-      
+
+      {/* Cinematic film treatment + scroll progress */}
+      <CinematicOverlay />
+
       {showIntro && <CinematicIntro onComplete={handleIntroComplete} />}
       <Navbar />
+      <GameHUD />
       <main className="relative z-10">
         <HeroSection introComplete={introComplete} />
+        <SectionDivider3D variant="energy" fromColor="primary" toColor="secondary" />
         <AboutSection />
+        <SectionDivider3D variant="data" fromColor="secondary" toColor="accent" />
         <JourneySection />
+        <SectionDivider3D variant="portal" fromColor="accent" toColor="primary" />
         <ProjectsSection />
+        <SectionDivider3D variant="wave" fromColor="primary" toColor="secondary" />
         <CollaborationsSection />
+        <SectionDivider3D variant="energy" fromColor="secondary" toColor="accent" />
         <ContactSection />
       </main>
       <Footer />

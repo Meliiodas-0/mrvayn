@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { ExternalLink, Gamepad2, Trophy, Lock, ArrowUpRight, Mountain, Film, Globe, Bot, Code, Wrench } from 'lucide-react';
 import { FloatingPixels } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
+import SectionHeading from '@/components/ui/SectionHeading';
 
 interface ExpandedProject {
   id: number;
@@ -104,21 +105,7 @@ export default function ProjectsSection() {
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Chapter Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16 sm:mb-20 section-chapter"
-        >
-          <span className="inline-block text-xs font-mono tracking-[0.4em] uppercase text-primary/60 mb-6">
-            Chapter 03
-          </span>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
-            FEATURED PROJECTS
-          </h2>
-        </motion.div>
+        <SectionHeading chapter="03" title="Featured Projects" />
 
         {/* Featured Projects - Poster Style */}
         <div className="grid sm:grid-cols-2 gap-6 lg:gap-8 mb-16">

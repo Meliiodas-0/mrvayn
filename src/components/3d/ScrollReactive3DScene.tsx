@@ -1,14 +1,16 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, type MutableRefObject } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float } from '@react-three/drei';
 import * as THREE from 'three';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+
+type ScrollRef = MutableRefObject<number>;
 
 // Parallax starfield that reacts to scroll
-function ParallaxStars({ scrollProgress }: { scrollProgress: number }) {
+function ParallaxStars({ scrollRef }: { scrollRef: ScrollRef }) {
   const groupRef = useRef<THREE.Group>(null);
-  
+
   const stars = useMemo(() => {
     return Array.from({ length: 200 }, () => ({
       position: [
@@ -17,17 +19,14 @@ function ParallaxStars({ scrollProgress }: { scrollProgress: number }) {
         (Math.random() - 0.5) * 30 - 10,
       ] as [number, number, number],
       size: Math.random() * 0.03 + 0.01,
-      speed: Math.random() * 0.5 + 0.5,
     }));
   }, []);
 
   useFrame((state) => {
     if (groupRef.current) {
-      // Parallax based on scroll
-      groupRef.current.position.y = scrollProgress * 15;
-      groupRef.current.rotation.z = scrollProgress * 0.1;
-      
-      // Subtle breathing animation
+      const s = scrollRef.current;
+      groupRef.current.position.y = s * 15;
+      groupRef.current.rotation.z = s * 0.12;
       groupRef.current.children.forEach((child, i) => {
         const star = child as THREE.Mesh;
         const baseScale = stars[i]?.size || 0.02;
@@ -42,10 +41,10 @@ function ParallaxStars({ scrollProgress }: { scrollProgress: number }) {
       {stars.map((star, i) => (
         <mesh key={i} position={star.position}>
           <sphereGeometry args={[star.size, 8, 8]} />
-          <meshBasicMaterial 
-            color={i % 5 === 0 ? '#00ffff' : i % 7 === 0 ? '#a855f7' : '#ffffff'} 
-            transparent 
-            opacity={0.8}
+          <meshBasicMaterial
+            color={i % 5 === 0 ? '#ff8a1e' : i % 7 === 0 ? '#16e0c8' : '#ffffff'}
+            transparent
+            opacity={0.85}
           />
         </mesh>
       ))}
@@ -53,18 +52,18 @@ function ParallaxStars({ scrollProgress }: { scrollProgress: number }) {
   );
 }
 
-// Floating nebula clouds
-function NebulaCloud({ position, color, scrollProgress }: { 
-  position: [number, number, number]; 
+// Soft glowing nebula cloud (additive so it reads as light, not a dark disc)
+function NebulaCloud({ position, color, scrollRef }: {
+  position: [number, number, number];
   color: string;
-  scrollProgress: number;
+  scrollRef: ScrollRef;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  
+
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.rotation.z = state.clock.elapsedTime * 0.05;
-      meshRef.current.position.y = position[1] + scrollProgress * 3;
+      meshRef.current.position.y = position[1] + scrollRef.current * 3;
       const scale = 1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
       meshRef.current.scale.setScalar(scale);
     }
@@ -72,21 +71,23 @@ function NebulaCloud({ position, color, scrollProgress }: {
 
   return (
     <mesh ref={meshRef} position={position}>
-      <sphereGeometry args={[3, 32, 32]} />
+      <sphereGeometry args={[4, 24, 24]} />
       <meshBasicMaterial
         color={color}
         transparent
-        opacity={0.08}
+        opacity={0.07}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
       />
     </mesh>
   );
 }
 
 // Energy particles floating around
-function EnergyParticles({ scrollProgress, isMobile }: { scrollProgress: number; isMobile: boolean }) {
+function EnergyParticles({ scrollRef, isMobile }: { scrollRef: ScrollRef; isMobile: boolean }) {
   const groupRef = useRef<THREE.Group>(null);
-  const count = isMobile ? 30 : 60;
-  
+  const count = isMobile ? 28 : 60;
+
   const particles = useMemo(() => {
     return Array.from({ length: count }, (_, i) => ({
       position: [
@@ -97,24 +98,24 @@ function EnergyParticles({ scrollProgress, isMobile }: { scrollProgress: number;
       size: Math.random() * 0.05 + 0.02,
       phase: Math.random() * Math.PI * 2,
       speed: Math.random() * 0.5 + 0.3,
-      color: ['#00ffff', '#a855f7', '#ff0080', '#00ff88'][i % 4],
+      color: ['#ff8a1e', '#16e0c8', '#ff2d78', '#ffc24d'][i % 4],
     }));
   }, [count]);
 
   useFrame((state) => {
     if (groupRef.current) {
+      const s = scrollRef.current;
       groupRef.current.children.forEach((child, i) => {
         const particle = particles[i];
         if (particle) {
           const mesh = child as THREE.Mesh;
-          // Floating motion
-          mesh.position.y = particle.position[1] + 
+          mesh.position.y =
+            particle.position[1] +
             Math.sin(state.clock.elapsedTime * particle.speed + particle.phase) * 2 +
-            scrollProgress * 5;
-          mesh.position.x = particle.position[0] + 
+            s * 5;
+          mesh.position.x =
+            particle.position[0] +
             Math.cos(state.clock.elapsedTime * particle.speed * 0.5 + particle.phase) * 1;
-          
-          // Pulse
           const scale = particle.size * (1 + Math.sin(state.clock.elapsedTime * 3 + i) * 0.3);
           mesh.scale.setScalar(scale);
         }
@@ -127,11 +128,7 @@ function EnergyParticles({ scrollProgress, isMobile }: { scrollProgress: number;
       {particles.map((particle, i) => (
         <mesh key={i} position={particle.position}>
           <sphereGeometry args={[1, 8, 8]} />
-          <meshBasicMaterial
-            color={particle.color}
-            transparent
-            opacity={0.6}
-          />
+          <meshBasicMaterial color={particle.color} transparent opacity={0.6} blending={THREE.AdditiveBlending} depthWrite={false} />
         </mesh>
       ))}
     </group>
@@ -139,9 +136,10 @@ function EnergyParticles({ scrollProgress, isMobile }: { scrollProgress: number;
 }
 
 // Geometric floating shapes
-function FloatingGeometry({ scrollProgress, isMobile }: { scrollProgress: number; isMobile: boolean }) {
+function FloatingGeometry({ scrollRef, isMobile }: { scrollRef: ScrollRef; isMobile: boolean }) {
+  const groupRef = useRef<THREE.Group>(null);
   const count = isMobile ? 6 : 12;
-  
+
   const shapes = useMemo(() => {
     return Array.from({ length: count }, (_, i) => ({
       position: [
@@ -150,100 +148,109 @@ function FloatingGeometry({ scrollProgress, isMobile }: { scrollProgress: number
         -8 - Math.random() * 10,
       ] as [number, number, number],
       type: ['octahedron', 'tetrahedron', 'icosahedron'][i % 3],
-      color: ['#00ffff', '#a855f7', '#ff0080'][i % 3],
+      color: ['#ff8a1e', '#16e0c8', '#ff2d78'][i % 3],
       scale: 0.2 + Math.random() * 0.3,
-      rotationSpeed: (Math.random() - 0.5) * 0.02,
     }));
   }, [count]);
 
+  // Scroll-driven vertical drift for the whole group.
+  useFrame(() => {
+    if (groupRef.current) {
+      groupRef.current.position.y = scrollRef.current * 8;
+    }
+  });
+
   return (
-    <>
+    <group ref={groupRef}>
       {shapes.map((shape, i) => (
         <Float key={i} speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
-          <mesh 
-            position={[
-              shape.position[0], 
-              shape.position[1] + scrollProgress * 8, 
-              shape.position[2]
-            ]} 
-            scale={shape.scale}
-          >
+          <mesh position={shape.position} scale={shape.scale}>
             {shape.type === 'octahedron' && <octahedronGeometry args={[1, 0]} />}
             {shape.type === 'tetrahedron' && <tetrahedronGeometry args={[1, 0]} />}
             {shape.type === 'icosahedron' && <icosahedronGeometry args={[1, 0]} />}
-            <meshBasicMaterial
-              color={shape.color}
-              wireframe
-              transparent
-              opacity={0.3}
-            />
+            <meshBasicMaterial color={shape.color} wireframe transparent opacity={0.32} />
           </mesh>
         </Float>
       ))}
-    </>
+    </group>
   );
 }
 
 // Grid floor with parallax
-function InfiniteGrid({ scrollProgress }: { scrollProgress: number }) {
+function InfiniteGrid({ scrollRef }: { scrollRef: ScrollRef }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.position.z = ((state.clock.elapsedTime * 0.3) % 2) - 15 + scrollProgress * 5;
+      meshRef.current.position.z = ((state.clock.elapsedTime * 0.3) % 2) - 15 + scrollRef.current * 5;
+    }
+    if (matRef.current) {
+      matRef.current.opacity = Math.max(0.02, 0.09 - scrollRef.current * 0.04);
     }
   });
-
-  const opacity = Math.max(0.02, 0.08 - scrollProgress * 0.03);
 
   return (
     <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -8, -15]}>
       <planeGeometry args={[100, 80, 80, 60]} />
-      <meshBasicMaterial
-        color="#00ffff"
-        wireframe
-        transparent
-        opacity={opacity}
-      />
+      <meshBasicMaterial ref={matRef} color="#16e0c8" wireframe transparent opacity={0.1} />
     </mesh>
   );
 }
 
-// Scene component that receives scroll progress
-function Scene({ scrollProgress, isMobile }: { scrollProgress: number; isMobile: boolean }) {
-  // Color transition based on scroll - cyan -> purple -> pink
-  const sectionColor = useMemo(() => {
-    if (scrollProgress < 0.3) return '#00ffff';
-    if (scrollProgress < 0.6) return '#a855f7';
-    return '#ff0080';
-  }, [scrollProgress]);
+// Color-shifting key light that tracks scroll position through the sections.
+function SectionLight({ scrollRef }: { scrollRef: ScrollRef }) {
+  const lightRef = useRef<THREE.PointLight>(null);
+  const amber = useMemo(() => new THREE.Color('#ff8a1e'), []);
+  const teal = useMemo(() => new THREE.Color('#16e0c8'), []);
+  const magenta = useMemo(() => new THREE.Color('#ff2d78'), []);
+  const tmp = useMemo(() => new THREE.Color(), []);
 
+  useFrame(() => {
+    if (lightRef.current) {
+      const s = scrollRef.current;
+      if (s < 0.5) {
+        tmp.copy(amber).lerp(teal, s / 0.5);
+      } else {
+        tmp.copy(teal).lerp(magenta, (s - 0.5) / 0.5);
+      }
+      lightRef.current.color.copy(tmp);
+    }
+  });
+
+  return <pointLight ref={lightRef} position={[0, 5, 5]} intensity={0.7} />;
+}
+
+// Camera rig: gentle pointer parallax for depth.
+function CameraRig() {
+  useFrame((state) => {
+    const px = state.pointer.x;
+    const py = state.pointer.y;
+    state.camera.position.x += (px * 1.2 - state.camera.position.x) * 0.03;
+    state.camera.position.y += (py * 0.8 - state.camera.position.y) * 0.03;
+    state.camera.lookAt(0, 0, 0);
+  });
+  return null;
+}
+
+function Scene({ scrollRef, isMobile }: { scrollRef: ScrollRef; isMobile: boolean }) {
   return (
     <>
-      {/* Ambient light */}
-      <ambientLight intensity={0.2} />
-      
-      {/* Dynamic colored point light based on section */}
-      <pointLight position={[0, 5, 5]} intensity={0.5} color={sectionColor} />
-      <pointLight position={[-10, -5, -10]} intensity={0.3} color="#a855f7" />
-      <pointLight position={[10, 5, -5]} intensity={0.3} color="#00ffff" />
-      
-      {/* Parallax starfield */}
-      <ParallaxStars scrollProgress={scrollProgress} />
-      
-      {/* Nebula clouds */}
-      <NebulaCloud position={[-15, 10, -20]} color="#00ffff" scrollProgress={scrollProgress} />
-      <NebulaCloud position={[20, -5, -25]} color="#a855f7" scrollProgress={scrollProgress} />
-      <NebulaCloud position={[-10, -15, -18]} color="#ff0080" scrollProgress={scrollProgress} />
-      
-      {/* Energy particles */}
-      <EnergyParticles scrollProgress={scrollProgress} isMobile={isMobile} />
-      
-      {/* Floating geometric shapes */}
-      <FloatingGeometry scrollProgress={scrollProgress} isMobile={isMobile} />
-      
-      {/* Infinite grid */}
-      <InfiniteGrid scrollProgress={scrollProgress} />
+      <ambientLight intensity={0.25} />
+      <SectionLight scrollRef={scrollRef} />
+      <pointLight position={[-10, -5, -10]} intensity={0.3} color="#16e0c8" />
+      <pointLight position={[10, 5, -5]} intensity={0.3} color="#ff8a1e" />
+
+      <ParallaxStars scrollRef={scrollRef} />
+
+      <NebulaCloud position={[-15, 10, -20]} color="#ff8a1e" scrollRef={scrollRef} />
+      <NebulaCloud position={[20, -5, -25]} color="#16e0c8" scrollRef={scrollRef} />
+      <NebulaCloud position={[-10, -15, -18]} color="#ff2d78" scrollRef={scrollRef} />
+
+      <EnergyParticles scrollRef={scrollRef} isMobile={isMobile} />
+      <FloatingGeometry scrollRef={scrollRef} isMobile={isMobile} />
+      <InfiniteGrid scrollRef={scrollRef} />
+      {!isMobile && <CameraRig />}
     </>
   );
 }
@@ -251,37 +258,24 @@ function Scene({ scrollProgress, isMobile }: { scrollProgress: number; isMobile:
 export default function ScrollReactive3DScene() {
   const isMobile = useIsMobile();
   const { scrollYProgress } = useScroll();
-  
-  // Convert MotionValue to number for Three.js
-  const scrollProgress = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  
+  const scrollRef = useRef(0);
+
+  // Keep a plain-number mirror of the scroll MotionValue that the r3f frame
+  // loop can read live every frame (the previous version read a stale React
+  // render snapshot, so the scene never actually reacted to scroll).
+  useMotionValueEvent(scrollYProgress, 'change', (v) => {
+    scrollRef.current = v;
+  });
+
   return (
-    <motion.div 
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.8 }}
-    >
+    <motion.div className="fixed inset-0 pointer-events-none z-0" style={{ opacity: 0.85 }}>
       <Canvas
         camera={{ position: [0, 0, 10], fov: 60 }}
         dpr={isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5)}
-        gl={{ 
-          antialias: !isMobile,
-          powerPreference: 'high-performance',
-          alpha: true,
-        }}
+        gl={{ antialias: !isMobile, powerPreference: 'high-performance', alpha: true }}
       >
-        <ScrollReactiveScene scrollProgress={scrollProgress} isMobile={isMobile} />
+        <Scene scrollRef={scrollRef} isMobile={isMobile} />
       </Canvas>
     </motion.div>
   );
-}
-
-// Inner component to use scrollProgress inside Canvas
-function ScrollReactiveScene({ scrollProgress, isMobile }: { scrollProgress: any; isMobile: boolean }) {
-  const scrollValue = useRef(0);
-  
-  useFrame(() => {
-    scrollValue.current = scrollProgress.get();
-  });
-  
-  return <Scene scrollProgress={scrollValue.current} isMobile={isMobile} />;
 }

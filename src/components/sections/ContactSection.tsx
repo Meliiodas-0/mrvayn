@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Linkedin, Mail, MessageCircle, Send, Instagram, Youtube, ArrowUpRight } from 'lucide-react';
 import { FloatingPixels } from '@/components/ui/GameElements';
 import ShootableSpaceships from '@/components/ui/ShootableSpaceships';
+import SectionHeading from '@/components/ui/SectionHeading';
 
 interface SocialLink {
   name: string;
@@ -57,21 +58,7 @@ export default function ContactSection() {
       <ShootableSpaceships sectionId="contact" count={4} safeZones={contactSafeZones} />
 
       <div className="max-w-4xl mx-auto relative z-10">
-        {/* Chapter Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16 sm:mb-20 section-chapter"
-        >
-          <span className="inline-block text-xs font-mono tracking-[0.4em] uppercase text-primary/60 mb-6">
-            Chapter 05
-          </span>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
-            LET'S CONNECT
-          </h2>
-        </motion.div>
+        <SectionHeading chapter="05" title="Let's Connect" />
 
         {/* Social Links - Clean Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-16">

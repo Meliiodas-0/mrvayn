@@ -1,0 +1,12 @@
+{
+  "name": "MrVayn — Founder & Game Developer",
+  "short_name": "MrVayn",
+  "description": "Crafting next-gen, cinematic game experiences in Unreal Engine 5.",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/favicon.png", "type": "image/png", "sizes": "1024x1024" }
+  ],
+  "theme_color": "#070a12",
+  "background_color": "#070a12",
+  "display": "standalone"
+}
