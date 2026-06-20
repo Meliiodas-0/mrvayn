@@ -1,18 +1,13 @@
 import { featuredProjects, otherProjects } from "@/data/projects";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { ProjectTile } from "@/components/ui/ProjectTile";
+import { FeaturedProjects } from "@/components/work/FeaturedProjects";
 import { Reveal } from "@/components/motion/Reveal";
 
 export function Work() {
   return (
     <SectionShell id="loadout" eyebrow="Loadout" title="Selected work">
-      <div className="grid gap-6 sm:grid-cols-2">
-        {featuredProjects.map((p, i) => (
-          <Reveal key={p.id} delay={i * 0.08} skew>
-            <ProjectTile project={p} featured />
-          </Reveal>
-        ))}
-      </div>
+      <FeaturedProjects projects={featuredProjects} />
 
       <div className="my-12 flex items-center gap-5">
         <span className="h-px flex-1 bg-gradient-to-r from-transparent via-steel to-transparent" />

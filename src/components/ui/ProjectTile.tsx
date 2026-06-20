@@ -5,7 +5,16 @@ import { Panel } from "@/components/ui/Panel";
 import { Tag } from "@/components/ui/Tag";
 
 /** Agent-select style project tile (DESIGN_SYSTEM §4 / BRIEF §3). */
-export function ProjectTile({ project, featured = false }: { project: Project; featured?: boolean }) {
+export function ProjectTile({
+  project,
+  featured = false,
+  onSelect,
+}: {
+  project: Project;
+  featured?: boolean;
+  /** When set, the tile opens the detail panel instead of linking out. */
+  onSelect?: () => void;
+}) {
   const primaryLink = project.links[0];
 
   const inner = (
@@ -48,6 +57,14 @@ export function ProjectTile({ project, featured = false }: { project: Project; f
       </div>
     </Panel>
   );
+
+  if (onSelect) {
+    return (
+      <button onClick={onSelect} className="block h-full w-full text-left" aria-label={`${project.title} — view details`}>
+        {inner}
+      </button>
+    );
+  }
 
   if (project.locked || !primaryLink) {
     return <div aria-disabled className="h-full">{inner}</div>;
