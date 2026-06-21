@@ -30,7 +30,7 @@ export function StickCursor() {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (new URLSearchParams(location.search).has("cine")) return; // dev: let the cinematic frame-inspector idle
+    { const q = new URLSearchParams(location.search); if (q.has("cine") || q.has("still")) return; } // dev: let the page idle for screenshots
     if (!window.matchMedia("(pointer: fine)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const canvas = ref.current;
     const c2d = canvas?.getContext("2d");

@@ -146,7 +146,7 @@ export function BootSequence() {
     for (let i = 0; i < 520; i++) pts.push({ x: 0, y: 0, vx: 0, vy: 0, life: 0, max: 0, r: 0, c: C.surge, on: false });
     const seeded = new Set<string>();
     let dust: Dust[] = [], dustBuilt = false;
-    const TSIZE = Math.min(W * 0.115, 84 * U), tY = cy - 4 * U;
+    const TSIZE = Math.min(W * 0.09, 64 * U), tY = cy - 4 * U;
 
     const burst = (x: number, y: number, n: number, big = false) => {
       for (let i = 0; i < n; i++) { const p = pts.find((q) => !q.on); if (!p) break; const a = Math.random() * 6.28, s = (big ? 1 : 0.55) * (50 + Math.random() * 280); p.on = true; p.x = x; p.y = y; p.vx = Math.cos(a) * s; p.vy = Math.sin(a) * s - 30 * U; p.max = p.life = 0.4 + Math.random() * 0.45; p.r = (big ? 2.6 : 1.7) * U; p.c = Math.random() > 0.5 ? C.surge : C.volt; }

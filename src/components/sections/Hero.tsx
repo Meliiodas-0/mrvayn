@@ -15,6 +15,34 @@ export function Hero() {
         style={{ background: "radial-gradient(circle, rgb(var(--surge)/0.9), rgb(var(--ion)/0.5) 45%, rgb(var(--volt)/0.25) 70%, transparent 75%)" }}
       />
 
+      {/* Faint HUD grid — gives the void structure, fades toward the edges. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgb(var(--bone)/0.05) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--bone)/0.05) 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
+          maskImage: "radial-gradient(ellipse 85% 70% at 42% 52%, #000 15%, transparent 82%)",
+          WebkitMaskImage: "radial-gradient(ellipse 85% 70% at 42% 52%, #000 15%, transparent 82%)",
+        }}
+      />
+
+      {/* HUD corner brackets framing the viewport. */}
+      <span aria-hidden className="pointer-events-none absolute left-4 top-[4.5rem] h-6 w-6 border-l border-t border-surge/30" />
+      <span aria-hidden className="pointer-events-none absolute right-4 top-[4.5rem] h-6 w-6 border-r border-t border-surge/30" />
+      <span aria-hidden className="pointer-events-none absolute bottom-12 left-4 h-6 w-6 border-b border-l border-surge/30" />
+      <span aria-hidden className="pointer-events-none absolute bottom-12 right-4 h-6 w-6 border-b border-r border-surge/30" />
+
+      {/* Top meta line. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-[5rem] z-10 mx-auto flex max-w-7xl items-center justify-between px-6 font-mono text-[0.65rem] uppercase tracking-[0.3em] text-mist/35"
+      >
+        <span>// Operator_portfolio</span>
+        <span className="hidden sm:inline">Est. 2019</span>
+      </div>
+
       <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-12 lg:gap-14">
         {/* Left — the thesis + wordmark */}
         <div className="lg:col-span-8">
@@ -85,12 +113,15 @@ export function Hero() {
         </Reveal>
       </div>
 
-      <a
-        href="#operator"
-        className="absolute bottom-6 right-6 font-mono text-[0.7rem] uppercase tracking-[0.3em] text-mist/60 transition-colors hover:text-surge"
-      >
-        Scroll ↓
-      </a>
+      {/* Bottom HUD status bar. */}
+      <div className="absolute inset-x-0 bottom-5 z-10 mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 font-mono text-[0.7rem] uppercase tracking-[0.25em] text-mist/50">
+        <span className="flex items-center gap-2">
+          <span aria-hidden className="h-1.5 w-1.5 bg-volt shadow-[0_0_8px_0] shadow-volt" />
+          Open to work
+        </span>
+        <span aria-hidden className="hidden text-mist/35 md:inline">UE5 · Niagara · Multiplayer · Netcode</span>
+        <a href="#operator" className="transition-colors hover:text-surge">Scroll ↓</a>
+      </div>
     </section>
   );
 }
