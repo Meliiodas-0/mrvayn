@@ -3,7 +3,7 @@ import { profile } from "@/data/profile";
 
 export function Footer() {
   return (
-    <footer className="relative z-10 border-t border-steel/60">
+    <footer data-solid className="relative z-10 border-t border-steel/60">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-10 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2.5">
           <span aria-hidden className="bevel-sm inline-block h-5 w-5 bg-surge" />

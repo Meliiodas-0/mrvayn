@@ -41,6 +41,7 @@ export function Nav() {
   return (
     <>
       <header
+        data-solid
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
           scrolled ? "border-b border-steel/70 bg-void/85 backdrop-blur-md" : "border-b border-transparent",

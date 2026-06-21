@@ -11,6 +11,7 @@ interface PanelProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Panel({ className, edge = false, compact = false, children, ...props }: PanelProps) {
   return (
     <div
+      data-solid
       className={cn(
         "relative bevel border border-steel bg-carbon",
         compact && "bevel-sm",
