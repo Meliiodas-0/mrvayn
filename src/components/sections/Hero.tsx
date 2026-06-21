@@ -24,8 +24,8 @@ export function Hero() {
 
           <Reveal delay={0.08}>
             <h1
-              className="mt-6 font-anton uppercase leading-[0.82] text-bone text-glow-surge"
-              style={{ fontSize: "clamp(3.5rem, 13vw, 10rem)" }}
+              className="mt-6 font-anton uppercase leading-[0.8] text-bone text-glow-surge"
+              style={{ fontSize: "clamp(4rem, 16vw, 13rem)" }}
             >
               MrVayn
             </h1>

@@ -135,6 +135,7 @@ export function StickCursor() {
     function loop(now: number) {
       if (!running) return;
       let dt = (now - last) / 1000; last = now; if (dt > 0.05) dt = 0.05;
+      const tNow = now / 1000;
 
       // mouse velocity (no positional lag — figure is drawn at the exact pointer)
       vx = (m.x - pmx) / Math.max(dt, 0.001); vy = (m.y - pmy) / Math.max(dt, 0.001); pmx = m.x; pmy = m.y;
@@ -177,7 +178,10 @@ export function StickCursor() {
       for (const e of enemies) {
         if (!e.alive) { if (e.dying > 0) e.dying -= dt; else if (Math.random() < dt * 0.6) place(e); continue; }
         e.phase += dt * 5;
-        e.vx += rand(-1, 1) * WANDER * dt; e.vy += rand(-1, 1) * WANDER * dt;
+        // coordinated flow field -> enemies swirl in shifting patterns (not random twitching)
+        const fa = Math.sin(e.x * 0.006 + tNow * 0.5) + Math.cos(e.y * 0.006 - tNow * 0.4) + tNow * 0.22;
+        e.vx += Math.cos(fa) * WANDER * dt; e.vy += Math.sin(fa) * WANDER * dt;
+        e.vx += rand(-1, 1) * WANDER * 0.2 * dt; e.vy += rand(-1, 1) * WANDER * 0.2 * dt;
         const dxc = e.x - m.x, dyc = e.y - m.y, dc = Math.hypot(dxc, dyc) || 1;
         if (dc < FLEE_R) { e.vx += (dxc / dc) * FLEE_F * dt; e.vy += (dyc / dc) * FLEE_F * dt; }
         let sp = Math.hypot(e.vx, e.vy);
