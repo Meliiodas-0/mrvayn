@@ -66,7 +66,7 @@ export function Hero() {
             <div className="flex items-center justify-between">
               <span className="font-hud text-[0.7rem] uppercase tracking-[0.3em] text-mist">Operator spec</span>
               <span className="inline-flex items-center gap-2 font-hud text-[0.7rem] uppercase tracking-[0.2em] text-volt">
-                <span aria-hidden className="h-1.5 w-1.5 animate-pulse rounded-full bg-volt" />
+                <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-volt shadow-[0_0_8px_0] shadow-volt" />
                 Online
               </span>
             </div>

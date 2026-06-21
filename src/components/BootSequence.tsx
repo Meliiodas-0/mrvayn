@@ -112,8 +112,9 @@ export function BootSequence() {
       const step = run ? Math.sin(t * 9) : 0, step2 = run ? Math.sin(t * 9 + Math.PI) : 0;
       return {
         px, py, face, lean: run ? 0.16 : Math.sin(t * 2.2) * 0.025,
-        fL: { x: -7 * s + step2 * 9 * s, y: fy - Math.max(0, step2) * 7 * s },
-        fR: { x: 7 * s + step * 9 * s, y: fy - Math.max(0, step) * 7 * s },
+        // walk cycle: legs stride THROUGH centre (±12s) with a lift on the swinging foot; idle = planted
+        fL: { x: run ? step2 * 12 * s : -7 * s, y: fy - Math.max(0, step2) * 8 * s },
+        fR: { x: run ? step * 12 * s : 7 * s, y: fy - Math.max(0, step) * 8 * s },
         hMain: { x: 6 * s, y: -3 * s + Math.sin(t * 2.2) * s },
         hOff: { x: 6 * s, y: 8 * s },
         sword: -0.5, swordLen: 24 * s,
@@ -126,10 +127,19 @@ export function BootSequence() {
       sword: lerp(a.sword, b.sword, k), swordLen: lerp(a.swordLen, b.swordLen, k),
     });
 
-    // landing crouch pose (shared rig) — head bows (look 0) then lifts (look 1)
+    // superhero landing (ref): wide lunge, off-hand braced forward on the ground,
+    // sword raised high overhead, head bows on impact (look 0) then lifts (look 1).
     function landPose(ground: number, s: number, look: number): Pose {
-      const py = ground - 12 * s, fy = ground - py;
-      return { px: cx, py, face: 1, lean: lerp(0.62, 0.16, look), fL: { x: -4 * s, y: fy }, fR: { x: 13 * s, y: fy }, hMain: { x: -7 * s, y: -12 * s }, hOff: { x: 11 * s, y: 15 * s }, sword: -1.15, swordLen: 28 * s };
+      const py = ground - 10 * s, fy = ground - py;
+      return {
+        px: cx, py, face: 1,
+        lean: lerp(0.85, 0.5, look),                  // stays in the braced lunge; only partly lifts
+        fL: { x: -7 * s, y: fy },                     // back leg folds deep (knee low)
+        fR: { x: 20 * s, y: fy },                     // front leg extended in a wide lunge
+        hMain: { x: -2 * s, y: lerp(-13, -18, look) * s }, // sword hand rises higher overhead
+        hOff: { x: 15 * s, y: 21 * s },               // off hand braces down-forward toward the ground
+        sword: lerp(-1.95, -1.7, look), swordLen: 31 * s,  // blade held high, up & back over the head
+      };
     }
 
     const pts: Pt[] = [];
@@ -309,13 +319,17 @@ export function BootSequence() {
       pose.hMain = follow > 0 ? lp(mid, end, eOut(follow)) : strike > 0 ? lp(back, mid, eOut(strike)) : lp({ x: 6 * hs, y: -3 * hs }, back, eOut(wind));
       pose.sword = follow > 0 ? lerp(0.35, 1.2, follow) : strike > 0 ? lerp(-2.4, 0.4, ease(strike)) : lerp(-0.5, -2.4, wind);
       pose.swordLen = 30 * hs;
-      // slash trail through the strike
-      if (strike > 0 && follow < 0.6) {
+      // crescent slash trail — a thin curved blade after-image along the swing arc
+      if (strike > 0) {
         const chestX = pose.px + Math.sin(pose.lean) * 19 * hs * side, chestY = pose.py - Math.cos(pose.lean) * 19 * hs;
         const hMx = chestX + pose.hMain.x * side, hMy = chestY + pose.hMain.y;
-        ctx.save(); ctx.globalAlpha = (1 - strike) * 0.6;
-        const g = ctx.createRadialGradient(hMx, hMy, 4, hMx, hMy, 32 * hs); g.addColorStop(0, "rgba(25,224,255,0)"); g.addColorStop(0.7, "rgba(25,224,255,0.28)"); g.addColorStop(1, "rgba(255,45,107,0.32)");
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(hMx, hMy, 32 * hs, -1.7, 0.5); ctx.fill(); ctx.globalAlpha = 1; ctx.restore();
+        const R = 38 * hs, wa = Math.atan2(Math.sin(pose.sword), Math.cos(pose.sword) * side), a1 = wa - 1.7 * side, a2 = wa;
+        const tAlpha = (follow > 0 ? 1 - follow : 1) * 0.9;
+        ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = tAlpha;
+        ctx.beginPath(); ctx.arc(hMx, hMy, R, a1, a2, a1 > a2); ctx.arc(hMx, hMy, R * 0.52, a2, a1, !(a1 > a2)); ctx.closePath();
+        const g = ctx.createRadialGradient(hMx, hMy, R * 0.52, hMx, hMy, R);
+        g.addColorStop(0, "rgba(25,224,255,0)"); g.addColorStop(0.6, "rgba(120,230,255,0.3)"); g.addColorStop(1, "rgba(235,250,255,0.9)");
+        ctx.fillStyle = g; ctx.fill(); ctx.restore();
       }
       return pose;
     }
