@@ -1,4 +1,5 @@
 import { BootSequence } from "@/components/BootSequence";
+import { StickCursor } from "@/components/StickCursor";
 import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
@@ -19,6 +20,7 @@ export default function Home() {
       </a>
 
       <BootSequence />
+      <StickCursor />
       <Nav />
 
       <main id="content" className="grain relative">

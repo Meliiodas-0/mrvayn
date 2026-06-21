@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Volume2, VolumeX, Menu, X, Play } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { profile } from "@/data/profile";
 
 const items = [
   { id: "operator", label: "Operator" },
@@ -15,7 +16,6 @@ const items = [
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("");
-  const [muted, setMuted] = useState(true);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -37,20 +37,6 @@ export function Nav() {
     els.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
   }, []);
-
-  const play = () => {
-    setOpen(false);
-    document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" });
-    window.dispatchEvent(new CustomEvent("overdrive:play"));
-  };
-
-  const toggleSound = () => {
-    setMuted((m) => {
-      const next = !m;
-      window.dispatchEvent(new CustomEvent("overdrive:sound", { detail: { muted: next } }));
-      return next;
-    });
-  };
 
   return (
     <>
@@ -77,59 +63,40 @@ export function Nav() {
                 )}
               >
                 {item.label}
-                <span
-                  className={cn(
-                    "absolute -bottom-1.5 left-0 h-px bg-surge transition-all duration-300",
-                    active === item.id ? "w-full" : "w-0",
-                  )}
-                />
+                <span className={cn("absolute -bottom-1.5 left-0 h-px bg-surge transition-all duration-300", active === item.id ? "w-full" : "w-0")} />
               </a>
             ))}
+            <a
+              href={profile.emailHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bevel-sm border border-bone/25 px-4 py-2 font-hud text-xs uppercase tracking-[0.16em] text-bone transition-colors hover:border-surge/60 hover:text-surge"
+            >
+              Let&apos;s talk
+            </a>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleSound}
-              aria-label={muted ? "Enable sound" : "Mute sound"}
-              aria-pressed={!muted}
-              className="grid h-9 w-9 place-items-center border border-steel text-mist transition-colors hover:border-surge/60 hover:text-bone bevel-sm"
-            >
-              {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            </button>
-            <button
-              onClick={play}
-              className="hidden items-center gap-2 border border-bone/25 px-4 py-2 font-hud text-xs uppercase tracking-[0.16em] text-bone transition-colors hover:border-surge/60 hover:text-surge bevel-sm sm:inline-flex"
-            >
-              <Play className="h-3.5 w-3.5" />
-              Play
-            </button>
-            <button
-              onClick={() => setOpen((o) => !o)}
-              aria-label="Toggle menu"
-              aria-expanded={open}
-              className="grid h-9 w-9 place-items-center text-bone md:hidden"
-            >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
+          <button
+            onClick={() => setOpen((o) => !o)}
+            aria-label="Toggle menu"
+            aria-expanded={open}
+            className="grid h-9 w-9 place-items-center text-bone md:hidden"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </nav>
       </header>
 
       {open && (
         <div className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-7 bg-void/95 backdrop-blur-md md:hidden">
           {items.map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              onClick={() => setOpen(false)}
-              className="font-hud text-2xl uppercase tracking-[0.16em] text-mist hover:text-surge"
-            >
+            <a key={item.id} href={`#${item.id}`} onClick={() => setOpen(false)} className="font-hud text-2xl uppercase tracking-[0.16em] text-mist hover:text-surge">
               {item.label}
             </a>
           ))}
-          <button onClick={play} className="mt-2 inline-flex items-center gap-2 bg-surge px-6 py-3 font-hud text-sm uppercase tracking-[0.16em] text-void bevel-sm">
-            <Play className="h-4 w-4" /> Play
-          </button>
+          <a href={profile.emailHref} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} className="mt-2 bevel-sm bg-surge px-6 py-3 font-hud text-sm uppercase tracking-[0.16em] text-void">
+            Let&apos;s talk
+          </a>
         </div>
       )}
     </>
