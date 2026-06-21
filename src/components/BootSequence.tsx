@@ -74,7 +74,7 @@ export function BootSequence() {
     function figure(p: Pose, o: { color: string; s: number; alpha: number; glow?: boolean }) {
       const { color, s, alpha, glow } = o;
       const f = p.face;
-      const thigh = 11 * s, shin = 11 * s, upper = 8 * s, fore = 8 * s, spine = 19 * s, neck = 5 * s, headR = 4.8 * s, foot = 5 * s;
+      const thigh = 11 * s, shin = 11 * s, upper = 8 * s, fore = 8 * s, spine = 19 * s, neck = 5 * s, headR = 4.8 * s;
       const ax = (v: V): V => ({ x: p.px + v.x * f, y: p.py + v.y }); // pelvis-relative -> abs (face flips x)
       const chest = { x: p.px + Math.sin(p.lean) * spine * f, y: p.py - Math.cos(p.lean) * spine };
       const neckTop = { x: chest.x + Math.sin(p.lean) * neck * f, y: chest.y - Math.cos(p.lean) * neck };
@@ -89,13 +89,13 @@ export function BootSequence() {
       const seg = (a: V, b: V) => { ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); };
       // back limbs dim for depth
       ctx.globalAlpha = alpha * 0.7;
-      seg(hip, kL); seg(kL, fL); seg(fL, { x: fL.x + foot * f, y: fL.y }); // back leg + foot
+      seg(hip, kL); seg(kL, fL); // back leg (straight shin, no foot kink)
       seg(chest, eO); seg(eO, hO); // back (off) arm
       // front + core
       ctx.globalAlpha = alpha;
       seg(hip, chest); seg(chest, neckTop); // spine + neck
       ctx.beginPath(); ctx.arc(head.x, head.y, headR, 0, 6.2832); ctx.stroke(); // head
-      seg(hip, kR); seg(kR, fR); seg(fR, { x: fR.x + foot * f, y: fR.y }); // front leg + foot
+      seg(hip, kR); seg(kR, fR); // front leg (straight shin, no foot kink)
       seg(chest, eM); seg(eM, hM); // sword arm
       // sword
       ctx.strokeStyle = C.volt; ctx.lineWidth = 3 * s; if (glow) { ctx.shadowColor = C.volt; ctx.shadowBlur = 13; }
