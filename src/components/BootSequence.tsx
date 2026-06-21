@@ -81,7 +81,7 @@ export function BootSequence() {
       const head = { x: neckTop.x + Math.sin(p.lean) * headR * f, y: neckTop.y - Math.cos(p.lean) * headR };
       const cax = (v: V): V => ({ x: chest.x + v.x * f, y: chest.y + v.y }); // chest-relative -> abs
       const fL = ax(p.fL), fR = ax(p.fR), hM = cax(p.hMain), hO = cax(p.hOff);
-      const kL = ik(p.px, p.py, fL.x, fL.y, thigh, shin, f), kR = ik(p.px, p.py, fR.x, fR.y, thigh, shin, f); // knees bend forward
+      const kL = ik(p.px, p.py, fL.x, fL.y, thigh, shin, -f), kR = ik(p.px, p.py, fR.x, fR.y, thigh, shin, -f); // knees bend forward (toward facing dir)
       const eO = ik(chest.x, chest.y, hO.x, hO.y, upper, fore, f), eM = ik(chest.x, chest.y, hM.x, hM.y, upper, fore, f);
       const hip = { x: p.px, y: p.py };
 
