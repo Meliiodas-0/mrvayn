@@ -39,7 +39,7 @@ export function Hero() {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-[5rem] z-10 mx-auto flex max-w-7xl items-center justify-between px-6 font-mono text-[0.65rem] uppercase tracking-[0.3em] text-mist/35"
       >
-        <span>// Operator_portfolio</span>
+        <span>{"// Operator_portfolio"}</span>
         <span className="hidden sm:inline">Est. 2019</span>
       </div>
 
