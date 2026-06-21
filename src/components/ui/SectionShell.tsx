@@ -18,7 +18,7 @@ export function SectionShell({ id, eyebrow, title, children, className }: Sectio
           <Eyebrow>{eyebrow}</Eyebrow>
           <h2
             data-solid
-            className="mt-4 inline-block font-display font-black uppercase leading-[0.95] text-bone"
+            className="mt-4 block w-fit font-display font-black uppercase leading-[0.95] text-bone"
             style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)", fontStretch: "expanded" }}
           >
             {title}
