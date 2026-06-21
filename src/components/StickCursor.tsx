@@ -184,6 +184,12 @@ export function StickCursor() {
         e.vx += rand(-1, 1) * WANDER * 0.2 * dt; e.vy += rand(-1, 1) * WANDER * 0.2 * dt;
         const dxc = e.x - m.x, dyc = e.y - m.y, dc = Math.hypot(dxc, dyc) || 1;
         if (dc < FLEE_R) { e.vx += (dxc / dc) * FLEE_F * dt; e.vy += (dyc / dc) * FLEE_F * dt; }
+        // separation — keep enemies from stacking on each other
+        for (const o of enemies) {
+          if (o === e || !o.alive) continue;
+          const sx = e.x - o.x, sy = e.y - o.y, sd = Math.hypot(sx, sy);
+          if (sd > 0.1 && sd < 46) { e.vx += (sx / sd) * 680 * dt; e.vy += (sy / sd) * 680 * dt; }
+        }
         let sp = Math.hypot(e.vx, e.vy);
         if (sp > E_MAX) { e.vx = (e.vx / sp) * E_MAX; e.vy = (e.vy / sp) * E_MAX; sp = E_MAX; }
         if (sp < E_MIN) { const a = Math.atan2(e.vy || rand(-1, 1), e.vx || rand(-1, 1)); e.vx = Math.cos(a) * E_MIN; e.vy = Math.sin(a) * E_MIN; }
