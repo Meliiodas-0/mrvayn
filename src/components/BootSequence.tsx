@@ -28,6 +28,7 @@ export function BootSequence() {
   const skipRef = useRef(false);
 
   useEffect(() => {
+    if (new URLSearchParams(location.search).has("cine")) { setShow(true); return; } // dev: frame inspector
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let seen = false;
     try { seen = sessionStorage.getItem("booted") === "1"; sessionStorage.setItem("booted", "1"); } catch { /* */ }
@@ -72,44 +73,49 @@ export function BootSequence() {
     function figure(p: Pose, o: { color: string; s: number; alpha: number; glow?: boolean }) {
       const { color, s, alpha, glow } = o;
       const f = p.face;
+      const thigh = 11 * s, shin = 11 * s, upper = 8 * s, fore = 8 * s, spine = 19 * s, neck = 5 * s, headR = 4.8 * s, foot = 5 * s;
       const ax = (v: V): V => ({ x: p.px + v.x * f, y: p.py + v.y }); // pelvis-relative -> abs (face flips x)
-      const thigh = 12 * s, shin = 13 * s, upper = 9 * s, fore = 9 * s, spine = 18 * s, headGap = 9 * s, headR = 5 * s;
       const chest = { x: p.px + Math.sin(p.lean) * spine * f, y: p.py - Math.cos(p.lean) * spine };
-      const head = { x: chest.x + Math.sin(p.lean) * headGap * f, y: chest.y - Math.cos(p.lean) * headGap };
+      const neckTop = { x: chest.x + Math.sin(p.lean) * neck * f, y: chest.y - Math.cos(p.lean) * neck };
+      const head = { x: neckTop.x + Math.sin(p.lean) * headR * f, y: neckTop.y - Math.cos(p.lean) * headR };
       const cax = (v: V): V => ({ x: chest.x + v.x * f, y: chest.y + v.y }); // chest-relative -> abs
       const fL = ax(p.fL), fR = ax(p.fR), hM = cax(p.hMain), hO = cax(p.hOff);
-      const kL = ik(p.px, p.py, fL.x, fL.y, thigh, shin, f), kR = ik(p.px, p.py, fR.x, fR.y, thigh, shin, f);
-      const eO = ik(chest.x, chest.y, hO.x, hO.y, upper, fore, -f), eM = ik(chest.x, chest.y, hM.x, hM.y, upper, fore, -f);
+      const kL = ik(p.px, p.py, fL.x, fL.y, thigh, shin, f), kR = ik(p.px, p.py, fR.x, fR.y, thigh, shin, f); // knees bend forward
+      const eO = ik(chest.x, chest.y, hO.x, hO.y, upper, fore, f), eM = ik(chest.x, chest.y, hM.x, hM.y, upper, fore, f);
+      const hip = { x: p.px, y: p.py };
 
-      ctx.globalAlpha = alpha; ctx.lineCap = "round"; ctx.lineJoin = "round";
-      ctx.strokeStyle = color; ctx.lineWidth = 2.6 * s;
+      ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = color; ctx.lineWidth = 2.8 * s;
       const seg = (a: V, b: V) => { ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); };
-      // back limbs slightly dim for depth
-      ctx.globalAlpha = alpha * 0.78; seg({ x: p.px, y: p.py }, kL); seg(kL, fL); seg(chest, eO); seg(eO, hO);
+      // back limbs dim for depth
+      ctx.globalAlpha = alpha * 0.7;
+      seg(hip, kL); seg(kL, fL); seg(fL, { x: fL.x + foot * f, y: fL.y }); // back leg + foot
+      seg(chest, eO); seg(eO, hO); // back (off) arm
+      // front + core
       ctx.globalAlpha = alpha;
-      seg({ x: p.px, y: p.py }, { x: chest.x, y: chest.y }); // spine
-      seg({ x: p.px, y: p.py }, kR); seg(kR, fR); // front leg
-      ctx.beginPath(); ctx.arc(head.x, head.y - headR, headR, 0, 6.2832); ctx.stroke(); // head
+      seg(hip, chest); seg(chest, neckTop); // spine + neck
+      ctx.beginPath(); ctx.arc(head.x, head.y, headR, 0, 6.2832); ctx.stroke(); // head
+      seg(hip, kR); seg(kR, fR); seg(fR, { x: fR.x + foot * f, y: fR.y }); // front leg + foot
       seg(chest, eM); seg(eM, hM); // sword arm
       // sword
       ctx.strokeStyle = C.volt; ctx.lineWidth = 3 * s; if (glow) { ctx.shadowColor = C.volt; ctx.shadowBlur = 13; }
-      ctx.beginPath(); ctx.moveTo(hM.x, hM.y); ctx.lineTo(hM.x + Math.cos(p.sword) * p.swordLen * f, hM.y + Math.sin(p.sword) * p.swordLen); ctx.stroke();
+      seg(hM, { x: hM.x + Math.cos(p.sword) * p.swordLen * f, y: hM.y + Math.sin(p.sword) * p.swordLen });
       ctx.shadowBlur = 0; ctx.globalAlpha = 1;
       return { chest, hM };
     }
 
-    // standing/run/idle base pose for a figure at (px feet-x, ground y)
+    // standing/run/idle base pose — athletic stance, knees bent, feet planted
     function basePose(px: number, ground: number, s: number, face: number, t: number, run: boolean): Pose {
-      const bob = Math.sin(t * (run ? 9 : 2)) * (run ? 2 : 1) * s;
-      const py = ground - 26 * s + bob; // pelvis
+      const bob = Math.sin(t * (run ? 9 : 2.2)) * (run ? 2 : 0.7) * s;
+      const py = ground - 18 * s + bob; // hips low enough that IK bends the knees
+      const fy = ground - py; // foot offset that lands the feet exactly on the ground
       const step = run ? Math.sin(t * 9) : 0, step2 = run ? Math.sin(t * 9 + Math.PI) : 0;
       return {
-        px, py, lean: run ? 0.12 : 0.05 + Math.sin(t * 2) * 0.02, face,
-        fL: { x: -5 * s + step2 * 9 * s, y: 26 * s - Math.max(0, step2) * 6 * s },
-        fR: { x: 5 * s + step * 9 * s, y: 26 * s - Math.max(0, step) * 6 * s },
-        hMain: { x: 8 * s, y: 4 * s + Math.sin(t * 2) * 1 * s },
-        hOff: { x: -8 * s + (run ? -step * 5 * s : 0), y: 6 * s },
-        sword: -0.7, swordLen: 26 * s,
+        px, py, face, lean: run ? 0.16 : Math.sin(t * 2.2) * 0.025,
+        fL: { x: -7 * s + step2 * 9 * s, y: fy - Math.max(0, step2) * 7 * s },
+        fR: { x: 7 * s + step * 9 * s, y: fy - Math.max(0, step) * 7 * s },
+        hMain: { x: 6 * s, y: -3 * s + Math.sin(t * 2.2) * s },
+        hOff: { x: 6 * s, y: 8 * s },
+        sword: -0.5, swordLen: 24 * s,
       };
     }
 
@@ -135,14 +141,9 @@ export function BootSequence() {
       dustBuilt = true;
     }
 
-    const start = performance.now(); let raf = 0;
-    const hardStop = setTimeout(done, END * 1000 + 300);
+    const start = performance.now(); let raf = 0; let hardStop: ReturnType<typeof setTimeout> | undefined;
 
-    function frame(now: number) {
-      let t = (now - start) / 1000;
-      if (skipRef.current) t = Math.max(t, TITLE);
-      if (t >= END) { done(); return; }
-
+    function render(t: number) {
       let shake = 0;
       if (t > LAND - 0.04 && t < LAND + 0.2) shake = 10 * U;
       if ((t > E1D - 0.05 && t < E1D + 0.08) || (t > E2D - 0.05 && t < E2D + 0.08)) shake = 5 * U;
@@ -246,57 +247,65 @@ export function BootSequence() {
       for (const pp of pts) { if (!pp.on) continue; pp.life -= dt; if (pp.life <= 0) { pp.on = false; continue; } pp.x += pp.vx * dt; pp.y += pp.vy * dt; pp.vy += 24 * U * dt; pp.vx *= 0.96; ctx.globalAlpha = Math.max(0, pp.life / pp.max) * 0.9; ctx.fillStyle = pp.c; ctx.fillRect(pp.x, pp.y, pp.r, pp.r); }
       ctx.globalAlpha = 1; ctx.restore();
       if (t > END - 0.6) { ctx.globalAlpha = cl((t - (END - 0.6)) / 0.6); ctx.fillStyle = C.void; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
-      raf = requestAnimationFrame(frame);
     }
 
-    // slash with anticipation -> strike -> follow-through (hand arcs; body uncoils)
+    function loop(now: number) {
+      let t = (now - start) / 1000;
+      if (skipRef.current) t = Math.max(t, TITLE);
+      if (t >= END) { done(); return; }
+      render(t);
+      raf = requestAnimationFrame(loop);
+    }
+
+    // slash: anticipation (coil back, raise) -> strike (whip down, lunge) -> follow-through
     function slashPose(t: number, d: number, side: number, hs: number): Pose {
       const s0 = d - 0.36, p = cl((t - s0) / (d + 0.12 - s0));
-      const wind = cl(p / 0.35), strike = cl((p - 0.35) / 0.35), follow = cl((p - 0.7) / 0.3);
+      const wind = cl(p / 0.32), strike = cl((p - 0.32) / 0.36), follow = cl((p - 0.68) / 0.32);
       const pose = basePose(cx, cy, hs, side, t, false);
-      // weight shifts back (anticipation) then forward (strike)
-      pose.px = cx + side * lerp(-4, 6, eIn(strike)) * U;
-      pose.lean = lerp(0, side > 0 ? 0.05 : -0.05, 1) + lerp(0.22, -0.28, ease(strike)) * 1; // coil back, uncoil forward
-      pose.fR = { x: 13 * hs, y: 26 * hs }; pose.fL = { x: -9 * hs, y: 26 * hs };
-      // sword hand: wind up high-back -> arc down/forward -> follow across
-      const back: V = { x: -10 * hs, y: -20 * hs }, mid: V = { x: 14 * hs, y: -10 * hs }, end: V = { x: 16 * hs, y: 10 * hs };
-      pose.hMain = follow > 0 ? lp(mid, end, eOut(follow)) : strike > 0 ? lp(back, mid, eOut(strike)) : lp({ x: 8 * hs, y: 4 * hs }, back, eOut(wind));
-      pose.sword = follow > 0 ? lerp(0.3, 1.1, follow) : strike > 0 ? lerp(-2.4, 0.3, ease(strike)) : lerp(-0.7, -2.4, wind);
+      const fy = cy - pose.py; // foot offset that lands feet on the ground
+      const lunge = eIn(strike) * (1 - follow * 0.5);
+      pose.px = cx + side * lerp(-3, 7, lunge) * U; // weight shifts back then drives forward
+      pose.lean = follow > 0 ? lerp(0.25, 0.12, follow) : strike > 0 ? lerp(-0.28, 0.26, ease(strike)) : lerp(0, -0.28, eOut(wind));
+      pose.fR = { x: (10 + lunge * 6) * hs, y: fy }; // front foot lunges
+      pose.fL = { x: -11 * hs, y: fy };             // back foot planted (knee bent)
+      const back: V = { x: -9 * hs, y: -18 * hs }, mid: V = { x: 13 * hs, y: -9 * hs }, end: V = { x: 15 * hs, y: 12 * hs };
+      pose.hMain = follow > 0 ? lp(mid, end, eOut(follow)) : strike > 0 ? lp(back, mid, eOut(strike)) : lp({ x: 6 * hs, y: -3 * hs }, back, eOut(wind));
+      pose.sword = follow > 0 ? lerp(0.35, 1.2, follow) : strike > 0 ? lerp(-2.4, 0.4, ease(strike)) : lerp(-0.5, -2.4, wind);
       pose.swordLen = 30 * hs;
-      // slash trail at strike
-      if (strike > 0 && follow < 0.5) { const hM = { x: cx + (pose.hMain.x) * side, y: (cy - 26 * hs) - Math.cos(pose.lean) * 18 * hs + pose.hMain.y }; ctx.save(); ctx.globalAlpha = (1 - strike) * 0.7; const g = ctx.createRadialGradient(hM.x, hM.y, 4, hM.x, hM.y, 30 * hs); g.addColorStop(0, "rgba(25,224,255,0)"); g.addColorStop(0.7, "rgba(25,224,255,0.3)"); g.addColorStop(1, "rgba(255,45,107,0.35)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(hM.x, hM.y, 30 * hs, side > 0 ? -1.6 : -1.6, side > 0 ? 0.4 : 0.4); ctx.fill(); ctx.globalAlpha = 1; ctx.restore(); }
+      // slash trail through the strike
+      if (strike > 0 && follow < 0.6) {
+        const chestX = pose.px + Math.sin(pose.lean) * 19 * hs * side, chestY = pose.py - Math.cos(pose.lean) * 19 * hs;
+        const hMx = chestX + pose.hMain.x * side, hMy = chestY + pose.hMain.y;
+        ctx.save(); ctx.globalAlpha = (1 - strike) * 0.6;
+        const g = ctx.createRadialGradient(hMx, hMy, 4, hMx, hMy, 32 * hs); g.addColorStop(0, "rgba(25,224,255,0)"); g.addColorStop(0.7, "rgba(25,224,255,0.28)"); g.addColorStop(1, "rgba(255,45,107,0.32)");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(hMx, hMy, 32 * hs, -1.7, 0.5); ctx.fill(); ctx.globalAlpha = 1; ctx.restore();
+      }
       return pose;
     }
 
-    // superhero kneel-landing: knee down, head looks down->up, sword raised up-right
+    // superhero landing: deep crouch, back leg folded, brace hand reaching down,
+    // sword raised back, head bows down then lifts up — built on the shared rig.
     function drawLanding(t: number, s: number, alpha: number) {
-      const yOff = t < LAND ? -(1 - (t / LAND) ** 2) * H * 0.85 : 0;
-      const look = cl((t - (LAND + 0.05)) / (LOOK - LAND)); // 0 down -> 1 up
-      const land = cl((t - LAND) / 0.12); // squash on impact
-      ctx.save(); ctx.translate(cx, cy + yOff);
-      const px = 0, py = -lerp(10, 13, land) * s; // pelvis low (kneel)
-      const lean = lerp(0.55, 0.32, look); // torso forward, eases up
-      const chest = { x: px + Math.sin(lean) * 17 * s, y: py - Math.cos(lean) * 17 * s };
-      const head = { x: chest.x + Math.sin(lean) * 8 * s, y: chest.y - Math.cos(lean) * 8 * s };
-      ctx.globalAlpha = alpha; ctx.strokeStyle = C.bone; ctx.lineWidth = 2.7 * s; ctx.lineCap = "round"; ctx.lineJoin = "round";
-      const seg = (ax: number, ay: number, bx: number, by: number) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
-      // back knee on ground (bent down), front leg planted bent
-      seg(px, py, -8 * s, py + 9 * s); seg(-8 * s, py + 9 * s, -2 * s, 0); // back: thigh -> knee(ground)->shin
-      const fk = ik(px, py, 13 * s, 0, 12 * s, 13 * s, 1); seg(px, py, fk.x, fk.y); seg(fk.x, fk.y, 13 * s, 0); // front leg IK
-      seg(px, py, chest.x, chest.y); // spine
-      ctx.beginPath(); ctx.arc(head.x - look * 1 * s, head.y - 5 * s - look * 6 * s, 5 * s, 0, 6.2832); ctx.stroke(); // head (lifts on look-up)
-      // off hand (fist) planted on ground
-      const ofk = ik(chest.x, chest.y, -9 * s, -1 * s, 9 * s, 9 * s, 1); seg(chest.x, chest.y, ofk.x, ofk.y); seg(ofk.x, ofk.y, -9 * s, -1 * s);
-      // sword arm raised up-right
-      const hand = { x: 11 * s, y: -16 * s }, ek = ik(chest.x, chest.y, hand.x, hand.y, 9 * s, 9 * s, -1);
-      seg(chest.x, chest.y, ek.x, ek.y); seg(ek.x, ek.y, hand.x, hand.y);
-      ctx.strokeStyle = C.volt; ctx.lineWidth = 3 * s; ctx.shadowColor = C.volt; ctx.shadowBlur = 14;
-      seg(hand.x, hand.y, hand.x + Math.cos(-1.15) * 30 * s, hand.y + Math.sin(-1.15) * 30 * s); ctx.shadowBlur = 0;
-      ctx.globalAlpha = 1; ctx.restore();
+      const yOff = t < LAND ? -(1 - (t / LAND) ** 2) * H * 0.85 : 0; // fast drop-in
+      const look = cl((t - (LAND + 0.05)) / (LOOK - LAND)); // 0 = head down, 1 = head up
+      const ground = cy + yOff;
+      const py = ground - 12 * s, fy = ground - py; // low hips
+      const pose: Pose = {
+        px: cx, py, face: 1,
+        lean: lerp(0.62, 0.16, look),          // torso bowed forward, then rises
+        fL: { x: -4 * s, y: fy },              // back leg folds deep (kneel-ish)
+        fR: { x: 13 * s, y: fy },              // front foot planted wide
+        hMain: { x: -7 * s, y: -12 * s },      // sword hand cocked up-back
+        hOff: { x: 11 * s, y: 15 * s },        // brace hand reaches down-forward
+        sword: -1.15, swordLen: 28 * s,        // blade up-right
+      };
+      figure(pose, { color: C.bone, s, alpha, glow: true });
     }
 
-    raf = requestAnimationFrame(frame);
-    return () => { cancelAnimationFrame(raf); clearTimeout(hardStop); removeEventListener("resize", resize); };
+    const cine = new URLSearchParams(location.search).get("cine");
+    if (cine !== null) { const dt = parseFloat(cine) || 0; raf = requestAnimationFrame(() => render(dt)); } // dev: freeze one frame at t
+    else { hardStop = setTimeout(done, END * 1000 + 300); raf = requestAnimationFrame(loop); }
+    return () => { cancelAnimationFrame(raf); if (hardStop) clearTimeout(hardStop); removeEventListener("resize", resize); };
   }, [show, done]);
 
   useEffect(() => {
