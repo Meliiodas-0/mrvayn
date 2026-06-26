@@ -14,16 +14,17 @@ import { useEffect, useRef } from "react";
  */
 
 const C = { bone: "#EAF0FF", volt: "#19E0FF", surge: "#FF2D6B", ion: "#B26BFF", mist: "#8A94A7" };
-const COUNT = 13;
+const COUNT = 8;
 const E_MIN = 26, E_MAX = 78, WANDER = 240;
 const FLEE_R = 130, FLEE_F = 520;
 const RANGE = 70, SWING = 0.3;
 const TOP = 72, SIDE = 12, BOT = 14, PAD = 16;
 
 interface Rect { left: number; top: number; right: number; bottom: number; }
-interface Enemy { x: number; y: number; vx: number; vy: number; alive: boolean; dying: number; phase: number; }
+interface Enemy { x: number; y: number; vx: number; vy: number; alive: boolean; dying: number; phase: number; home: number; }
 interface P { x: number; y: number; vx: number; vy: number; life: number; max: number; c: string; r: number; on: boolean; }
-interface Ring { x: number; y: number; life: number; on: boolean; }
+interface Shard { x: number; y: number; vx: number; vy: number; ang: number; va: number; len: number; life: number; max: number; col: string; on: boolean; }
+interface Slash { x: number; y: number; ang: number; life: number; on: boolean; }
 interface Pop { x: number; y: number; life: number; text: string; on: boolean; }
 
 export function StickCursor() {
@@ -39,22 +40,25 @@ export function StickCursor() {
 
     let W = 0, H = 0, dpr = 1;
     const m = { x: innerWidth / 2, y: innerHeight / 2 };
-    let pmx = m.x, pmy = m.y, vx = 0, vy = 0, face = 1, runPhase = 0;
+    let pmx = m.x, pmy = m.y, vx = 0, vy = 0, face = 1, faceVel = 0, runPhase = 0;
     let atk = -1, atkType = 0, atkFace = 1, combo = 0, comboT = 0, flip = -1, flipCd = 0;
     let occupied: Rect[] = [];
 
     const enemies: Enemy[] = [];
     const parts: P[] = [];
-    const rings: Ring[] = [];
+    const shards: Shard[] = [];
+    const slashes: Slash[] = [];
     const pops: Pop[] = [];
     for (let i = 0; i < 140; i++) parts.push({ x: 0, y: 0, vx: 0, vy: 0, life: 0, max: 0, c: C.surge, r: 2, on: false });
-    for (let i = 0; i < 12; i++) rings.push({ x: 0, y: 0, life: 0, on: false });
+    for (let i = 0; i < 90; i++) shards.push({ x: 0, y: 0, vx: 0, vy: 0, ang: 0, va: 0, len: 0, life: 0, max: 0, col: C.mist, on: false });
+    for (let i = 0; i < 10; i++) slashes.push({ x: 0, y: 0, ang: 0, life: 0, on: false });
     for (let i = 0; i < 12; i++) pops.push({ x: 0, y: 0, life: 0, text: "", on: false });
 
     const rand = (a: number, b: number) => a + Math.random() * (b - a);
     const inOcc = (x: number, y: number, pad: number) =>
       occupied.some((r) => x > r.left - pad && x < r.right + pad && y > r.top - pad && y < r.bottom + pad);
     const valid = (x: number, y: number) => x > SIDE && x < W - SIDE && y > TOP && y < H - BOT && !inOcc(x, y, PAD);
+    const isPhone = () => W < 768; // phone ratio: no roaming enemies (they scatter / look bad on narrow screens)
 
     const computeOccupied = () => {
       occupied = Array.from(document.querySelectorAll<HTMLElement>("[data-solid]"))
@@ -64,8 +68,14 @@ export function StickCursor() {
     };
 
     const place = (e: Enemy) => {
+      if (isPhone()) { e.alive = false; return; } // never spawn enemies on phone ratio
       for (let t = 0; t < 60; t++) {
-        const x = rand(SIDE + 10, W - SIDE - 10), y = rand(TOP + 10, H - BOT - 10);
+        // keep enemies balanced across both halves: stay on the home side first, fall back to anywhere
+        const half = t < 42 ? e.home : 0;
+        const x = half < 0 ? rand(SIDE + 10, W * 0.46)
+          : half > 0 ? rand(W * 0.54, W - SIDE - 10)
+          : rand(SIDE + 10, W - SIDE - 10);
+        const y = rand(TOP + 10, H - BOT - 10);
         if (valid(x, y)) {
           e.x = x; e.y = y; e.vx = rand(-1, 1) * E_MAX; e.vy = rand(-1, 1) * E_MAX;
           e.alive = true; e.dying = 0; e.phase = Math.random() * 6.28; return;
@@ -73,7 +83,7 @@ export function StickCursor() {
       }
       e.alive = false; // no gap available right now (re-tried next frames)
     };
-    for (let i = 0; i < COUNT; i++) { const e: Enemy = { x: 0, y: 0, vx: 0, vy: 0, alive: false, dying: 0, phase: 0 }; enemies.push(e); }
+    for (let i = 0; i < COUNT; i++) { const e: Enemy = { x: 0, y: 0, vx: 0, vy: 0, alive: false, dying: 0, phase: 0, home: i % 2 === 0 ? -1 : 1 }; enemies.push(e); }
 
     const burst = (x: number, y: number, n: number) => {
       for (let i = 0; i < n; i++) {
@@ -83,7 +93,21 @@ export function StickCursor() {
         p.max = p.life = rand(0.3, 0.7); p.r = rand(1.5, 3.5); p.c = Math.random() > 0.5 ? C.surge : C.volt;
       }
     };
-    const ring = (x: number, y: number) => { const r = rings.find((q) => !q.on); if (r) { r.on = true; r.x = x; r.y = y; r.life = 0.4; } };
+    // a bright diagonal cut-line flash where the blade lands
+    const slashFx = (x: number, y: number, dir: number) => { const s = slashes.find((q) => !q.on); if (s) { s.on = true; s.x = x; s.y = y - 14; s.ang = -0.5 + dir * 0.35; s.life = 0.22; } };
+    // dice the enemy body into tumbling pieces that fly apart along the cut, then fade
+    const sliceApart = (x: number, y: number, dir: number) => {
+      const cut = -0.5 + dir * 0.35, n = 6 + (Math.random() * 3 | 0);
+      for (let i = 0; i < n; i++) {
+        const s = shards.find((q) => !q.on); if (!s) break;
+        const a = cut + Math.PI / 2 * (i % 2 ? 1 : -1) + rand(-0.5, 0.5); // halves fly to either side of the cut
+        const sp = rand(120, 340);
+        s.on = true; s.x = x + rand(-5, 5); s.y = y - 14 + rand(-12, 8);
+        s.vx = Math.cos(a) * sp + dir * 40; s.vy = Math.sin(a) * sp - 50;
+        s.ang = rand(0, 6.28); s.va = rand(-13, 13); s.len = rand(7, 15);
+        s.max = s.life = rand(0.4, 0.7); s.col = Math.random() > 0.55 ? C.surge : C.mist;
+      }
+    };
     const pop = (x: number, y: number, t: string) => { const p = pops.find((q) => !q.on); if (p) { p.on = true; p.x = x; p.y = y; p.life = 0.9; p.text = t; } };
 
     const resize = () => {
@@ -139,10 +163,14 @@ export function StickCursor() {
       const tNow = now / 1000;
 
       // mouse velocity (no positional lag — figure is drawn at the exact pointer)
-      vx = (m.x - pmx) / Math.max(dt, 0.001); vy = (m.y - pmy) / Math.max(dt, 0.001); pmx = m.x; pmy = m.y;
+      const dxRaw = m.x - pmx, dyRaw = m.y - pmy;
+      vx = dxRaw / Math.max(dt, 0.001); vy = dyRaw / Math.max(dt, 0.001); pmx = m.x; pmy = m.y;
       const speed = Math.hypot(vx, vy);
       const moving = speed > 40;
-      if (moving) { runPhase += dt * 18; if (Math.abs(vx) > 12) face = vx > 0 ? 1 : -1; } else { runPhase += dt * 4; }
+      // facing: smoothed horizontal pixel-delta (frame-rate / browser independent — fixes Chrome not flipping)
+      faceVel = faceVel * 0.8 + dxRaw * 0.2;
+      if (Math.abs(faceVel) > 0.35) face = faceVel > 0 ? 1 : -1;
+      runPhase += dt * (moving ? 18 : 4);
 
       // nearest enemy
       let near: Enemy | null = null, nd = 1e9;
@@ -163,9 +191,9 @@ export function StickCursor() {
             if (!e.alive) continue;
             const ex = e.x - m.x, d = Math.hypot(ex, e.y - m.y);
             if (d < RANGE + 6 && (spin || Math.sign(ex) === atkFace || d < 30)) {
-              e.alive = false; e.dying = 0.4;
+              e.alive = false; e.dying = 0.7; // respawn lock (no death-stick render; shards handle the visual)
               combo = comboT > 0 ? combo + 1 : 1; comboT = 1.4;
-              burst(e.x, e.y, 16 + Math.min(14, combo * 2)); ring(e.x, e.y);
+              slashFx(e.x, e.y, atkFace); sliceApart(e.x, e.y, atkFace); burst(e.x, e.y - 14, 7); // cut line + flying pieces + a few sparks
               pop(e.x, e.y - 16, combo > 1 ? "x" + combo : "+1");
               setTimeout(() => place(e), 700 + Math.random() * 700);
             }
@@ -177,7 +205,8 @@ export function StickCursor() {
 
       // enemies: wander + flee + ricochet (trapped)
       for (const e of enemies) {
-        if (!e.alive) { if (e.dying > 0) e.dying -= dt; else if (Math.random() < dt * 0.6) place(e); continue; }
+        if (!e.alive) { if (e.dying > 0) e.dying -= dt; else if (!isPhone() && Math.random() < dt * 0.6) place(e); continue; }
+        if (isPhone()) { e.alive = false; continue; } // dropped to phone ratio mid-session — clear enemies
         e.phase += dt * 5;
         // coordinated flow field -> enemies swirl in shifting patterns (not random twitching)
         const fa = Math.sin(e.x * 0.006 + tNow * 0.5) + Math.cos(e.y * 0.006 - tNow * 0.4) + tNow * 0.22;
@@ -206,24 +235,24 @@ export function StickCursor() {
         if (inOcc(e.x, e.y, 0)) place(e); // content scrolled onto it -> relocate
       }
 
-      // particles / rings / pops
+      // particles / shards / slash flashes / pops
       for (const p of parts) { if (!p.on) continue; p.life -= dt; if (p.life <= 0) { p.on = false; continue; } p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.9; p.vy *= 0.9; }
-      for (const r of rings) { if (r.on) { r.life -= dt; if (r.life <= 0) r.on = false; } }
+      for (const s of shards) { if (!s.on) continue; s.life -= dt; if (s.life <= 0) { s.on = false; continue; } s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 540 * dt; s.vx *= 0.98; s.ang += s.va * dt; }
+      for (const s of slashes) { if (s.on) { s.life -= dt; if (s.life <= 0) s.on = false; } }
       for (const p of pops) { if (p.on) { p.life -= dt; p.y -= dt * 26; if (p.life <= 0) p.on = false; } }
 
       // ---- render ----
       ctx.clearRect(0, 0, W, H);
 
       for (const e of enemies) {
-        if (e.alive) {
-          drawStick(e.x, e.y, { color: C.mist, face: e.x > m.x ? -1 : 1, phase: e.phase, moving: true, scale: 0.9, sword: -0.7, swordLen: 15 });
-          ctx.fillStyle = C.surge; ctx.fillRect(e.x - 1.5, e.y - 33, 3, 3);
-        } else if (e.dying > 0) {
-          ctx.globalAlpha = Math.max(0, e.dying / 0.4); ctx.save(); ctx.translate(e.x, e.y); ctx.rotate((1 - e.dying / 0.4) * 1.4);
-          drawStick(0, 0, { color: C.surge, face: 1, phase: 0, moving: false, scale: 0.88, sword: -0.7, swordLen: 13 }); ctx.restore(); ctx.globalAlpha = 1;
-        }
+        if (!e.alive) continue;
+        drawStick(e.x, e.y, { color: C.mist, face: e.x > m.x ? -1 : 1, phase: e.phase, moving: true, scale: 0.9, sword: -0.7, swordLen: 15 });
+        ctx.fillStyle = C.surge; ctx.fillRect(e.x - 1.5, e.y - 33, 3, 3);
       }
-      for (const r of rings) { if (!r.on) continue; const t = 1 - r.life / 0.4; ctx.globalAlpha = r.life / 0.4 * 0.7; ctx.strokeStyle = C.volt; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(r.x, r.y, 6 + t * 34, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1; }
+      // slash cut-line flash (the blade stroke)
+      for (const s of slashes) { if (!s.on) continue; const k = s.life / 0.22; ctx.globalAlpha = k; ctx.strokeStyle = C.bone; ctx.lineWidth = 2.5; ctx.lineCap = "round"; const L = 24 * (1.25 - k * 0.4), cxx = Math.cos(s.ang) * L, cyy = Math.sin(s.ang) * L; ctx.beginPath(); ctx.moveTo(s.x - cxx, s.y - cyy); ctx.lineTo(s.x + cxx, s.y + cyy); ctx.stroke(); ctx.globalAlpha = 1; }
+      // sliced body shards tumbling away, then gone
+      for (const s of shards) { if (!s.on) continue; ctx.globalAlpha = Math.max(0, s.life / s.max); ctx.strokeStyle = s.col; ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.save(); ctx.translate(s.x, s.y); ctx.rotate(s.ang); ctx.beginPath(); ctx.moveTo(-s.len / 2, 0); ctx.lineTo(s.len / 2, 0); ctx.stroke(); ctx.restore(); ctx.globalAlpha = 1; }
       for (const p of parts) { if (!p.on) continue; ctx.globalAlpha = Math.max(0, p.life / p.max); ctx.fillStyle = p.c; ctx.fillRect(p.x - p.r / 2, p.y - p.r / 2, p.r, p.r); }
       ctx.globalAlpha = 1;
       for (const p of pops) { if (!p.on) continue; ctx.globalAlpha = Math.min(1, p.life / 0.5); ctx.fillStyle = C.surge; ctx.font = "700 13px 'Space Mono', monospace"; ctx.textAlign = "center"; ctx.fillText(p.text, p.x, p.y); ctx.globalAlpha = 1; }

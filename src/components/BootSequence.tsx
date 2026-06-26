@@ -60,12 +60,13 @@ export function BootSequence() {
     const lp = (a: V, b: V, t: number): V => ({ x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t) });
 
     // 2-bone IK — returns the joint (knee/elbow) for hip/shoulder -> foot/hand.
-    const ik = (hx: number, hy: number, fx: number, fy: number, l1: number, l2: number, bend: number): V => {
+    const ik = (hx: number, hy: number, fx: number, fy: number, l1: number, l2: number, bend: number, maxA?: number): V => {
       let dx = fx - hx, dy = fy - hy, d = Math.hypot(dx, dy) || 0.001;
       const max = l1 + l2 - 0.01; if (d > max) { dx *= max / d; dy *= max / d; d = max; }
       const a = Math.atan2(dy, dx);
       const c = Math.max(-1, Math.min(1, (d * d + l1 * l1 - l2 * l2) / (2 * d * l1)));
-      const ang = a + bend * Math.acos(c);
+      let j = Math.acos(c); if (maxA !== undefined && j > maxA) j = maxA; // cap how far the joint swings (arms stay nearly straight)
+      const ang = a + bend * j;
       return { x: hx + Math.cos(ang) * l1, y: hy + Math.sin(ang) * l1 };
     };
 
@@ -82,7 +83,7 @@ export function BootSequence() {
       const cax = (v: V): V => ({ x: chest.x + v.x * f, y: chest.y + v.y }); // chest-relative -> abs
       const fL = ax(p.fL), fR = ax(p.fR), hM = cax(p.hMain), hO = cax(p.hOff);
       const kL = ik(p.px, p.py, fL.x, fL.y, thigh, shin, -f), kR = ik(p.px, p.py, fR.x, fR.y, thigh, shin, -f); // knees bend forward (toward facing dir)
-      const eO = ik(chest.x, chest.y, hO.x, hO.y, upper, fore, f), eM = ik(chest.x, chest.y, hM.x, hM.y, upper, fore, f);
+      const eO = ik(chest.x, chest.y, hO.x, hO.y, upper, fore, f, 0.45), eM = ik(chest.x, chest.y, hM.x, hM.y, upper, fore, f, 0.45); // arms: gentle elbow only, never a sharp fold
       const hip = { x: p.px, y: p.py };
 
       ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = color; ctx.lineWidth = 2.8 * s;
@@ -115,7 +116,7 @@ export function BootSequence() {
         // walk cycle: legs stride THROUGH centre (±12s) with a lift on the swinging foot; idle = planted
         fL: { x: run ? step2 * 12 * s : -7 * s, y: fy - Math.max(0, step2) * 8 * s },
         fR: { x: run ? step * 12 * s : 7 * s, y: fy - Math.max(0, step) * 8 * s },
-        hMain: { x: 6 * s, y: -3 * s + Math.sin(t * 2.2) * s },
+        hMain: { x: 8.5 * s, y: -2 * s + Math.sin(t * 2.2) * s },
         hOff: { x: 6 * s, y: 8 * s },
         sword: -0.5, swordLen: 24 * s,
       };
@@ -146,7 +147,7 @@ export function BootSequence() {
     for (let i = 0; i < 520; i++) pts.push({ x: 0, y: 0, vx: 0, vy: 0, life: 0, max: 0, r: 0, c: C.surge, on: false });
     const seeded = new Set<string>();
     let dust: Dust[] = [], dustBuilt = false;
-    const TSIZE = Math.min(W * 0.09, 64 * U), tY = cy - 4 * U;
+    const TSIZE = Math.min(W * 0.068, 48 * U), tY = cy - 4 * U;
 
     const burst = (x: number, y: number, n: number, big = false) => {
       for (let i = 0; i < n; i++) { const p = pts.find((q) => !q.on); if (!p) break; const a = Math.random() * 6.28, s = (big ? 1 : 0.55) * (50 + Math.random() * 280); p.on = true; p.x = x; p.y = y; p.vx = Math.cos(a) * s; p.vy = Math.sin(a) * s - 30 * U; p.max = p.life = 0.4 + Math.random() * 0.45; p.r = (big ? 2.6 : 1.7) * U; p.c = Math.random() > 0.5 ? C.surge : C.volt; }
@@ -250,7 +251,7 @@ export function BootSequence() {
             p = lerpPose(landPose(cy, hs, 1), basePose(cx, cy, hs, 1, t, false), k);
           } else if (t >= FLIP_END) { // victory hold, then ascend into the light
             p = basePose(cx, cy, hs, 1, t, false);
-            p.lean = 0.02; p.hMain = { x: 1 * hs, y: -17 * hs }; p.hOff = { x: -6 * hs, y: 2 * hs }; p.sword = -1.5; p.swordLen = 30 * hs; // triumphant, sword raised
+            p.lean = 0.02; p.hMain = { x: 1 * hs, y: -17 * hs }; p.hOff = { x: -7 * hs, y: 11 * hs }; p.sword = -1.5; p.swordLen = 30 * hs; // triumphant, sword raised; off-arm hangs relaxed (no over-folded elbow)
             if (t > VEXIT) p.py -= eIn(cl((t - VEXIT) / (EXIT_END - VEXIT))) * 140 * U; // rise as he fades
           } else if (t >= EXPLODE && t < FLIP_END) {
             if (t < KILL) { const k = (t - EXPLODE) / (KILL - EXPLODE); p = basePose(cx, cy, hs, 1, t, false); p.py = cy - lerp(26, 18, k) * hs; p.fL = { x: -11 * hs, y: 26 * hs }; p.fR = { x: 11 * hs, y: 26 * hs }; p.lean = -0.15; p.hMain = { x: lerp(8, 0, k) * hs, y: lerp(4, -6, k) * hs }; p.hOff = { x: lerp(-8, 0, k) * hs, y: 6 * hs }; p.sword = -0.4; } // gather/charge
@@ -281,7 +282,7 @@ export function BootSequence() {
         if (t <= ASH) {
           ctx.save(); ctx.globalAlpha = titleP; ctx.translate(0, (1 - eOut(titleP)) * 24 * U); // rises into place
           ctx.shadowColor = C.surge; ctx.shadowBlur = 26 + Math.sin(t * 4) * 8; ctx.fillStyle = C.bone; ctx.fillText("MRVAYN", cx, tY); ctx.shadowBlur = 0;
-          ctx.font = `600 ${Math.max(10, 12 * U)}px 'Chakra Petch',sans-serif`; ctx.fillStyle = C.surge; ctx.fillText("FOUNDER & GAME DEVELOPER", cx, tY + TSIZE * 0.66); ctx.restore();
+          ctx.font = `600 ${Math.max(10, 12 * U)}px 'Chakra Petch',sans-serif`; ctx.fillStyle = C.surge; ctx.fillText("UNREAL ENGINE & FULL-STACK DEV", cx, tY + TSIZE * 0.66); ctx.restore();
         } else {
           if (!dustBuilt) buildDust();
           for (const d of dust) { const lt = t - ASH - d.delay; if (lt < 0) { ctx.fillStyle = C.bone; ctx.fillRect(d.hx, d.hy, 4.5 * U, 4.5 * U); } else { const p = lt / 0.75; if (p >= 1) continue; ctx.globalAlpha = 1 - p; ctx.fillStyle = p > 0.4 ? C.surge : C.bone; ctx.fillRect(d.hx + d.vx * lt, d.hy + d.vy * lt, 3 * U, 3 * U); ctx.globalAlpha = 1; } }

@@ -31,7 +31,7 @@ export const projects: Project[] = [
   {
     id: "antarya",
     title: "Antarya",
-    role: "Co-Founder & CTO — Magadha Studios",
+    role: "CTO — Magadha Studios",
     year: "2024 — Present",
     summary:
       "A studio title built on a reusable, data-driven gameplay framework for rapid iteration and scale. Showcased at IGDC 2025; demo in progress.",
@@ -79,7 +79,26 @@ export const projects: Project[] = [
   { id: "rpg-prototype", title: "RPG Game Prototype", role: "Developer", year: "2023", summary: "An RPG systems prototype.", tech: ["Unreal Engine 5", "RPG Systems"], links: [{ label: "View", href: "https://drive.google.com/drive/folders/1WuzkMKut5wKKHKTDJ9IC5vR8q_y1sL5z" }] },
   { id: "glazer-site", title: "Glazer Games Website", role: "Web Developer", year: "2023", summary: "Production website for Glazer Games.", tech: ["Web", "Frontend"], links: [{ label: "Visit", href: "https://www.glazer.games" }] },
   { id: "bharatverse", title: "Bharatverse", role: "Developer", year: "2023", summary: "A concept/world-building project.", tech: ["Unreal Engine 5", "World Design"], links: [{ label: "View", href: "https://drive.google.com/file/d/11bqGKg3IUZTWWNw6ofC_pv7yLPN8nxPu/view" }] },
-  { id: "ai-therapist", title: "Virtual AI Therapist", role: "Developer", year: "2023", summary: "An AI-driven conversational prototype.", tech: ["AI", "Prototype"], links: [{ label: "View", href: "https://drive.google.com/file/d/1WV2xYvS9aCd0mrpUbshdrsm8rcOFGNf8/view?usp=drive_link" }] },
+  { id: "ai-therapist", title: "Virtual AI Therapist", role: "Developer", year: "2023", summary: "An AI-driven conversational prototype that handles real-time dialogue and reads sentiment.", tech: ["AI", "LangChain", "RAG", "Prototype"], links: [{ label: "View", href: "https://drive.google.com/file/d/1WV2xYvS9aCd0mrpUbshdrsm8rcOFGNf8/view?usp=drive_link" }] },
+  {
+    id: "grannyspot",
+    title: "Grannyspot",
+    role: "Full-stack — Solo build",
+    year: "2025",
+    summary:
+      "Live e-commerce store for a handmade-pickle brand — product catalog, cart, user auth, Razorpay checkout, and an admin panel secured by server-side RBAC.",
+    tech: ["Next.js 14", "TypeScript", "Tailwind CSS", "Prisma", "Supabase", "PostgreSQL", "Razorpay"],
+    links: [{ label: "Visit", href: "https://grannyspot.com" }],
+    badge: "LIVE",
+    shipped: true,
+    // TODO(MrVayn): confirm grannyspot.com is publicly live before sharing widely.
+    problem:
+      "A handmade-pickle brand needed a real storefront — catalog, secure checkout, and an admin panel — not a template.",
+    approach:
+      "A solo full-stack build: Next.js 14 + TypeScript + Tailwind, Prisma over Supabase (Postgres + Auth), Razorpay checkout, and server-side role-based access control for the admin panel; a responsive, WCAG-AA-conscious design system deployed on Vercel.",
+    result:
+      "A live store with catalog, cart, user auth, payments, and a secured admin panel.",
+  },
 ];
 
 export const featuredProjects = projects.filter((p) => p.featured);

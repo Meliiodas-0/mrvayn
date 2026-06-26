@@ -3,6 +3,7 @@ import { StickCursor } from "@/components/StickCursor";
 import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
+import { ScrollSamurai } from "@/components/ScrollSamurai";
 import { About } from "@/components/sections/About";
 import { Work } from "@/components/sections/Work";
 import { Skills } from "@/components/sections/Skills";
@@ -21,9 +22,10 @@ export default function Home() {
 
       <BootSequence />
       <StickCursor />
+      <ScrollSamurai />
       <Nav />
 
-      <main id="content" className="grain relative">
+      <main id="content" className="grain relative z-10">
         <Hero />
         <About />
         <Work />
@@ -32,7 +34,9 @@ export default function Home() {
         <Contact />
       </main>
 
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </>
   );
 }

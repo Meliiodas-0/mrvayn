@@ -1,127 +1,133 @@
+"use client";
+
+import { useRef } from "react";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { ArrowRight, Mail } from "lucide-react";
 import { profile } from "@/data/profile";
 import { BevelButton } from "@/components/ui/BevelButton";
-import { Panel } from "@/components/ui/Panel";
-import { StatBlock } from "@/components/ui/StatBlock";
 import { Reveal } from "@/components/motion/Reveal";
+import { HeroMachinery } from "@/components/HeroMachinery";
 
 export function Hero() {
+  const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  // As you scroll out of the hero, the copy drifts up + fades while the side rails
+  // drift down — a layered hand-off into the About section.
+  const y = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -90]);
+  const opacity = useTransform(scrollYProgress, [0, 0.55], [1, reduce ? 1 : 0]);
+  const railY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 64]);
+
   return (
-    <section id="hero" className="relative flex min-h-screen items-center overflow-hidden px-5 pb-16 pt-28">
-      {/* VFX: signature neon glow, biased toward the wordmark (asymmetric). */}
+    <section
+      ref={ref}
+      id="hero"
+      className="scanlines relative flex min-h-screen flex-col overflow-hidden px-5 pb-10 pt-24 sm:pt-28"
+    >
+      {/* Glow under the wordmark (top-center). */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-[22%] top-[46%] -z-0 h-[44rem] w-[44rem] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-25 blur-[130px]"
-        style={{ background: "radial-gradient(circle, rgb(var(--surge)/0.9), rgb(var(--ion)/0.5) 45%, rgb(var(--volt)/0.25) 70%, transparent 75%)" }}
+        className="pointer-events-none absolute left-1/2 top-[26%] -z-0 h-[40rem] w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 blur-[150px]"
+        style={{ background: "radial-gradient(circle, rgb(var(--surge)/0.8), rgb(var(--ion)/0.4) 46%, transparent 74%)" }}
       />
 
-      {/* Faint HUD grid — gives the void structure, fades toward the edges. */}
+      {/* Refined machinery — solid monochrome gears framing both sides + embers. */}
+      <HeroMachinery />
+
+      {/* Low horizon glow grounds the ronin at center-bottom. */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgb(var(--bone)/0.05) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--bone)/0.05) 1px, transparent 1px)",
-          backgroundSize: "72px 72px",
-          maskImage: "radial-gradient(ellipse 85% 70% at 42% 52%, #000 15%, transparent 82%)",
-          WebkitMaskImage: "radial-gradient(ellipse 85% 70% at 42% 52%, #000 15%, transparent 82%)",
-        }}
+        style={{ background: "radial-gradient(80% 48% at 50% 110%, rgb(var(--surge)/0.10), rgb(var(--ion)/0.05) 42%, transparent 64%)" }}
       />
-
-      {/* HUD corner brackets framing the viewport. */}
-      <span aria-hidden className="pointer-events-none absolute left-4 top-[4.5rem] h-6 w-6 border-l border-t border-surge/30" />
-      <span aria-hidden className="pointer-events-none absolute right-4 top-[4.5rem] h-6 w-6 border-r border-t border-surge/30" />
-      <span aria-hidden className="pointer-events-none absolute bottom-12 left-4 h-6 w-6 border-b border-l border-surge/30" />
-      <span aria-hidden className="pointer-events-none absolute bottom-12 right-4 h-6 w-6 border-b border-r border-surge/30" />
-
-      {/* Top meta line. */}
+      {/* Vignette pulls focus inward + tones the gears down at the edges. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-[5rem] z-10 mx-auto flex max-w-7xl items-center justify-between px-6 font-mono text-[0.65rem] uppercase tracking-[0.3em] text-mist/35"
+        className="pointer-events-none absolute inset-0 -z-0"
+        style={{ background: "radial-gradient(120% 100% at 50% 32%, transparent 48%, rgb(var(--void)/0.62) 100%)" }}
+      />
+
+      {/* Corner brackets framing the viewport. */}
+      <span aria-hidden className="pointer-events-none absolute left-4 top-[4.5rem] h-7 w-7 border-l-2 border-t-2 border-surge/40" />
+      <span aria-hidden className="pointer-events-none absolute right-4 top-[4.5rem] h-7 w-7 border-r-2 border-t-2 border-surge/40" />
+      <span aria-hidden className="pointer-events-none absolute bottom-9 left-4 h-7 w-7 border-b-2 border-l-2 border-surge/40" />
+      <span aria-hidden className="pointer-events-none absolute bottom-9 right-4 h-7 w-7 border-b-2 border-r-2 border-surge/40" />
+
+      {/* Left rail — operator spec, flanking the center (wide screens only). */}
+      <motion.div
+        style={{ y: railY, opacity }}
+        data-solid
+        className="absolute left-7 top-1/2 z-10 hidden -translate-y-1/2 flex-col gap-7 border-l border-steel/60 pl-5 xl:flex"
       >
-        <span>{"// Operator_portfolio"}</span>
-        <span className="hidden sm:inline">Est. 2019</span>
-      </div>
-
-      <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-12 lg:gap-14">
-        {/* Left — the thesis + wordmark */}
-        <div className="lg:col-span-8">
-          <div data-solid className="w-fit max-w-full">
-            <Reveal>
-              <span className="inline-flex items-center gap-2.5 font-hud text-xs uppercase tracking-[0.3em] text-surge">
-                <span aria-hidden className="inline-block h-1.5 w-1.5 bg-surge" />
-                {profile.role}
-              </span>
-            </Reveal>
-
-            <Reveal delay={0.08}>
-              <h1
-                className="mt-6 font-anton uppercase leading-[0.8] text-bone text-glow-surge"
-                style={{ fontSize: "clamp(4rem, 14vw, 12rem)" }}
-              >
-                MrVayn
-              </h1>
-            </Reveal>
-
-            <Reveal delay={0.16}>
-              <p className="mt-6 max-w-xl font-sans text-lg leading-relaxed text-mist">{profile.thesis}</p>
-            </Reveal>
-
-            <Reveal delay={0.24}>
-              <div className="mt-9 flex flex-wrap items-center gap-3">
-                <BevelButton href="#loadout" variant="primary">
-                  View work
-                  <ArrowRight className="h-4 w-4" />
-                </BevelButton>
-                <BevelButton href={profile.emailHref} variant="ghost">
-                  <Mail className="h-4 w-4" />
-                  Get in touch
-                </BevelButton>
-              </div>
-            </Reveal>
+        {profile.specialties.slice(0, 3).map((s) => (
+          <div key={s.label}>
+            <div className="font-display text-2xl font-black uppercase leading-none text-bone">{s.value}</div>
+            <div className="mt-1.5 font-hud text-[0.58rem] uppercase tracking-[0.24em] text-mist">{s.label}</div>
           </div>
+        ))}
+      </motion.div>
 
-          <Reveal delay={0.4}>
-            <p className="mt-12 font-mono text-[0.7rem] uppercase tracking-[0.25em] text-mist/50">
-              Tip: hunt the stickmen roaming the page
-            </p>
-          </Reveal>
-        </div>
-
-        {/* Right — operator spec HUD panel (fills the layout, reinforces the game-client read) */}
-        <Reveal delay={0.3} className="lg:col-span-4">
-          <Panel edge className="p-6 sm:p-7">
-            <div className="flex items-center justify-between">
-              <span className="font-hud text-[0.7rem] uppercase tracking-[0.3em] text-mist">Operator spec</span>
-              <span className="inline-flex items-center gap-2 font-hud text-[0.7rem] uppercase tracking-[0.2em] text-volt">
-                <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-volt shadow-[0_0_8px_0] shadow-volt" />
-                Online
-              </span>
-            </div>
-
-            <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-7">
-              {profile.specialties.map((s) => (
-                <StatBlock key={s.label} value={s.value} label={s.label} />
-              ))}
-            </div>
-
-            <p className="mt-6 flex items-start gap-2.5 border-t border-steel pt-5 font-sans text-sm leading-relaxed text-mist">
-              <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-surge" />
-              {profile.availability}
-            </p>
-          </Panel>
-        </Reveal>
-      </div>
-
-      {/* Bottom HUD status bar. */}
-      <div className="absolute inset-x-0 bottom-5 z-10 mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 font-mono text-[0.7rem] uppercase tracking-[0.25em] text-mist/50">
-        <span className="flex items-center gap-2">
-          <span aria-hidden className="h-1.5 w-1.5 bg-volt shadow-[0_0_8px_0] shadow-volt" />
+      {/* Right rail — status / signal, flanking the center (wide screens only). */}
+      <motion.div
+        style={{ y: railY, opacity }}
+        data-solid
+        className="absolute right-7 top-1/2 z-10 hidden -translate-y-1/2 flex-col items-end gap-6 border-r border-steel/60 pr-5 text-right xl:flex"
+      >
+        <div className="flex items-center gap-2 font-hud text-[0.62rem] uppercase tracking-[0.22em] text-volt">
           Open to work
-        </span>
-        <span aria-hidden className="hidden text-mist/35 md:inline">UE5 · Niagara · Multiplayer · Netcode</span>
-        <a href="#operator" className="transition-colors hover:text-surge">Scroll ↓</a>
-      </div>
+          <span aria-hidden className="h-1.5 w-1.5 animate-pulse rounded-full bg-volt shadow-[0_0_8px_0] shadow-volt motion-reduce:animate-none" />
+        </div>
+        <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-mist/80">Est. 2019</div>
+        <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-mist/80">Delhi · IN</div>
+        <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-surge/80">IGDC &apos;25</div>
+      </motion.div>
+
+      {/* ===== Compact centered content up top — the ronin owns center-bottom ===== */}
+      <motion.div style={{ y, opacity }} className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center">
+        <Reveal>
+          <span className="inline-flex items-center gap-2.5 font-hud text-[0.7rem] uppercase tracking-[0.34em] text-surge">
+            <span aria-hidden className="inline-block h-1.5 w-1.5 bg-surge" />
+            {profile.role}
+          </span>
+        </Reveal>
+
+        <Reveal delay={0.08}>
+          <h1
+            data-solid
+            className="mt-4 font-anton uppercase leading-[0.8] text-bone text-glow-surge"
+            style={{ fontSize: "clamp(3.5rem, 10vw, 8.5rem)" }}
+          >
+            MrVayn
+          </h1>
+          <span aria-hidden className="mx-auto mt-4 block h-[2px] w-2/3 max-w-sm bg-gradient-to-r from-transparent via-surge to-transparent" />
+        </Reveal>
+
+        <Reveal delay={0.16}>
+          <p data-solid className="mx-auto mt-5 max-w-xl font-sans text-sm leading-relaxed text-mist sm:text-base">{profile.thesis}</p>
+        </Reveal>
+
+        <Reveal delay={0.24}>
+          <div data-solid className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <BevelButton href="#loadout" variant="primary">
+              View work
+              <ArrowRight className="h-4 w-4" />
+            </BevelButton>
+            <BevelButton href={profile.emailHref} variant="ghost">
+              <Mail className="h-4 w-4" />
+              Get in touch
+            </BevelButton>
+          </div>
+        </Reveal>
+      </motion.div>
+
+      {/* Scroll hint pinned bottom-center, above the ronin's grounding glow. */}
+      <motion.a
+        style={{ opacity }}
+        href="#operator"
+        className="pointer-events-auto absolute bottom-5 left-1/2 z-10 -translate-x-1/2 font-mono text-[0.62rem] uppercase tracking-[0.35em] text-mist/45 transition-colors hover:text-surge"
+      >
+        Scroll ↓
+      </motion.a>
     </section>
   );
 }

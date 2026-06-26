@@ -69,7 +69,7 @@
 
   /* Signature neon glow behind hero word / featured items (VFX only). */
   .text-glow-surge {
-    text-shadow: 0 0 24px rgb(var(--surge) / 0.45), 0 0 64px rgb(var(--surge) / 0.25);
+    text-shadow: 0 0 20px rgb(var(--surge) / 0.3), 0 0 56px rgb(var(--surge) / 0.16);
   }
 
   /* Fine grain for depth — very low opacity, fixed. */

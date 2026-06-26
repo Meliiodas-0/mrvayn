@@ -1,7 +1,6 @@
 import { profile } from "@/data/profile";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { Panel } from "@/components/ui/Panel";
-import { StatBlock } from "@/components/ui/StatBlock";
 import { Reveal } from "@/components/motion/Reveal";
 
 export function About() {
@@ -25,10 +24,19 @@ export function About() {
         </Reveal>
 
         <Reveal delay={0.1}>
-          <Panel className="grid h-full grid-cols-2 gap-y-8 p-6 sm:p-8">
-            {profile.specialties.map((s) => (
-              <StatBlock key={s.label} value={s.value} label={s.label} />
-            ))}
+          <Panel className="h-full p-6 sm:p-8">
+            <p className="font-hud text-xs uppercase tracking-[0.25em] text-mist">Core disciplines</p>
+            <ul className="mt-6 space-y-px">
+              {profile.capabilities.map((cap, i) => (
+                <li
+                  key={cap}
+                  className="flex items-center gap-4 border-b border-steel/50 py-3 font-sans text-sm text-bone/90 last:border-b-0"
+                >
+                  <span className="font-mono text-[0.7rem] text-surge">{String(i + 1).padStart(2, "0")}</span>
+                  {cap}
+                </li>
+              ))}
+            </ul>
           </Panel>
         </Reveal>
       </div>
