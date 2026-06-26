@@ -34,11 +34,11 @@ export function Hero() {
       {/* Refined machinery — solid monochrome gears framing both sides + embers. */}
       <HeroMachinery />
 
-      {/* Low horizon glow grounds the ronin at center-bottom. */}
+      {/* Low spectral horizon glow grounds ROG at center-bottom (cool, ethereal). */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-0"
-        style={{ background: "radial-gradient(80% 48% at 50% 110%, rgb(var(--surge)/0.10), rgb(var(--ion)/0.05) 42%, transparent 64%)" }}
+        style={{ background: "radial-gradient(85% 52% at 50% 112%, rgb(var(--ion)/0.12), rgb(var(--volt)/0.06) 42%, transparent 66%)" }}
       />
       {/* Vignette pulls focus inward + tones the gears down at the edges. */}
       <div

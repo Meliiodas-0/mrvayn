@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { readThemeColors, THEME_EVENT } from "@/lib/themeColors";
 
 /**
  * Hero environment: a few detailed gears turning at the edges (solid bodies,
@@ -10,7 +11,6 @@ import { useEffect, useRef } from "react";
  * screenshots.
  */
 
-const C = { carbon: "#0E1320", steel: "#1A2233", mist: "#8A94A7", bone: "#EAF0FF", surge: "#FF2D6B", volt: "#19E0FF", ion: "#B26BFF" };
 const TAU = Math.PI * 2;
 
 interface Gear { x: number; y: number; r: number; teeth: number; rot: number; spd: number; }
@@ -24,6 +24,7 @@ export function HeroMachinery() {
     const c2d = canvas?.getContext("2d");
     if (!canvas || !c2d) return;
     const ctx = c2d;
+    let C = readThemeColors();
     const q = new URLSearchParams(location.search);
     const staticFrame = window.matchMedia("(prefers-reduced-motion: reduce)").matches || q.has("still") || q.has("cine");
 
@@ -47,7 +48,7 @@ export function HeroMachinery() {
       ];
       const n = W < 768 ? 12 : 26;
       embers = [];
-      for (let i = 0; i < n; i++) embers.push({ x: rand(0, W), y: rand(H * 0.2, H), vx: rand(-6, 6), vy: rand(-22, -7), r: rand(0.6, 2.1) * U, a: rand(0.1, 0.5), c: Math.random() > 0.5 ? C.surge : C.volt });
+      for (let i = 0; i < n; i++) embers.push({ x: rand(0, W), y: rand(H * 0.2, H), vx: rand(-4, 4), vy: rand(-14, -4), r: rand(0.6, 2) * U, a: rand(0.08, 0.42), c: Math.random() > 0.55 ? C.volt : C.ion });
     };
 
     const resize = () => {
@@ -101,7 +102,7 @@ export function HeroMachinery() {
       for (const g of gears) g.rot += g.spd * dt;
       for (const e of embers) {
         e.x += e.vx * dt; e.y += e.vy * dt;
-        if (e.y < -10 || e.x < -10 || e.x > W + 10) { e.x = rand(0, W); e.y = H + rand(0, 40); e.vy = rand(-22, -7); e.vx = rand(-6, 6); }
+        if (e.y < -10 || e.x < -10 || e.x > W + 10) { e.x = rand(0, W); e.y = H + rand(0, 40); e.vy = rand(-14, -4); e.vx = rand(-4, 4); }
       }
       frame();
       raf = requestAnimationFrame(loop);
@@ -116,6 +117,8 @@ export function HeroMachinery() {
 
     const onVis = () => (document.hidden ? stopLoop() : startLoop());
     document.addEventListener("visibilitychange", onVis);
+    const onTheme = () => { C = readThemeColors(); build(); };
+    window.addEventListener(THEME_EVENT, onTheme);
     const io = new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; onScreen ? startLoop() : stopLoop(); }, { threshold: 0 });
     io.observe(canvas);
     startLoop();
@@ -124,6 +127,7 @@ export function HeroMachinery() {
       stopLoop();
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener(THEME_EVENT, onTheme);
       io.disconnect();
     };
   }, []);

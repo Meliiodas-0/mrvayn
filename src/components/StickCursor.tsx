@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { readThemeColors, THEME_EVENT } from "@/lib/themeColors";
 
 /**
  * Global stickman cursor (desktop / fine-pointer / motion-allowed only).
@@ -13,7 +14,6 @@ import { useEffect, useRef } from "react";
  * hide; touch / reduced-motion keep the normal cursor.
  */
 
-const C = { bone: "#EAF0FF", volt: "#19E0FF", surge: "#FF2D6B", ion: "#B26BFF", mist: "#8A94A7" };
 const COUNT = 8;
 const E_MIN = 26, E_MAX = 78, WANDER = 240;
 const FLEE_R = 130, FLEE_F = 520;
@@ -37,6 +37,7 @@ export function StickCursor() {
     const c2d = canvas?.getContext("2d");
     if (!canvas || !c2d) return;
     const ctx = c2d;
+    let C = readThemeColors();
 
     let W = 0, H = 0, dpr = 1;
     const m = { x: innerWidth / 2, y: innerHeight / 2 };
@@ -125,6 +126,8 @@ export function StickCursor() {
     addEventListener("mousemove", onMove, { passive: true });
     addEventListener("resize", resize);
     addEventListener("scroll", onScroll, { passive: true });
+    const onTheme = () => { C = readThemeColors(); };
+    addEventListener(THEME_EVENT, onTheme);
     const occInterval = setInterval(computeOccupied, 500);
     document.documentElement.style.cursor = "none";
     resize();
@@ -290,6 +293,7 @@ export function StickCursor() {
       removeEventListener("mousemove", onMove);
       removeEventListener("resize", resize);
       removeEventListener("scroll", onScroll);
+      removeEventListener(THEME_EVENT, onTheme);
       document.removeEventListener("visibilitychange", onVis);
       document.documentElement.style.cursor = "";
     };

@@ -1,5 +1,7 @@
 import { BootSequence } from "@/components/BootSequence";
 import { StickCursor } from "@/components/StickCursor";
+import { ThemeControl } from "@/components/ThemeControl";
+import { ScrollGlitch } from "@/components/ScrollGlitch";
 import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
@@ -24,6 +26,8 @@ export default function Home() {
       <StickCursor />
       <ScrollSamurai />
       <Nav />
+      <ThemeControl />
+      <ScrollGlitch />
 
       <main id="content" className="grain relative z-10">
         <Hero />

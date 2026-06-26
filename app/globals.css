@@ -4,16 +4,22 @@
 
 /* ===== OVERDRIVE tokens (docs/DESIGN_SYSTEM.md) — RGB channels for alpha ===== */
 :root {
-  --void: 7 9 15; /* #07090F page bg */
-  --carbon: 14 19 32; /* #0E1320 panel base */
-  --steel: 26 34 51; /* #1A2233 raised/borders */
-  --mist: 138 148 167; /* #8A94A7 muted text */
-  --bone: 234 240 255; /* #EAF0FF primary text */
-  --surge: 255 45 107; /* #FF2D6B signature accent */
-  --volt: 25 224 255; /* #19E0FF VFX cyan */
-  --ion: 178 107 255; /* #B26BFF VFX violet */
+  /* default theme = "Wraith" (cool/spectral, suits the bone-white character).
+     ThemeControl overrides these at runtime; presets live in src/data/themes.ts */
+  --void: 6 9 16;
+  --carbon: 13 18 30;
+  --steel: 26 34 52;
+  --mist: 132 145 168;
+  --bone: 232 240 255;
+  --surge: 45 212 191; /* primary accent */
+  --volt: 56 189 248; /* secondary */
+  --ion: 167 139 250; /* tertiary */
   --bevel: 14px; /* signature clipped-corner size */
 }
+
+/* Texture toggles (ThemeControl sets these data attributes on <html>). */
+html[data-grain="off"] .grain::before { display: none; }
+html[data-scanlines="off"] .scanlines::after { display: none; }
 
 @layer base {
   html {

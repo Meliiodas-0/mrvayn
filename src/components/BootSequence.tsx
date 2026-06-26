@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { readThemeColors } from "@/lib/themeColors";
 
 /**
  * Cinematic intro with an IK-skeleton stickman (jointed elbows/knees, not stiff
@@ -12,7 +13,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
  * reduced-motion skips.
  */
 
-const C = { void: "#07090F", bone: "#EAF0FF", volt: "#19E0FF", surge: "#FF2D6B", ion: "#B26BFF", mist: "#8A94A7" };
 const LAND = 0.55, LOOK = 0.85, RISE = 1.15, RISE_END = 1.55;
 const E1D = 1.95, E2D = 2.6;
 const SURR_APP = 2.75, SURR_SET = 3.65, EXPLODE = 4.55, KILL = 4.85, FLIP_END = 5.5;
@@ -43,6 +43,7 @@ export function BootSequence() {
     const c2d = canvas?.getContext("2d");
     if (!canvas || !c2d) { const t = setTimeout(done, 100); return () => clearTimeout(t); }
     const ctx = c2d;
+    const C = readThemeColors();
 
     let W = 0, H = 0, dpr = 1, U = 1, cx = 0, cy = 0;
     const resize = () => {

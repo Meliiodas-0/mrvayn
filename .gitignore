@@ -34,3 +34,6 @@ next-env.d.ts
 .claude/skills/impeccable/
 .claude/settings.local.json
 .gemini/
+
+# Raw HD character render (optimized frames live in public/rog)
+SevRender/

@@ -13,9 +13,9 @@ import { useEffect, useRef } from "react";
  * `public/samurai/f_000..NNN.webp` (ffmpeg crop+fps -> rembg per frame -> webp),
  * then set FRAMES below. Nothing else changes.
  */
-const FRAMES = 100;
+const FRAMES = 144;
 const HERO_IDX = 0; // hero resting pose (scroll 0) — used for phone/static so it matches the live hero
-const frameSrc = (i: number) => `/samurai/f_${String(i).padStart(3, "0")}.webp`;
+const frameSrc = (i: number) => `/rog/f_${String(i).padStart(3, "0")}.webp`;
 
 export function ScrollSamurai() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -71,7 +71,7 @@ export function ScrollSamurai() {
       // progressing (slowly) all the way to the bottom — never finishes/stops early.
       target = Math.sqrt(p) * (FRAMES - 1);
       const fs = vh * 0.85, fe = vh * 1.5;
-      wrap.style.opacity = String(y <= fs ? 1 : y >= fe ? 0.18 : 1 - ((y - fs) / (fe - fs)) * 0.82); // clear in hero, faint constant-size bg deeper
+      wrap.style.opacity = String(y <= fs ? 0.74 : y >= fe ? 0.14 : 0.74 - ((y - fs) / (fe - fs)) * 0.6); // submerged: never fully opaque, fades to a faint constant-size presence deeper
     };
     const tick = () => {
       if (!running) return;
@@ -99,13 +99,24 @@ export function ScrollSamurai() {
       ref={wrapRef}
       data-solid
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto h-[72vh] w-full max-w-[840px] max-lg:h-[60vh] max-lg:opacity-[0.22]"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto h-[82vh] w-full max-w-[940px] max-lg:h-[66vh] max-lg:opacity-[0.22]"
     >
-      {/* grounding glow under his feet so he stands in the scene */}
-      <div className="absolute inset-x-0 bottom-0 h-2/3" style={{ background: "radial-gradient(58% 70% at 50% 100%, rgb(var(--surge)/0.13), rgb(var(--ion)/0.06) 46%, transparent 72%)" }} />
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-      {/* feet dissolve into the void */}
-      <div className="absolute inset-x-0 bottom-0 h-14" style={{ background: "linear-gradient(180deg, transparent, rgb(var(--void)))" }} />
+      {/* spectral aura behind him — a cool, ethereal halo so the bone-white figure reads as an apparition */}
+      <div className="absolute inset-0" style={{ background: "radial-gradient(38% 36% at 50% 60%, rgb(var(--volt)/0.10), rgb(var(--ion)/0.07) 46%, transparent 70%)" }} />
+      {/* a glowing rift he rises from */}
+      <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: "radial-gradient(56% 64% at 50% 100%, rgb(var(--ion)/0.16), rgb(var(--volt)/0.08) 44%, transparent 72%)" }} />
+      {/* edges dissolve into the void so he's submerged in the scene, not a hard cutout */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 h-full w-full"
+        style={{
+          maskImage: "radial-gradient(64% 70% at 50% 56%, #000 52%, transparent 92%)",
+          WebkitMaskImage: "radial-gradient(64% 70% at 50% 56%, #000 52%, transparent 92%)",
+        }}
+      />
+      {/* layered mist so he's wreathed in atmosphere + dissolves into the void */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 opacity-80 blur-2xl" style={{ background: "radial-gradient(78% 100% at 50% 110%, rgb(var(--mist)/0.16), rgb(var(--ion)/0.06) 40%, transparent 70%)" }} />
+      <div className="absolute inset-x-0 bottom-0 h-24" style={{ background: "linear-gradient(180deg, transparent, rgb(var(--void)))" }} />
     </div>
   );
 }
