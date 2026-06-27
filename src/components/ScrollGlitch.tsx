@@ -34,26 +34,25 @@ export function ScrollGlitch() {
       ctx.clearRect(0, 0, W, H);
       if (intensity > 0.03) {
         ctx.globalCompositeOperation = "lighter";
-        const n = 1 + Math.round(intensity * 6);
+        const n = 1 + Math.round(intensity * 2);
         for (let i = 0; i < n; i++) {
-          const sy = Math.random() * H, sh = 1 + Math.random() * intensity * 46, off = (Math.random() - 0.5) * intensity * 70;
-          ctx.globalAlpha = 0.13 * intensity;
+          const sy = Math.random() * H, sh = 1 + Math.random() * intensity * 28, off = (Math.random() - 0.5) * intensity * 38;
+          ctx.globalAlpha = 0.05 * intensity;
           ctx.fillStyle = C.surge; ctx.fillRect(off, sy, W, sh);
           ctx.fillStyle = C.volt; ctx.fillRect(-off * 0.7, sy + 1.5, W, sh * 0.6);
-          if (Math.random() < 0.5) { ctx.fillStyle = C.ion; ctx.fillRect(off * 0.4, sy - 1, W, sh * 0.4); }
         }
-        ctx.globalAlpha = 0.05 * intensity; ctx.fillStyle = C.bone;
-        for (let y = 0; y < H; y += 3) if (Math.random() < intensity * 0.35) ctx.fillRect(0, y, W, 1);
+        ctx.globalAlpha = 0.02 * intensity; ctx.fillStyle = C.bone;
+        for (let y = 0; y < H; y += 3) if (Math.random() < intensity * 0.18) ctx.fillRect(0, y, W, 1);
         ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
       }
-      intensity *= 0.84;
+      intensity *= 0.80;
       if (intensity > 0.02 && !document.hidden) { raf = requestAnimationFrame(draw); } else { running = false; ctx.clearRect(0, 0, W, H); }
     };
     const kick = () => { if (!running) { running = true; raf = requestAnimationFrame(draw); } };
 
     const onScroll = () => {
       const y = window.scrollY;
-      intensity = Math.min(1, Math.max(intensity, Math.abs(y - lastY) / 55));
+      intensity = Math.min(0.6, Math.max(intensity, Math.abs(y - lastY) / 95)); // subtle: less sensitive + lower ceiling
       lastY = y;
       kick();
     };

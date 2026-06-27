@@ -71,7 +71,7 @@ export function ScrollSamurai() {
     for (let i = 0; i < FRAMES; i += STRIDE) idxs.push(i);
     if (idxs[idxs.length - 1] !== FRAMES - 1) idxs.push(FRAMES - 1);
     const N = idxs.length;
-    const heroOp = phone ? 0.3 : 0.74, deepOp = phone ? 0.1 : 0.14;
+    const heroOp = phone ? 0.3 : 0.74, deepOp = phone ? 0.15 : 0.2; // keep a faint constant ghost behind the (now translucent) containers
 
     let target = 0, cur = 0, raf = 0, running = false;
     const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(i); return im; });

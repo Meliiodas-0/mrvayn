@@ -13,8 +13,8 @@ const LS_THEME = "mv-theme", LS_GRAIN = "mv-grain", LS_SCAN = "mv-scanlines";
 export function ThemeControl() {
   const [open, setOpen] = useState(false);
   const [themeId, setThemeId] = useState(DEFAULT_THEME);
-  const [grain, setGrain] = useState(true);
-  const [scan, setScan] = useState(true);
+  const [grain, setGrain] = useState(false);
+  const [scan, setScan] = useState(false);
 
   const applyTheme = (id: string, persist = true) => {
     const root = document.documentElement;
@@ -28,11 +28,11 @@ export function ThemeControl() {
   };
 
   useEffect(() => {
-    let t = DEFAULT_THEME, g = true, s = true;
+    let t = DEFAULT_THEME, g = false, s = false; // grain + scanlines OFF by default
     try {
       t = localStorage.getItem(LS_THEME) || DEFAULT_THEME;
-      g = localStorage.getItem(LS_GRAIN) !== "off";
-      s = localStorage.getItem(LS_SCAN) !== "off";
+      g = localStorage.getItem(LS_GRAIN) === "on";
+      s = localStorage.getItem(LS_SCAN) === "on";
     } catch { /* */ }
     setThemeId(t); setGrain(g); setScan(s);
     applyTheme(t, false); applyTexture("grain", g); applyTexture("scanlines", s);

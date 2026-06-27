@@ -13,7 +13,8 @@ export function Panel({ className, edge = false, compact = false, children, ...p
     <div
       data-solid
       className={cn(
-        "relative bevel border border-steel bg-carbon",
+        // ~10% translucent so the ROG figure behind the page faintly ghosts through; still 90% solid.
+        "relative bevel border border-steel bg-carbon/90",
         compact && "bevel-sm",
         className,
       )}

@@ -11,7 +11,7 @@ export interface Theme {
   vars: Record<string, string>;
 }
 
-export const DEFAULT_THEME = "wraith";
+export const DEFAULT_THEME = "mono"; // "Ghost" — monochrome, set as the default look
 
 export const themes: Theme[] = [
   {

@@ -57,7 +57,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#07090F",
+  themeColor: "#08090C",
   colorScheme: "dark",
 };
 
@@ -65,6 +65,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
+      data-grain="off"
+      data-scanlines="off"
       className={`${archivo.variable} ${anton.variable} ${chakra.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body className="font-sans antialiased">{children}</body>
