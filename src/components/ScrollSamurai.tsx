@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { ROG_OFFSETS, ROG_OFFSET_MEAN } from "@/data/rogOffsets";
 
 /**
  * Ronin centerpiece — a background-removed (alpha) figure anchored CENTER-BOTTOM
@@ -16,10 +17,10 @@ import { useEffect, useRef } from "react";
 const FRAMES = 144;
 const HERO_IDX = 0; // hero resting pose (scroll 0) — used for phone/static so it matches the live hero
 const frameSrc = (i: number) => `/rog/f_${String(i).padStart(3, "0")}.webp`;
-// His body sits ~5% left of the frame's geometric centre (the crop spans his mace reaching
-// left), so a plain center-draw reads as "slightly left". Nudge the draw right by this
-// fraction of the drawn width so his torso lands on the true centre — PC and phone alike.
-const BODY_DX = 0.08;
+// Per-frame horizontal offset that re-centres each frame's body mass, so ROG never slides
+// left↔right as the sequence scrubs (his pose/mace sway ~14% of the width across 144 frames
+// — that lateral slide is what looked broken on phone). Falls back to the set mean.
+const offsetForFrame = (frame: number) => ROG_OFFSETS[frame] ?? ROG_OFFSET_MEAN;
 
 export function ScrollSamurai() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,6 +32,7 @@ export function ScrollSamurai() {
     if (!canvas || !ctx || !wrap) return;
 
     let W = 0, H = 0, dpr = 1, lastGood: HTMLImageElement | null = null;
+    let dxFrac = offsetForFrame(HERO_IDX); // horizontal centering offset for the frame currently drawn
     const resize = () => {
       const r = canvas.getBoundingClientRect(); W = Math.max(1, r.width); H = Math.max(1, r.height);
       dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -43,7 +45,7 @@ export function ScrollSamurai() {
       const iw = im.naturalWidth, ih = im.naturalHeight;
       const scale = Math.min(W / iw, H / ih);
       const dw = iw * scale, dh = ih * scale;
-      ctx.drawImage(im, (W - dw) / 2 + BODY_DX * dw, H - dh, dw, dh); // body-centered, bottom-anchored
+      ctx.drawImage(im, (W - dw) / 2 + dxFrac * dw, H - dh, dw, dh); // body-centered (per-frame), bottom-anchored
     };
 
     const q = new URLSearchParams(location.search);
@@ -73,7 +75,7 @@ export function ScrollSamurai() {
 
     let target = 0, cur = 0, raf = 0, running = false;
     const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(i); return im; });
-    const draw = (idx: number) => { let i = Math.round(idx); i = Math.max(0, Math.min(N - 1, i)); const im = imgs[i]; paint(im && im.complete && im.naturalWidth ? im : lastGood); };
+    const draw = (idx: number) => { let i = Math.round(idx); i = Math.max(0, Math.min(N - 1, i)); dxFrac = offsetForFrame(idxs[i]); const im = imgs[i]; paint(im && im.complete && im.naturalWidth ? im : lastGood); };
     imgs.forEach((im) => { im.onload = () => { if (!running) draw(cur); }; }); // repaint as frames stream in while idle
 
     const tick = () => {
