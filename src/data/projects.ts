@@ -40,7 +40,7 @@ export const projects: Project[] = [
     badge: "IGDC 2025",
     featured: true,
     shipped: false,
-    // TODO(MrVayn): add a trailer/screenshot for media; refine the case study.
+    media: "/projects/antarya.webp", // owner's in-engine screenshot (shadow-lifted + sharpened)
     problem:
       "Small teams iterate slowly when gameplay is hard-coded, every new mechanic risks rewriting core systems.",
     approach:
