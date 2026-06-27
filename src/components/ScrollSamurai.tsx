@@ -49,42 +49,53 @@ export function ScrollSamurai() {
     resize();
     window.addEventListener("resize", resize);
 
-    // Phone / reduced-motion / still: one faint static frame, no sequence or scroll.
-    if (phone || reduceOrStill) {
+    // Reduced-motion / still: one static frame, no sequence or scroll (a11y + screenshots).
+    if (reduceOrStill) {
       const im = new Image(); im.decoding = "async"; im.src = frameSrc(HERO_IDX);
       const drawStatic = () => { resize(); paint(im.complete && im.naturalWidth ? im : lastGood); };
       im.onload = drawStatic; window.removeEventListener("resize", resize); window.addEventListener("resize", drawStatic); drawStatic();
       return () => window.removeEventListener("resize", drawStatic);
     }
 
-    // Desktop: full sequence + scroll scrub + fade past the hero.
-    const imgs: HTMLImageElement[] = [];
-    for (let i = 0; i < FRAMES; i++) { const im = new Image(); im.decoding = "async"; im.src = frameSrc(i); imgs[i] = im; }
-    const draw = (idx: number) => { let i = Math.round(idx); i = Math.max(0, Math.min(FRAMES - 1, i)); const im = imgs[i]; paint(im && im.complete && im.naturalWidth ? im : lastGood); };
+    // Sequence + scroll scrub, on desktop AND phone. Phone reacts to scroll just like
+    // desktop, but loads a DECIMATED set (every 3rd frame ≈ 48 of 144, ~1.6MB vs 4.8MB)
+    // and stays fainter, to stay light on mobile data. The loop sleeps when not scrubbing.
+    const STRIDE = phone ? 3 : 1;
+    const idxs: number[] = [];
+    for (let i = 0; i < FRAMES; i += STRIDE) idxs.push(i);
+    if (idxs[idxs.length - 1] !== FRAMES - 1) idxs.push(FRAMES - 1);
+    const N = idxs.length;
+    const heroOp = phone ? 0.3 : 0.74, deepOp = phone ? 0.1 : 0.14;
 
-    let target = 0, cur = 0, raf = 0, running = true;
+    let target = 0, cur = 0, raf = 0, running = false;
+    const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(i); return im; });
+    const draw = (idx: number) => { let i = Math.round(idx); i = Math.max(0, Math.min(N - 1, i)); const im = imgs[i]; paint(im && im.complete && im.naturalWidth ? im : lastGood); };
+    imgs.forEach((im) => { im.onload = () => { if (!running) draw(cur); }; }); // repaint as frames stream in while idle
+
+    const tick = () => {
+      cur += (target - cur) * 0.12;
+      draw(cur);
+      if (document.hidden || Math.abs(target - cur) < 0.4) { running = false; return; } // settle → sleep
+      raf = requestAnimationFrame(tick);
+    };
+    const kick = () => { if (!running && !document.hidden) { running = true; raf = requestAnimationFrame(tick); } };
     const compute = () => {
       const vh = window.innerHeight, y = window.scrollY;
       const max = document.documentElement.scrollHeight - vh;
       const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
       // front-loaded over the WHOLE page: a clear turn while scrolling the hero, then keeps
       // progressing (slowly) all the way to the bottom — never finishes/stops early.
-      target = Math.sqrt(p) * (FRAMES - 1);
+      target = Math.sqrt(p) * (N - 1);
       const fs = vh * 0.85, fe = vh * 1.5;
-      wrap.style.opacity = String(y <= fs ? 0.74 : y >= fe ? 0.14 : 0.74 - ((y - fs) / (fe - fs)) * 0.6); // submerged: never fully opaque, fades to a faint constant-size presence deeper
+      wrap.style.opacity = String(y <= fs ? heroOp : y >= fe ? deepOp : heroOp - ((y - fs) / (fe - fs)) * (heroOp - deepOp)); // submerged: fainter on phone, fades to a constant-size presence deeper
+      kick();
     };
-    const tick = () => {
-      if (!running) return;
-      cur += (target - cur) * 0.12;
-      draw(cur);
-      raf = requestAnimationFrame(tick);
-    };
-    const onVis = () => { running = !document.hidden; if (running) raf = requestAnimationFrame(tick); };
+    const onVis = () => { if (!document.hidden) kick(); };
 
     window.addEventListener("scroll", compute, { passive: true });
     document.addEventListener("visibilitychange", onVis);
     compute();
-    raf = requestAnimationFrame(tick);
+    draw(cur);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -99,7 +110,7 @@ export function ScrollSamurai() {
       ref={wrapRef}
       data-solid
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto h-[82vh] w-full max-w-[940px] max-lg:h-[66vh] max-lg:opacity-[0.22]"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto h-[82vh] w-full max-w-[940px] max-lg:h-[66vh] max-lg:opacity-30"
     >
       {/* spectral aura behind him — a cool, ethereal halo so the bone-white figure reads as an apparition */}
       <div className="absolute inset-0" style={{ background: "radial-gradient(38% 36% at 50% 60%, rgb(var(--volt)/0.10), rgb(var(--ion)/0.07) 46%, transparent 70%)" }} />
