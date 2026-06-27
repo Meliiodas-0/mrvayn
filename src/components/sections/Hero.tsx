@@ -69,8 +69,9 @@ export function Hero() {
         <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-surge/80">IGDC &apos;25</div>
       </div>
 
-      {/* ===== Compact centered content up top, the ronin owns center-bottom ===== */}
-      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center">
+      {/* ===== Compact centered content, the ronin owns center-bottom ===== */}
+      {/* lg+: nudged down so the copy sits closer to ROG (less empty gap above him). */}
+      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center lg:mt-[4vh]">
         <Reveal>
           <span className="inline-flex items-center gap-2.5 font-hud text-[0.7rem] uppercase tracking-[0.34em] text-surge">
             <span aria-hidden className="inline-block h-1.5 w-1.5 bg-surge" />
