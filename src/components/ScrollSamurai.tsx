@@ -51,6 +51,8 @@ export function ScrollSamurai() {
     const q = new URLSearchParams(location.search);
     const reduceOrStill = window.matchMedia("(prefers-reduced-motion: reduce)").matches || q.has("still") || q.has("cine");
     const phone = window.matchMedia("(max-width: 1023.98px)").matches;
+    // Edge-dissolve mask on DESKTOP only — re-masking the canvas every repaint is costly on phones.
+    if (!phone) { const m = "radial-gradient(64% 70% at 50% 56%, #000 52%, transparent 92%)"; canvas.style.setProperty("mask-image", m); canvas.style.setProperty("-webkit-mask-image", m); }
 
     resize();
     window.addEventListener("resize", resize);
@@ -71,15 +73,23 @@ export function ScrollSamurai() {
     for (let i = 0; i < FRAMES; i += STRIDE) idxs.push(i);
     if (idxs[idxs.length - 1] !== FRAMES - 1) idxs.push(FRAMES - 1);
     const N = idxs.length;
-    const heroOp = phone ? 0.3 : 0.74, deepOp = phone ? 0.15 : 0.2; // keep a faint constant ghost behind the (now translucent) containers
+    const heroOp = phone ? 0.6 : 0.9, deepOp = phone ? 0.3 : 0.4; // ~2x more visible (owner request); still fades to a constant-size ghost deeper
+    const ease = phone ? 0.22 : 0.12; // snappier on phone so the scrub tracks the scroll instead of trailing (fixes the "laggy" feel)
 
-    let target = 0, cur = 0, raf = 0, running = false;
+    let target = 0, cur = 0, raf = 0, running = false, lastI = -1;
     const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(i); return im; });
-    const draw = (idx: number) => { let i = Math.round(idx); i = Math.max(0, Math.min(N - 1, i)); dxFrac = offsetForFrame(idxs[i]); const im = imgs[i]; paint(im && im.complete && im.naturalWidth ? im : lastGood); };
-    imgs.forEach((im) => { im.onload = () => { if (!running) draw(cur); }; }); // repaint as frames stream in while idle
+    const draw = (idx: number) => {
+      let i = Math.round(idx); i = Math.max(0, Math.min(N - 1, i));
+      if (i === lastI) return; // only repaint when the frame actually changes — kills redundant redraws (big win on phone)
+      lastI = i; dxFrac = offsetForFrame(idxs[i]);
+      const im = imgs[i]; paint(im && im.complete && im.naturalWidth ? im : lastGood);
+    };
+    const repaint = () => { lastI = -1; draw(cur); }; // force a redraw (frame streamed in, or canvas resized)
+    imgs.forEach((im) => { im.onload = () => { if (!running) repaint(); }; });
+    window.addEventListener("resize", repaint);
 
     const tick = () => {
-      cur += (target - cur) * 0.12;
+      cur += (target - cur) * ease;
       draw(cur);
       if (document.hidden || Math.abs(target - cur) < 0.4) { running = false; return; } // settle → sleep
       raf = requestAnimationFrame(tick);
@@ -107,6 +117,7 @@ export function ScrollSamurai() {
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", compute);
       window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", repaint);
       document.removeEventListener("visibilitychange", onVis);
     };
   }, []);
@@ -116,23 +127,16 @@ export function ScrollSamurai() {
       ref={wrapRef}
       data-solid
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto h-[82vh] w-full max-w-[940px] max-lg:h-[66vh] max-lg:opacity-30"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto h-[82vh] w-full max-w-[940px] max-lg:h-[66vh] max-lg:opacity-60"
     >
       {/* spectral aura behind him, a cool, ethereal halo so the bone-white figure reads as an apparition */}
       <div className="absolute inset-0" style={{ background: "radial-gradient(38% 36% at 50% 60%, rgb(var(--volt)/0.10), rgb(var(--ion)/0.07) 46%, transparent 70%)" }} />
       {/* a glowing rift he rises from */}
       <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: "radial-gradient(56% 64% at 50% 100%, rgb(var(--ion)/0.16), rgb(var(--volt)/0.08) 44%, transparent 72%)" }} />
       {/* edges dissolve into the void so he's submerged in the scene, not a hard cutout */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 h-full w-full"
-        style={{
-          maskImage: "radial-gradient(64% 70% at 50% 56%, #000 52%, transparent 92%)",
-          WebkitMaskImage: "radial-gradient(64% 70% at 50% 56%, #000 52%, transparent 92%)",
-        }}
-      />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
       {/* layered mist so he's wreathed in atmosphere + dissolves into the void */}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 opacity-80 blur-2xl" style={{ background: "radial-gradient(78% 100% at 50% 110%, rgb(var(--mist)/0.16), rgb(var(--ion)/0.06) 40%, transparent 70%)" }} />
+      <div className="absolute inset-x-0 bottom-0 h-1/2 opacity-80 blur-2xl max-lg:blur-md" style={{ background: "radial-gradient(78% 100% at 50% 110%, rgb(var(--mist)/0.16), rgb(var(--ion)/0.06) 40%, transparent 70%)" }} />
       <div className="absolute inset-x-0 bottom-0 h-24" style={{ background: "linear-gradient(180deg, transparent, rgb(var(--void)))" }} />
     </div>
   );
