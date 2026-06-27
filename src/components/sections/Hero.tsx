@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { useEffect } from "react";
+import { motion, useMotionValue, useReducedMotion } from "framer-motion";
 import { ArrowRight, Mail } from "lucide-react";
 import { profile } from "@/data/profile";
 import { BevelButton } from "@/components/ui/BevelButton";
@@ -9,18 +9,30 @@ import { Reveal } from "@/components/motion/Reveal";
 import { HeroMachinery } from "@/components/HeroMachinery";
 
 export function Hero() {
-  const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  // As you scroll out of the hero, the copy drifts up + fades while the side rails
-  // drift down, a layered hand-off into the About section.
-  const y = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -90]);
-  const opacity = useTransform(scrollYProgress, [0, 0.55], [1, reduce ? 1 : 0]);
-  const railY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 64]);
+  // Hero hand-off: copy drifts up + fades, side rails drift down as you scroll into
+  // About. Driven off the REAL window scroll — framer's useScroll(target) mis-measures
+  // on iOS Safari and was rendering the whole hero at opacity 0. Values default VISIBLE.
+  const opacity = useMotionValue(1);
+  const y = useMotionValue(0);
+  const railY = useMotionValue(0);
+
+  useEffect(() => {
+    if (reduce) return;
+    const onScroll = () => {
+      const vh = window.innerHeight || 1;
+      const p = Math.min(1, Math.max(0, window.scrollY / vh)); // 0..1 over the first screen
+      opacity.set(1 - Math.min(1, p / 0.55));
+      y.set(-90 * p);
+      railY.set(64 * p);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [reduce, opacity, y, railY]);
 
   return (
     <section
-      ref={ref}
       id="hero"
       className="scanlines relative flex min-h-screen flex-col overflow-hidden px-5 pb-10 pt-24 sm:pt-28"
     >
