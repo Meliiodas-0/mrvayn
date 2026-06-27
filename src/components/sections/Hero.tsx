@@ -1,36 +1,13 @@
-"use client";
-
-import { useEffect } from "react";
-import { motion, useMotionValue, useReducedMotion } from "framer-motion";
 import { ArrowRight, Mail } from "lucide-react";
 import { profile } from "@/data/profile";
 import { BevelButton } from "@/components/ui/BevelButton";
 import { Reveal } from "@/components/motion/Reveal";
 import { HeroMachinery } from "@/components/HeroMachinery";
 
+// No framer-motion: its animations don't apply on iOS WebKit and were blanking the
+// hero. Content is plain + always visible (server-rendered into the HTML); the
+// entrance is the pure-CSS Reveal. No scroll-driven fade (it relied on framer).
 export function Hero() {
-  const reduce = useReducedMotion();
-  // Hero hand-off: copy drifts up + fades, side rails drift down as you scroll into
-  // About. Driven off the REAL window scroll — framer's useScroll(target) mis-measures
-  // on iOS Safari and was rendering the whole hero at opacity 0. Values default VISIBLE.
-  const opacity = useMotionValue(1);
-  const y = useMotionValue(0);
-  const railY = useMotionValue(0);
-
-  useEffect(() => {
-    if (reduce) return;
-    const onScroll = () => {
-      const vh = window.innerHeight || 1;
-      const p = Math.min(1, Math.max(0, window.scrollY / vh)); // 0..1 over the first screen
-      opacity.set(1 - Math.min(1, p / 0.55));
-      y.set(-90 * p);
-      railY.set(64 * p);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [reduce, opacity, y, railY]);
-
   return (
     <section
       id="hero"
@@ -66,8 +43,7 @@ export function Hero() {
       <span aria-hidden className="pointer-events-none absolute bottom-9 right-4 h-7 w-7 border-b-2 border-r-2 border-surge/40" />
 
       {/* Left rail, operator spec, flanking the center (wide screens only). */}
-      <motion.div
-        style={{ y: railY, opacity }}
+      <div
         data-solid
         className="absolute left-7 top-1/2 z-10 hidden -translate-y-1/2 flex-col gap-7 border-l border-steel/60 pl-5 xl:flex"
       >
@@ -77,11 +53,10 @@ export function Hero() {
             <div className="mt-1.5 font-hud text-[0.58rem] uppercase tracking-[0.24em] text-mist">{s.label}</div>
           </div>
         ))}
-      </motion.div>
+      </div>
 
       {/* Right rail, status / signal, flanking the center (wide screens only). */}
-      <motion.div
-        style={{ y: railY, opacity }}
+      <div
         data-solid
         className="absolute right-7 top-1/2 z-10 hidden -translate-y-1/2 flex-col items-end gap-6 border-r border-steel/60 pr-5 text-right xl:flex"
       >
@@ -92,10 +67,10 @@ export function Hero() {
         <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-mist/80">Est. 2019</div>
         <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-mist/80">Delhi · IN</div>
         <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-surge/80">IGDC &apos;25</div>
-      </motion.div>
+      </div>
 
       {/* ===== Compact centered content up top, the ronin owns center-bottom ===== */}
-      <motion.div style={{ y, opacity }} className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center">
+      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center">
         <Reveal>
           <span className="inline-flex items-center gap-2.5 font-hud text-[0.7rem] uppercase tracking-[0.34em] text-surge">
             <span aria-hidden className="inline-block h-1.5 w-1.5 bg-surge" />
@@ -130,16 +105,15 @@ export function Hero() {
             </BevelButton>
           </div>
         </Reveal>
-      </motion.div>
+      </div>
 
       {/* Scroll hint pinned bottom-center, above the ronin's grounding glow. */}
-      <motion.a
-        style={{ opacity }}
+      <a
         href="#operator"
         className="pointer-events-auto absolute bottom-5 left-1/2 z-10 -translate-x-1/2 font-mono text-[0.62rem] uppercase tracking-[0.35em] text-mist/45 transition-colors hover:text-surge"
       >
         Scroll ↓
-      </motion.a>
+      </a>
     </section>
   );
 }

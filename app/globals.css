@@ -22,6 +22,23 @@
 html[data-grain="off"] .grain::before { display: none; }
 html[data-scanlines="off"] .scanlines::after { display: none; }
 
+/* Scroll/load reveal — PURE CSS so content can never be left hidden. framer-motion
+   animations don't apply on iOS WebKit, which was blanking the whole page; this only
+   ever ANIMATES TOWARD opacity 1 and the base state is visible. */
+.mv-reveal, .mv-reveal-skew { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .mv-reveal { animation: mv-reveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .mv-reveal-skew { animation: mv-reveal-skew 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
+@keyframes mv-reveal {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mv-reveal-skew {
+  from { opacity: 0; transform: translateY(24px) skewX(-3deg); }
+  to { opacity: 1; transform: none; }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
