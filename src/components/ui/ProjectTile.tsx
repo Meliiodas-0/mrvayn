@@ -68,7 +68,7 @@ export function ProjectTile({
 
   if (onSelect) {
     return (
-      <button onClick={onSelect} className="block h-full w-full text-left" aria-label={`${project.title} — view details`}>
+      <button onClick={onSelect} className="block h-full w-full text-left" aria-label={`${project.title}, view details`}>
         {inner}
       </button>
     );
@@ -79,7 +79,7 @@ export function ProjectTile({
   }
 
   return (
-    <a href={primaryLink.href} target="_blank" rel="noopener noreferrer" className="block h-full" aria-label={`${project.title} — ${primaryLink.label}`}>
+    <a href={primaryLink.href} target="_blank" rel="noopener noreferrer" className="block h-full" aria-label={`${project.title}, ${primaryLink.label}`}>
       {inner}
     </a>
   );

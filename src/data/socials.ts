@@ -1,4 +1,4 @@
-// Comms — socials + selected collaborations.
+// Comms, socials + selected collaborations.
 
 export interface Social {
   name: string;
@@ -20,9 +20,9 @@ export interface Collab {
 }
 
 export const collaborations: Collab[] = [
-  { title: "Glazer Games — Reel 1", href: "https://www.instagram.com/glazer.games/reel/Cw4-K2LtG-O/" },
-  { title: "Glazer Games — Reel 2", href: "https://www.instagram.com/glazer.games/reel/CxLFe4QSr7g/" },
-  { title: "Funpunch India — Reel", href: "https://www.instagram.com/funpunch_india/reel/DBKPov_hWC3/" },
-  { title: "TeamXO — Post", href: "https://www.instagram.com/p/Cm16kKABqVD/" },
-  { title: "AceHack — Judge Reel", href: "https://www.instagram.com/reel/DHmFXt8gQ55/" },
+  { title: "Glazer Games, Reel 1", href: "https://www.instagram.com/glazer.games/reel/Cw4-K2LtG-O/" },
+  { title: "Glazer Games, Reel 2", href: "https://www.instagram.com/glazer.games/reel/CxLFe4QSr7g/" },
+  { title: "Funpunch India, Reel", href: "https://www.instagram.com/funpunch_india/reel/DBKPov_hWC3/" },
+  { title: "TeamXO, Post", href: "https://www.instagram.com/p/Cm16kKABqVD/" },
+  { title: "AceHack, Judge Reel", href: "https://www.instagram.com/reel/DHmFXt8gQ55/" },
 ];

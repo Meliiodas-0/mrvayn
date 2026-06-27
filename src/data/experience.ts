@@ -1,4 +1,4 @@
-// Career timeline (real sequence — numbered markers are legitimate here).
+// Career timeline (real sequence, numbered markers are legitimate here).
 
 export interface TimelineEntry {
   year: string;
@@ -10,23 +10,23 @@ export interface TimelineEntry {
 
 export const experience: TimelineEntry[] = [
   {
-    year: "2024 — Present",
+    year: "2024-Present",
     title: "CTO",
     org: "Magadha Studios",
     summary:
-      "Leading core tech and the production pipeline — a reusable, data-driven gameplay framework for rapid iteration and scale. Showcased Antarya at IGDC 2025.",
+      "Leading core tech and the production pipeline, a reusable, data-driven gameplay framework for rapid iteration and scale. Showcased Antarya at IGDC 2025.",
     kind: "work",
   },
   {
     year: "2025",
-    title: "Roblox Launch — Couragely",
+    title: "Roblox Launch, Couragely",
     org: "Independent",
     summary:
       "Built and shipped a Roblox horror game in 7 days; 12.2K visits and 638K+ impressions within two weeks.",
     kind: "milestone",
   },
   {
-    year: "2023 — 2024",
+    year: "2023-2024",
     title: "Software Developer",
     org: "Glazer Games India Pvt. Ltd.",
     summary:
@@ -44,17 +44,17 @@ export const experience: TimelineEntry[] = [
   {
     year: "2023",
     title: "Environmental Designer",
-    org: "Hidden Beyond — Yellow Whale Labs",
+    org: "Hidden Beyond, Yellow Whale Labs",
     summary:
       "Designed immersive UE5 environments under tight deadlines during college, focused on quality and clean delivery.",
     kind: "work",
   },
   {
-    year: "2019 — 2020",
+    year: "2019-2020",
     title: "Esports Leadership",
     org: "TeamIND · Godlike · 7Seas · TeamXO · Entity",
     summary:
-      "Leadership and management across top orgs — a deep, practical understanding of audience, community, and retention.",
+      "Leadership and management across top orgs, a deep, practical understanding of audience, community, and retention.",
     kind: "milestone",
   },
 ];
@@ -63,7 +63,7 @@ export const experience: TimelineEntry[] = [
 export const education = {
   degree: "B.Tech, Computer Science",
   org: "Vellore Institute of Technology (VIT)",
-  year: "2021 — 2025",
+  year: "2021-2025",
 };
 
 // Certifications (from résumé).

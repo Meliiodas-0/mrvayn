@@ -60,7 +60,7 @@ export function BootSequence() {
     const lerp = (a: number, b: number, t: number) => a + (b - a) * cl(t);
     const lp = (a: V, b: V, t: number): V => ({ x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t) });
 
-    // 2-bone IK — returns the joint (knee/elbow) for hip/shoulder -> foot/hand.
+    // 2-bone IK, returns the joint (knee/elbow) for hip/shoulder -> foot/hand.
     const ik = (hx: number, hy: number, fx: number, fy: number, l1: number, l2: number, bend: number, maxA?: number): V => {
       let dx = fx - hx, dy = fy - hy, d = Math.hypot(dx, dy) || 0.001;
       const max = l1 + l2 - 0.01; if (d > max) { dx *= max / d; dy *= max / d; d = max; }
@@ -106,7 +106,7 @@ export function BootSequence() {
       return { chest, hM };
     }
 
-    // standing/run/idle base pose — athletic stance, knees bent, feet planted
+    // standing/run/idle base pose, athletic stance, knees bent, feet planted
     function basePose(px: number, ground: number, s: number, face: number, t: number, run: boolean): Pose {
       const bob = Math.sin(t * (run ? 9 : 2.2)) * (run ? 2 : 0.7) * s;
       const py = ground - 18 * s + bob; // hips low enough that IK bends the knees
@@ -182,7 +182,7 @@ export function BootSequence() {
 
       // shockwaves
       if (t > LAND && t < LAND + 0.6) { const p = (t - LAND) / 0.6; ctx.globalAlpha = (1 - p) * 0.85; ctx.strokeStyle = C.volt; ctx.lineWidth = 4 * U; ctx.beginPath(); ctx.ellipse(cx, cy, p * 230 * U, p * 64 * U, 0, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1; if (p < 0.05) burst(cx, cy, 28, true); }
-      // finisher explosion — layered shockwave rings + radial impact lines (additive for punch)
+      // finisher explosion, layered shockwave rings + radial impact lines (additive for punch)
       if (t > KILL && t < KILL + 0.85) {
         const p = (t - KILL) / 0.85, R = Math.max(W, H), oy = cy - 26 * U;
         ctx.save(); ctx.globalCompositeOperation = "lighter";
@@ -198,7 +198,7 @@ export function BootSequence() {
       if (t > KILL && t < KILL + 0.22) { ctx.globalAlpha = (1 - (t - KILL) / 0.22) * 0.85; ctx.fillStyle = C.bone; ctx.fillRect(-20, -20, W + 40, H + 40); ctx.globalAlpha = 1; }
 
       if (bA > 0) {
-        // line enemies — run in, recoil-fly on hit
+        // line enemies, run in, recoil-fly on hit
         const line = [{ side: 1, s: RISE_END, e: 1.78, d: E1D }, { side: -1, s: 2.05, e: 2.45, d: E2D }];
         line.forEach((f, i) => {
           if (t < f.s) return;
@@ -223,7 +223,7 @@ export function BootSequence() {
           ctx.restore();
         });
 
-        // six surround — converge, jab, explode-fly
+        // six surround, converge, jab, explode-fly
         if (t > SURR_APP) {
           const R = 80 * U;
           for (let i = 0; i < 6; i++) {
@@ -257,7 +257,7 @@ export function BootSequence() {
           } else if (t >= EXPLODE && t < FLIP_END) {
             if (t < KILL) { const k = (t - EXPLODE) / (KILL - EXPLODE); p = basePose(cx, cy, hs, 1, t, false); p.py = cy - lerp(26, 18, k) * hs; p.fL = { x: -11 * hs, y: 26 * hs }; p.fR = { x: 11 * hs, y: 26 * hs }; p.lean = -0.15; p.hMain = { x: lerp(8, 0, k) * hs, y: lerp(4, -6, k) * hs }; p.hOff = { x: lerp(-8, 0, k) * hs, y: 6 * hs }; p.sword = -0.4; } // gather/charge
             else { const k = (t - KILL) / (FLIP_END - KILL); ctx.save(); ctx.translate(cx, cy - 16 * hs - Math.sin(k * Math.PI) * 150 * U); ctx.rotate(-ease(k) * 6.2832); ctx.translate(0, 16 * hs); const fp = basePose(0, 0, hs, 1, t, false); fp.py = -26 * hs; fp.fL = { x: -4 * hs, y: 16 * hs }; fp.fR = { x: 6 * hs, y: 18 * hs }; fp.lean = -0.3; fp.hMain = { x: 10 * hs, y: -4 * hs }; fp.sword = -0.7 + k * 7; fp.swordLen = 34 * hs; figure(fp, { color: C.bone, s: hs, alpha: bA, glow: true }); ctx.restore(); p = null as unknown as Pose; }
-          } else if (t >= SURR_SET && t < EXPLODE) { // struggle — sway + recoil + guard
+          } else if (t >= SURR_SET && t < EXPLODE) { // struggle, sway + recoil + guard
             const sway = Math.sin(t * 3.2), jab = Math.max(0, Math.sin(t * 9)) ** 3;
             p = basePose(cx, cy, hs, sway > 0 ? 1 : -1, t, false);
             p.lean = -0.18 * jab + sway * 0.04; p.px = cx + sway * 5 * U;
@@ -321,7 +321,7 @@ export function BootSequence() {
       pose.hMain = follow > 0 ? lp(mid, end, eOut(follow)) : strike > 0 ? lp(back, mid, eOut(strike)) : lp({ x: 6 * hs, y: -3 * hs }, back, eOut(wind));
       pose.sword = follow > 0 ? lerp(0.35, 1.2, follow) : strike > 0 ? lerp(-2.4, 0.4, ease(strike)) : lerp(-0.5, -2.4, wind);
       pose.swordLen = 30 * hs;
-      // crescent slash trail — a thin curved blade after-image along the swing arc
+      // crescent slash trail, a thin curved blade after-image along the swing arc
       if (strike > 0) {
         const chestX = pose.px + Math.sin(pose.lean) * 19 * hs * side, chestY = pose.py - Math.cos(pose.lean) * 19 * hs;
         const hMx = chestX + pose.hMain.x * side, hMy = chestY + pose.hMain.y;

@@ -13,7 +13,7 @@ export function Hero() {
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   // As you scroll out of the hero, the copy drifts up + fades while the side rails
-  // drift down — a layered hand-off into the About section.
+  // drift down, a layered hand-off into the About section.
   const y = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -90]);
   const opacity = useTransform(scrollYProgress, [0, 0.55], [1, reduce ? 1 : 0]);
   const railY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 64]);
@@ -31,7 +31,7 @@ export function Hero() {
         style={{ background: "radial-gradient(circle, rgb(var(--surge)/0.8), rgb(var(--ion)/0.4) 46%, transparent 74%)" }}
       />
 
-      {/* Refined machinery — solid monochrome gears framing both sides + embers. */}
+      {/* Refined machinery, solid monochrome gears framing both sides + embers. */}
       <HeroMachinery />
 
       {/* Low spectral horizon glow grounds ROG at center-bottom (cool, ethereal). */}
@@ -53,7 +53,7 @@ export function Hero() {
       <span aria-hidden className="pointer-events-none absolute bottom-9 left-4 h-7 w-7 border-b-2 border-l-2 border-surge/40" />
       <span aria-hidden className="pointer-events-none absolute bottom-9 right-4 h-7 w-7 border-b-2 border-r-2 border-surge/40" />
 
-      {/* Left rail — operator spec, flanking the center (wide screens only). */}
+      {/* Left rail, operator spec, flanking the center (wide screens only). */}
       <motion.div
         style={{ y: railY, opacity }}
         data-solid
@@ -67,7 +67,7 @@ export function Hero() {
         ))}
       </motion.div>
 
-      {/* Right rail — status / signal, flanking the center (wide screens only). */}
+      {/* Right rail, status / signal, flanking the center (wide screens only). */}
       <motion.div
         style={{ y: railY, opacity }}
         data-solid
@@ -82,7 +82,7 @@ export function Hero() {
         <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-surge/80">IGDC &apos;25</div>
       </motion.div>
 
-      {/* ===== Compact centered content up top — the ronin owns center-bottom ===== */}
+      {/* ===== Compact centered content up top, the ronin owns center-bottom ===== */}
       <motion.div style={{ y, opacity }} className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center">
         <Reveal>
           <span className="inline-flex items-center gap-2.5 font-hud text-[0.7rem] uppercase tracking-[0.34em] text-surge">

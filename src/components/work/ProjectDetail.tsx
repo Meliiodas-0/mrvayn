@@ -10,7 +10,7 @@ import { HudFrame } from "@/components/ui/HudFrame";
 import { Thumb } from "@/components/ui/Thumb";
 
 /** Agent-detail panel (BRIEF §3): Problem -> Approach -> Result + media + links.
- *  Renders only while a project is selected (unmounts on close — robust, no
+ *  Renders only while a project is selected (unmounts on close, robust, no
  *  exit-presence edge cases). Accessible: Esc/backdrop close, focus trap,
  *  scroll lock, restored focus. */
 export function ProjectDetail({ project, onClose }: { project: Project | null; onClose: () => void }) {
@@ -91,7 +91,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
         </h3>
         <p className="mt-1 font-hud text-xs uppercase tracking-wide text-surge/80">{project.role}</p>
 
-        {/* media — pulled from the project's own links (Drive preview / thumbnail). */}
+        {/* media, pulled from the project's own links (Drive preview / thumbnail). */}
         <HudFrame scanlines className="mt-5 aspect-video w-full overflow-hidden bevel-sm">
           {embed ? (
             <iframe
@@ -131,7 +131,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
         <div className="mt-6 flex flex-wrap gap-3">
           {project.locked ? (
             <span className="inline-flex items-center gap-2 border border-steel px-4 py-2.5 font-hud text-xs uppercase tracking-wide text-mist bevel-sm">
-              <Lock className="h-3.5 w-3.5" /> Private — to be announced
+              <Lock className="h-3.5 w-3.5" /> Private, to be announced
             </span>
           ) : (
             project.links.map((l) => (

@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 
-// OVERDRIVE design tokens — see docs/DESIGN_SYSTEM.md.
+// OVERDRIVE design tokens, see docs/DESIGN_SYSTEM.md.
 // Colors are declared as space-separated RGB channels in app/globals.css so
 // Tailwind opacity modifiers (e.g. bg-surge/20) work via <alpha-value>.
 export default {

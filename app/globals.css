@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== OVERDRIVE tokens (docs/DESIGN_SYSTEM.md) — RGB channels for alpha ===== */
+/* ===== OVERDRIVE tokens (docs/DESIGN_SYSTEM.md), RGB channels for alpha ===== */
 :root {
   /* default theme = "Ghost" (monochrome). ThemeControl overrides these at
      runtime; presets live in src/data/themes.ts (keep this in sync with the
@@ -79,7 +79,7 @@ html[data-scanlines="off"] .scanlines::after { display: none; }
     text-shadow: 0 0 20px rgb(var(--surge) / 0.3), 0 0 56px rgb(var(--surge) / 0.16);
   }
 
-  /* Fine grain for depth — very low opacity, fixed. */
+  /* Fine grain for depth, very low opacity, fixed. */
   .grain::before {
     content: "";
     position: fixed;

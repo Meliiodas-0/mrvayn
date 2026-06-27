@@ -1,4 +1,4 @@
-// Theme presets — each overrides the design-token CSS variables (R G B triplets).
+// Theme presets, each overrides the design-token CSS variables (R G B triplets).
 // Applied by ThemeControl; the default is also baked into :root (globals.css) so
 // there's no flash for first-time visitors.
 
@@ -11,7 +11,7 @@ export interface Theme {
   vars: Record<string, string>;
 }
 
-export const DEFAULT_THEME = "mono"; // "Ghost" — monochrome, set as the default look
+export const DEFAULT_THEME = "mono"; // "Ghost", monochrome, set as the default look
 
 export const themes: Theme[] = [
   {

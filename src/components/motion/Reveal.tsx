@@ -12,7 +12,7 @@ interface RevealProps {
 
 /**
  * Scroll-reveal wrapper (DESIGN_SYSTEM §5): fade + rise (+ optional skew),
- * once. Honors prefers-reduced-motion — renders instantly, no transform.
+ * once. Honors prefers-reduced-motion, renders instantly, no transform.
  * Content is always in the DOM, so SEO/crawling is unaffected.
  */
 export function Reveal({ children, className, delay = 0, skew = false }: RevealProps) {

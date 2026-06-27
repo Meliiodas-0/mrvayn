@@ -10,7 +10,7 @@ export function Timeline() {
         {experience.map((e, i) => (
           <Reveal key={`${e.year}-${e.title}`} delay={(i % 4) * 0.05}>
             <li className="relative pl-10 sm:pl-12">
-              {/* numbered marker — real sequence, so numbering is legitimate */}
+              {/* numbered marker, real sequence, so numbering is legitimate */}
               <span
                 aria-hidden
                 className="absolute left-0 top-1 grid h-[1.4rem] w-[1.4rem] place-items-center bg-surge font-mono text-[0.65rem] font-bold text-void bevel-sm"

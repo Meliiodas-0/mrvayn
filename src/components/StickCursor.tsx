@@ -165,12 +165,12 @@ export function StickCursor() {
       let dt = (now - last) / 1000; last = now; if (dt > 0.05) dt = 0.05;
       const tNow = now / 1000;
 
-      // mouse velocity (no positional lag — figure is drawn at the exact pointer)
+      // mouse velocity (no positional lag, figure is drawn at the exact pointer)
       const dxRaw = m.x - pmx, dyRaw = m.y - pmy;
       vx = dxRaw / Math.max(dt, 0.001); vy = dyRaw / Math.max(dt, 0.001); pmx = m.x; pmy = m.y;
       const speed = Math.hypot(vx, vy);
       const moving = speed > 40;
-      // facing: smoothed horizontal pixel-delta (frame-rate / browser independent — fixes Chrome not flipping)
+      // facing: smoothed horizontal pixel-delta (frame-rate / browser independent, fixes Chrome not flipping)
       faceVel = faceVel * 0.8 + dxRaw * 0.2;
       if (Math.abs(faceVel) > 0.35) face = faceVel > 0 ? 1 : -1;
       runPhase += dt * (moving ? 18 : 4);
@@ -209,7 +209,7 @@ export function StickCursor() {
       // enemies: wander + flee + ricochet (trapped)
       for (const e of enemies) {
         if (!e.alive) { if (e.dying > 0) e.dying -= dt; else if (!isPhone() && Math.random() < dt * 0.6) place(e); continue; }
-        if (isPhone()) { e.alive = false; continue; } // dropped to phone ratio mid-session — clear enemies
+        if (isPhone()) { e.alive = false; continue; } // dropped to phone ratio mid-session, clear enemies
         e.phase += dt * 5;
         // coordinated flow field -> enemies swirl in shifting patterns (not random twitching)
         const fa = Math.sin(e.x * 0.006 + tNow * 0.5) + Math.cos(e.y * 0.006 - tNow * 0.4) + tNow * 0.22;
@@ -217,7 +217,7 @@ export function StickCursor() {
         e.vx += rand(-1, 1) * WANDER * 0.2 * dt; e.vy += rand(-1, 1) * WANDER * 0.2 * dt;
         const dxc = e.x - m.x, dyc = e.y - m.y, dc = Math.hypot(dxc, dyc) || 1;
         if (dc < FLEE_R) { e.vx += (dxc / dc) * FLEE_F * dt; e.vy += (dyc / dc) * FLEE_F * dt; }
-        // separation — keep enemies from stacking on each other
+        // separation, keep enemies from stacking on each other
         for (const o of enemies) {
           if (o === e || !o.alive) continue;
           const sx = e.x - o.x, sy = e.y - o.y, sd = Math.hypot(sx, sy);

@@ -6,7 +6,7 @@ import { ProjectTile } from "@/components/ui/ProjectTile";
 import { ProjectDetail } from "@/components/work/ProjectDetail";
 import { Reveal } from "@/components/motion/Reveal";
 
-/** All project tiles open the shared detail panel (BRIEF §3) — that's where
+/** All project tiles open the shared detail panel (BRIEF §3), that's where
  *  media (Drive preview / thumbnail) and the case study live. */
 export function Loadout({ featured, others }: { featured: Project[]; others: Project[] }) {
   const [selected, setSelected] = useState<Project | null>(null);

@@ -19,7 +19,7 @@ export interface Project {
   featured?: boolean;
   locked?: boolean;
   shipped?: boolean;
-  /** Path under /public — TODO(MrVayn): replace placeholder media. */
+  /** Path under /public, TODO(MrVayn): replace placeholder media. */
   media?: string;
   /** Case study (shown in the detail panel). TODO(MrVayn): real copy. */
   problem?: string;
@@ -31,8 +31,8 @@ export const projects: Project[] = [
   {
     id: "antarya",
     title: "Antarya",
-    role: "CTO — Magadha Studios",
-    year: "2024 — Present",
+    role: "CTO, Magadha Studios",
+    year: "2024-Present",
     summary:
       "A studio title built on a reusable, data-driven gameplay framework for rapid iteration and scale. Showcased at IGDC 2025; demo in progress.",
     tech: ["Unreal Engine 5", "Gameplay Framework", "Multiplayer", "Niagara VFX"],
@@ -42,7 +42,7 @@ export const projects: Project[] = [
     shipped: false,
     // TODO(MrVayn): add a trailer/screenshot for media; refine the case study.
     problem:
-      "Small teams iterate slowly when gameplay is hard-coded — every new mechanic risks rewriting core systems.",
+      "Small teams iterate slowly when gameplay is hard-coded, every new mechanic risks rewriting core systems.",
     approach:
       "As CTO I built a reusable, data-driven gameplay framework in Unreal Engine 5: modular systems, designer-tunable data assets, and a multiplayer-ready architecture, so features slot in without touching the core.",
     result:
@@ -51,7 +51,7 @@ export const projects: Project[] = [
   {
     id: "couragely",
     title: "Couragely",
-    role: "Solo build — Roblox horror",
+    role: "Solo build, Roblox horror",
     year: "2025",
     summary:
       "A Roblox horror game built in 7 days. Within 2 weeks: 12.2K visits, 601 favorites, 638,391 impressions, 9,432 plays.",
@@ -62,14 +62,14 @@ export const projects: Project[] = [
     shipped: true,
     media: "https://tr.rbxcdn.com/180DAY-8c1ca43249f81b505fa0eb47531f04ee/500/280/Image/Jpeg/noFilter",
     problem:
-      "Could a sticky, shareable horror loop be built and shipped in a week — and actually find an audience?",
+      "Could a sticky, shareable horror loop be built and shipped in a week, and actually find an audience?",
     approach:
-      "A solo Roblox/Luau build: a tight scare loop, fast onboarding, and live-ops tuning for retention — shipped in 7 days.",
+      "A solo Roblox/Luau build: a tight scare loop, fast onboarding, and live-ops tuning for retention, shipped in 7 days.",
     result:
       "12.2K visits · 601 favorites · 638,391 impressions · 9,432 plays in the first two weeks.",
   },
   { id: "unreal-horror", title: "Unreal Horror Game", role: "Developer", year: "2023", summary: "An atmospheric horror prototype in Unreal Engine 5.", tech: ["Unreal Engine 5", "Horror"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1X1QuGVAsIcP6mcX-Q5LFw_Sr0XxBt8Xb/view?usp=sharing" }] },
-  { id: "multiplayer-tba", title: "Multiplayer Project", role: "Developer", year: "TBA", summary: "A multiplayer title — private, to be announced.", tech: ["Unreal Engine 5", "Multiplayer", "Netcode"], links: [], locked: true },
+  { id: "multiplayer-tba", title: "Multiplayer Project", role: "Developer", year: "TBA", summary: "A multiplayer title, private, to be announced.", tech: ["Unreal Engine 5", "Multiplayer", "Netcode"], links: [], locked: true },
   { id: "sasta-minecraft", title: "Sasta Minecraft", role: "Developer", year: "2023", summary: "A voxel sandbox experiment.", tech: ["Unreal Engine 5", "Systems"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1BkugwIClcTx4aLtK-34aaelw40YbYxDk/view?usp=drive_link" }] },
   { id: "env-design-2", title: "Environment Design 2.0", role: "Environment Artist", year: "2023", summary: "Real-time environment art in UE5.", tech: ["Unreal Engine 5", "Environment"], links: [{ label: "View", href: "https://drive.google.com/file/d/1hwlbVTwMOzlgakO_T6ooHetDxh7mE4JC/view?usp=drive_link" }] },
   { id: "env-design", title: "Environment Design", role: "Environment Artist", year: "2023", summary: "Immersive environment design under tight deadlines.", tech: ["Unreal Engine 5", "Environment"], links: [{ label: "View", href: "https://drive.google.com/file/d/1Io3zeGNmbGLYUTxSnldVEFKCwFcjmO5p/view?usp=drive_link" }] },
@@ -83,17 +83,17 @@ export const projects: Project[] = [
   {
     id: "grannyspot",
     title: "Grannyspot",
-    role: "Full-stack — Solo build",
+    role: "Full-stack, Solo build",
     year: "2025",
     summary:
-      "Live e-commerce store for a handmade-pickle brand — product catalog, cart, user auth, Razorpay checkout, and an admin panel secured by server-side RBAC.",
+      "Live e-commerce store for a handmade-pickle brand, product catalog, cart, user auth, Razorpay checkout, and an admin panel secured by server-side RBAC.",
     tech: ["Next.js 14", "TypeScript", "Tailwind CSS", "Prisma", "Supabase", "PostgreSQL", "Razorpay"],
     links: [{ label: "Visit", href: "https://grannyspot.com" }],
     badge: "LIVE",
     shipped: true,
     // TODO(MrVayn): confirm grannyspot.com is publicly live before sharing widely.
     problem:
-      "A handmade-pickle brand needed a real storefront — catalog, secure checkout, and an admin panel — not a template.",
+      "A handmade-pickle brand needed a real storefront, catalog, secure checkout, and an admin panel, not a template.",
     approach:
       "A solo full-stack build: Next.js 14 + TypeScript + Tailwind, Prisma over Supabase (Postgres + Auth), Razorpay checkout, and server-side role-based access control for the admin panel; a responsive, WCAG-AA-conscious design system deployed on Vercel.",
     result:

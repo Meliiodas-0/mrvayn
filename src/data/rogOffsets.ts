@@ -1,6 +1,6 @@
 // Per-frame horizontal centering offsets (fraction of the drawn width) for the ROG
 // sequence. ROG's body mass drifts ~14% of the frame width across the 144 frames as
-// his pose/mace sway, so a single static nudge can't keep him centred — when the phone
+// his pose/mace sway, so a single static nudge can't keep him centred, when the phone
 // scrubs the sequence he visibly slides left↔right. offset[i] re-centres frame i's body
 // mass (offset = 0.5 − smoothed alpha-weighted column-centroid fraction), so applying it
 // at draw time keeps his centre of mass pinned to the middle and he animates IN PLACE.

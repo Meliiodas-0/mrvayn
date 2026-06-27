@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { ROG_OFFSETS, ROG_OFFSET_MEAN } from "@/data/rogOffsets";
 
 /**
- * Ronin centerpiece — a background-removed (alpha) figure anchored CENTER-BOTTOM
+ * Ronin centerpiece, a background-removed (alpha) figure anchored CENTER-BOTTOM
  * of the site, drawn crisp and clear. Desktop: a 100-frame transparent-WebP
  * sequence on a canvas, scrubbed by scroll (he turns + draws as you scroll the
  * first screen, reverses up) and gently fading back as you move into the content
@@ -15,11 +15,11 @@ import { ROG_OFFSETS, ROG_OFFSET_MEAN } from "@/data/rogOffsets";
  * then set FRAMES below. Nothing else changes.
  */
 const FRAMES = 144;
-const HERO_IDX = 0; // hero resting pose (scroll 0) — used for phone/static so it matches the live hero
+const HERO_IDX = 0; // hero resting pose (scroll 0), used for phone/static so it matches the live hero
 const frameSrc = (i: number) => `/rog/f_${String(i).padStart(3, "0")}.webp`;
 // Per-frame horizontal offset that re-centres each frame's body mass, so ROG never slides
 // left↔right as the sequence scrubs (his pose/mace sway ~14% of the width across 144 frames
-// — that lateral slide is what looked broken on phone). Falls back to the set mean.
+//, that lateral slide is what looked broken on phone). Falls back to the set mean.
 const offsetForFrame = (frame: number) => ROG_OFFSETS[frame] ?? ROG_OFFSET_MEAN;
 
 export function ScrollSamurai() {
@@ -90,7 +90,7 @@ export function ScrollSamurai() {
       const max = document.documentElement.scrollHeight - vh;
       const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
       // front-loaded over the WHOLE page: a clear turn while scrolling the hero, then keeps
-      // progressing (slowly) all the way to the bottom — never finishes/stops early.
+      // progressing (slowly) all the way to the bottom, never finishes/stops early.
       target = Math.sqrt(p) * (N - 1);
       const fs = vh * 0.85, fe = vh * 1.5;
       wrap.style.opacity = String(y <= fs ? heroOp : y >= fe ? deepOp : heroOp - ((y - fs) / (fe - fs)) * (heroOp - deepOp)); // submerged: fainter on phone, fades to a constant-size presence deeper
@@ -118,7 +118,7 @@ export function ScrollSamurai() {
       aria-hidden
       className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto h-[82vh] w-full max-w-[940px] max-lg:h-[66vh] max-lg:opacity-30"
     >
-      {/* spectral aura behind him — a cool, ethereal halo so the bone-white figure reads as an apparition */}
+      {/* spectral aura behind him, a cool, ethereal halo so the bone-white figure reads as an apparition */}
       <div className="absolute inset-0" style={{ background: "radial-gradient(38% 36% at 50% 60%, rgb(var(--volt)/0.10), rgb(var(--ion)/0.07) 46%, transparent 70%)" }} />
       {/* a glowing rift he rises from */}
       <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: "radial-gradient(56% 64% at 50% 100%, rgb(var(--ion)/0.16), rgb(var(--volt)/0.08) 44%, transparent 72%)" }} />

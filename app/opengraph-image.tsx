@@ -1,11 +1,11 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "MrVayn — Founder & Game Developer";
+export const alt = "MrVayn, Founder & Game Developer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Branded OG/social card (OVERDRIVE palette). Generated at the edge — no asset.
+// Branded OG/social card (OVERDRIVE palette). Generated at the edge, no asset.
 export default function OpengraphImage() {
   return new ImageResponse(
     (

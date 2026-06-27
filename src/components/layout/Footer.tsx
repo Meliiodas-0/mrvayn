@@ -36,7 +36,7 @@ export function Footer() {
 
       <div className="border-t border-steel/40">
         <p className="mx-auto max-w-6xl px-5 py-4 font-mono text-[0.7rem] tracking-widest text-mist/60">
-          BUILD v2.0 // © 2026 MrVayn — all systems nominal
+          BUILD v2.0 // © 2026 MrVayn, all systems nominal
         </p>
       </div>
     </footer>

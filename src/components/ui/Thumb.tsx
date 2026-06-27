@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 /** External media thumbnail with graceful fallback (Drive/Roblox may not load).
- *  On error it shows the branded gradient — never a broken-image icon. */
+ *  On error it shows the branded gradient, never a broken-image icon. */
 export function Thumb({ src, alt, className = "" }: { src: string | null; alt: string; className?: string }) {
   const [failed, setFailed] = useState(false);
   if (!src || failed) {

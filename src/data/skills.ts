@@ -1,4 +1,4 @@
-// Arsenal — grouped tech (a grid, not progress bars).
+// Arsenal, grouped tech (a grid, not progress bars).
 // Full union of both résumés (SDE + Game Dev). Keep every skill represented.
 
 export interface SkillGroup {
