@@ -16,6 +16,10 @@ import { useEffect, useRef } from "react";
 const FRAMES = 144;
 const HERO_IDX = 0; // hero resting pose (scroll 0) — used for phone/static so it matches the live hero
 const frameSrc = (i: number) => `/rog/f_${String(i).padStart(3, "0")}.webp`;
+// His body sits ~5% left of the frame's geometric centre (the crop spans his mace reaching
+// left), so a plain center-draw reads as "slightly left". Nudge the draw right by this
+// fraction of the drawn width so his torso lands on the true centre — PC and phone alike.
+const BODY_DX = 0.08;
 
 export function ScrollSamurai() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,7 +43,7 @@ export function ScrollSamurai() {
       const iw = im.naturalWidth, ih = im.naturalHeight;
       const scale = Math.min(W / iw, H / ih);
       const dw = iw * scale, dh = ih * scale;
-      ctx.drawImage(im, (W - dw) / 2, H - dh, dw, dh); // centered, bottom-anchored
+      ctx.drawImage(im, (W - dw) / 2 + BODY_DX * dw, H - dh, dw, dh); // body-centered, bottom-anchored
     };
 
     const q = new URLSearchParams(location.search);
