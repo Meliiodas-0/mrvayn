@@ -75,7 +75,7 @@ export function ScrollSamurai() {
     const N = idxs.length;
     const heroOp = phone ? 0.6 : 0.9, deepOp = phone ? 0.3 : 0.4; // ~2x more visible (owner request); still fades to a constant-size ghost deeper
     const ease = phone ? 0.22 : 0.12; // snappier on phone so the scrub tracks the scroll instead of trailing (fixes the "laggy" feel)
-    const lead = phone ? 2 : 0; // phone: run ROG ~2 frames ahead so his pointing pose lands BEFORE the About panel scrolls over him
+    const lead = phone ? 3 : 0; // phone: run ROG ahead (starts a frame further in) so his pointing pose lands BEFORE the About panel scrolls over him. PC stays 0.
 
     let target = 0, cur = 0, raf = 0, running = false, lastI = -1;
     const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(i); return im; });
