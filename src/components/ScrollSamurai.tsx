@@ -75,6 +75,7 @@ export function ScrollSamurai() {
     const N = idxs.length;
     const heroOp = phone ? 0.6 : 0.9, deepOp = phone ? 0.3 : 0.4; // ~2x more visible (owner request); still fades to a constant-size ghost deeper
     const ease = phone ? 0.22 : 0.12; // snappier on phone so the scrub tracks the scroll instead of trailing (fixes the "laggy" feel)
+    const lead = phone ? 2 : 0; // phone: run ROG ~2 frames ahead so his pointing pose lands BEFORE the About panel scrolls over him
 
     let target = 0, cur = 0, raf = 0, running = false, lastI = -1;
     const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(i); return im; });
@@ -101,7 +102,7 @@ export function ScrollSamurai() {
       const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
       // front-loaded over the WHOLE page: a clear turn while scrolling the hero, then keeps
       // progressing (slowly) all the way to the bottom, never finishes/stops early.
-      target = Math.sqrt(p) * (N - 1);
+      target = Math.min(N - 1, Math.sqrt(p) * (N - 1) + lead);
       const fs = vh * 0.85, fe = vh * 1.5;
       wrap.style.opacity = String(y <= fs ? heroOp : y >= fe ? deepOp : heroOp - ((y - fs) / (fe - fs)) * (heroOp - deepOp)); // submerged: fainter on phone, fades to a constant-size presence deeper
       kick();
