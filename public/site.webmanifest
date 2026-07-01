@@ -1,12 +1,12 @@
 {
-  "name": "MrVayn, Founder & Game Developer",
+  "name": "MrVayn | Unreal Engine & Full-Stack Developer",
   "short_name": "MrVayn",
-  "description": "Crafting next-gen, cinematic game experiences in Unreal Engine 5.",
+  "description": "AAA-caliber game feel in Unreal Engine 5, plus full-stack web apps with Next.js and TypeScript.",
   "icons": [
     { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
     { "src": "/favicon.png", "type": "image/png", "sizes": "1024x1024" }
   ],
-  "theme_color": "#070a12",
-  "background_color": "#070a12",
+  "theme_color": "#08090C",
+  "background_color": "#08090C",
   "display": "standalone"
 }

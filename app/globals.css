@@ -22,7 +22,7 @@
 html[data-grain="off"] .grain::before { display: none; }
 html[data-scanlines="off"] .scanlines::after { display: none; }
 
-/* Scroll/load reveal — PURE CSS so content can never be left hidden. framer-motion
+/* Scroll/load reveal, PURE CSS so content can never be left hidden. framer-motion
    animations don't apply on iOS WebKit, which was blanking the whole page; this only
    ever ANIMATES TOWARD opacity 1 and the base state is visible. */
 .mv-reveal, .mv-reveal-skew { opacity: 1; }
@@ -38,16 +38,47 @@ html[data-scanlines="off"] .scanlines::after { display: none; }
   from { opacity: 0; transform: translateY(24px) skewX(-3deg); }
   to { opacity: 1; transform: none; }
 }
+/* Plain fade (modal backdrop), same rule: base visible, only animates toward 1. */
+.mv-fade { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .mv-fade { animation: mv-fade 0.2s ease-out both; }
+}
+@keyframes mv-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Themed scrollbar (Firefox), matches the HUD chrome. */
+    scrollbar-color: rgb(var(--steel)) rgb(var(--void));
   }
   body {
     background-color: rgb(var(--void));
     color: rgb(var(--bone));
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+  /* Themed scrollbar (WebKit/Blink), thin, steel on void, brightens on hover. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--void));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--steel));
+    border: 2px solid rgb(var(--void));
+    border-radius: 0;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--mist) / 0.55);
+  }
+  /* Keep multi-line headings from ending in a one-word orphan line. */
+  h1, h2, h3 {
+    text-wrap: balance;
   }
   ::selection {
     background: rgb(var(--surge) / 0.3);

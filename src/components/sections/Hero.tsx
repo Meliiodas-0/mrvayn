@@ -73,7 +73,7 @@ export function Hero() {
       {/* lg+: nudged down so the copy sits closer to ROG (less empty gap above him). */}
       <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center lg:mt-[4vh]">
         <Reveal>
-          <span className="inline-flex items-center gap-2.5 font-hud text-[0.7rem] uppercase tracking-[0.34em] text-surge">
+          <span className="inline-flex items-center gap-2.5 font-hud text-[0.7rem] uppercase tracking-[0.34em] text-surge max-sm:text-[0.6rem] max-sm:tracking-[0.2em]">
             <span aria-hidden className="inline-block h-1.5 w-1.5 bg-surge" />
             {profile.role}
           </span>
@@ -95,12 +95,12 @@ export function Hero() {
         </Reveal>
 
         <Reveal delay={0.24}>
-          <div data-solid className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <BevelButton href="#loadout" variant="primary">
+          <div data-solid className="mt-6 flex w-full flex-wrap items-center justify-center gap-3 sm:w-auto">
+            <BevelButton href="#loadout" variant="primary" className="max-sm:w-full">
               View work
               <ArrowRight className="h-4 w-4" />
             </BevelButton>
-            <BevelButton href={profile.emailHref} variant="ghost">
+            <BevelButton href={profile.emailHref} variant="ghost" className="max-sm:w-full">
               <Mail className="h-4 w-4" />
               Get in touch
             </BevelButton>

@@ -51,7 +51,7 @@ export function ScrollSamurai() {
     const q = new URLSearchParams(location.search);
     const reduceOrStill = window.matchMedia("(prefers-reduced-motion: reduce)").matches || q.has("still") || q.has("cine");
     const phone = window.matchMedia("(max-width: 1023.98px)").matches;
-    // Edge-dissolve mask on DESKTOP only — re-masking the canvas every repaint is costly on phones.
+    // Edge-dissolve mask on DESKTOP only, re-masking the canvas every repaint is costly on phones.
     if (!phone) { const m = "radial-gradient(64% 70% at 50% 56%, #000 52%, transparent 92%)"; canvas.style.setProperty("mask-image", m); canvas.style.setProperty("-webkit-mask-image", m); }
 
     resize();
@@ -81,7 +81,7 @@ export function ScrollSamurai() {
     const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(i); return im; });
     const draw = (idx: number) => {
       let i = Math.round(idx); i = Math.max(0, Math.min(N - 1, i));
-      if (i === lastI) return; // only repaint when the frame actually changes — kills redundant redraws (big win on phone)
+      if (i === lastI) return; // only repaint when the frame actually changes, kills redundant redraws (big win on phone)
       lastI = i; dxFrac = offsetForFrame(idxs[i]);
       const im = imgs[i]; paint(im && im.complete && im.naturalWidth ? im : lastGood);
     };

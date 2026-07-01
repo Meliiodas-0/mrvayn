@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { motion, useReducedMotion } from "framer-motion";
 import { X, ArrowUpRight, Lock } from "lucide-react";
 import type { Project } from "@/data/projects";
 import { driveEmbed, driveThumb } from "@/lib/drive";
@@ -19,7 +18,6 @@ export function ProjectDetail({ project, onClose }: { project: Project | null; o
 }
 
 function DetailPanel({ project, onClose }: { project: Project; onClose: () => void }) {
-  const reduce = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -53,24 +51,20 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
     };
   }, [onClose]);
 
+  // Pure-CSS entrance (mv-fade / mv-reveal), framer-motion doesn't apply on iOS
+  // WebKit and could leave the dialog invisible; these only animate TOWARD visible.
   return (
-    <motion.div
-      className="fixed inset-0 z-[90] flex items-end justify-center overflow-y-auto bg-void/80 backdrop-blur-sm sm:items-center"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: reduce ? 0 : 0.2 }}
+    <div
+      className="mv-fade fixed inset-0 z-[90] flex items-end justify-center overflow-y-auto bg-void/80 backdrop-blur-sm sm:items-center"
       onClick={onClose}
     >
-      <motion.div
+      <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="project-detail-title"
         onClick={(e) => e.stopPropagation()}
-        initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="bevel relative my-6 w-full max-w-2xl border border-steel bg-carbon p-6 sm:p-8"
+        className="mv-reveal bevel relative my-6 w-full max-w-2xl border border-steel bg-carbon p-6 sm:p-8"
       >
         <span aria-hidden className="pointer-events-none absolute left-0 top-0 h-full w-[2px] bg-surge" />
         <button
@@ -148,8 +142,8 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
             ))
           )}
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
 

@@ -9,7 +9,7 @@ interface RevealProps {
 }
 
 /**
- * Fade + rise reveal via a PURE-CSS animation (`.mv-reveal` in globals.css) — no
+ * Fade + rise reveal via a PURE-CSS animation (`.mv-reveal` in globals.css), no
  * framer-motion. framer's animations don't apply on iOS WebKit and were leaving the
  * page blank; this only animates toward opacity 1 and the base state is visible, so
  * content can never stay hidden. Server-renderable, so the copy is in the SSR HTML.

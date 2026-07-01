@@ -1,11 +1,11 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "MrVayn, Founder & Game Developer";
+export const alt = "MrVayn | Unreal Engine & Full-Stack Developer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Branded OG/social card (OVERDRIVE palette). Generated at the edge, no asset.
+// Branded OG/social card in the default "Ghost" (mono) palette. Edge-generated, no asset.
 export default function OpengraphImage() {
   return new ImageResponse(
     (
@@ -17,25 +17,25 @@ export default function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          background: "#07090F",
-          color: "#EAF0FF",
+          background: "#08090C",
+          color: "#ECF0F8",
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 18, color: "#FF2D6B", fontSize: 28, letterSpacing: 6 }}>
-          <div style={{ width: 18, height: 18, background: "#FF2D6B" }} />
-          FOUNDER & GAME DEVELOPER
+        <div style={{ display: "flex", alignItems: "center", gap: 18, color: "#E2E8F4", fontSize: 26, letterSpacing: 6 }}>
+          <div style={{ width: 18, height: 18, background: "#E2E8F4" }} />
+          UNREAL ENGINE & FULL-STACK DEVELOPER
         </div>
         <div style={{ fontSize: 168, fontWeight: 900, lineHeight: 1, marginTop: 20, letterSpacing: -2 }}>MRVAYN</div>
-        <div style={{ fontSize: 34, color: "#8A94A7", marginTop: 24 }}>
-          Unreal Engine 5 · Niagara VFX · Multiplayer · Gameplay systems
+        <div style={{ fontSize: 32, color: "#8C929E", marginTop: 24 }}>
+          Unreal Engine 5 · Niagara VFX · Multiplayer · Next.js · TypeScript
         </div>
         <div
           style={{
             marginTop: "auto",
             width: "100%",
             height: 10,
-            background: "linear-gradient(90deg,#FF2D6B,#B26BFF,#19E0FF)",
+            background: "linear-gradient(90deg,#E2E8F4,#96A0B4,#3A404C)",
           }}
         />
       </div>
