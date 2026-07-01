@@ -166,7 +166,7 @@ export function BootSequence() {
       dustBuilt = true;
     }
 
-    const start = performance.now(); let raf = 0; let hardStop: ReturnType<typeof setTimeout> | undefined;
+    let start = performance.now(); let raf = 0; let hardStop: ReturnType<typeof setTimeout> | undefined;
 
     function render(t: number) {
       let shake = 0;
@@ -299,8 +299,11 @@ export function BootSequence() {
     }
 
     function loop(now: number) {
-      let t = (now - start) / 1000;
-      if (skipRef.current) t = Math.max(t, TITLE);
+      // Skip = rebase the clock onto the final 0.6s fade-to-void, so a click/key
+      // exits almost immediately from ANY beat. (The old Math.max(t, TITLE) froze
+      // the frame until wall-clock caught up, then still played the whole ending.)
+      if (skipRef.current) { skipRef.current = false; start = Math.min(start, now - (END - 0.6) * 1000); }
+      const t = (now - start) / 1000;
       if (t >= END) { done(); return; }
       render(t);
       raf = requestAnimationFrame(loop);
