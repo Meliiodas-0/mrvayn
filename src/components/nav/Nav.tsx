@@ -47,7 +47,9 @@ export function Nav() {
           scrolled ? "border-b border-steel/70 bg-void/85 backdrop-blur-md" : "border-b border-transparent",
         )}
       >
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4" aria-label="Primary">
+        {/* Full-bleed HUD bar: logo anchored to the left edge, links to the right.
+            Right padding reserves room for the fixed theme-palette button (right-4, w-10). */}
+        <nav className="flex w-full items-center justify-between py-4 pl-5 pr-16 sm:pl-7 sm:pr-[4.5rem]" aria-label="Primary">
           <a href="#hero" className="group flex items-center gap-2.5">
             <span aria-hidden className="bevel-sm inline-block h-6 w-6 bg-surge transition-transform group-hover:scale-110" />
             <span className="font-display text-lg font-black uppercase tracking-wide text-bone">MrVayn</span>
