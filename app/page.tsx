@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
 import { ScrollSamurai } from "@/components/ScrollSamurai";
 import { About } from "@/components/sections/About";
+import { Showreel } from "@/components/sections/Showreel";
 import { Work } from "@/components/sections/Work";
 import { Skills } from "@/components/sections/Skills";
 import { Timeline } from "@/components/sections/Timeline";
@@ -34,6 +35,7 @@ export default function Home() {
       <main id="content" className="grain relative z-10">
         <Hero />
         <About />
+        <Showreel />
         <Work />
         <Skills />
         <Timeline />
