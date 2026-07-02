@@ -52,7 +52,8 @@ html[data-scanlines="off"] .scanlines::after { display: none; }
    Transform-only horizontal scroll. The track holds TWO copies of the frames, so
    translateX(-50%) lands exactly on the seam for a seamless loop. Pauses on hover. */
 .mv-marquee { animation: mv-marquee 48s linear infinite; will-change: transform; }
-.mv-marquee:hover { animation-play-state: paused; }
+/* Pause on hover AND keyboard focus so a focused frame isn't a moving target. */
+.mv-marquee:hover, .mv-marquee:focus-within { animation-play-state: paused; }
 @keyframes mv-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
