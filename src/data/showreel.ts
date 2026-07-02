@@ -11,16 +11,22 @@ export interface ReelFrame {
 }
 
 // Preview stills pulled from each project's showcase video / media and baked into
-// /public/showreel/*.webp (viewport-cropped + shadow-lifted; see scratchpad extractors).
-// Ordered to alternate dark/bright builds so the marquee has a scroll rhythm.
+// /public/showreel/*.webp (viewport-cropped past the OBS/editor chrome + shadow-lifted;
+// see scratchpad extractors). Every project EXCEPT Grannyspot, the locked Multiplayer,
+// and Glazer Games. Ordered to alternate dark/bright builds so the marquee has rhythm.
 const REEL: { id: string; tag: string }[] = [
   { id: "antarya", tag: "Unreal Engine 5" },
   { id: "couragely", tag: "Roblox · Horror" },
-  { id: "env-design-2", tag: "Environment Art" },
+  { id: "cgi-teaser", tag: "UE5 Cinematics" },
   { id: "unreal-horror", tag: "UE5 · Horror" },
-  { id: "env-design", tag: "Environment Art" },
+  { id: "env-design-2", tag: "Environment Art" },
   { id: "first-target-shooting", tag: "UE5 · Gameplay" },
+  { id: "env-design", tag: "Environment Art" },
+  { id: "rpg-prototype", tag: "RPG Systems" },
   { id: "ai-therapist", tag: "AI Prototype" },
+  { id: "bharatverse", tag: "World Design" },
+  { id: "techademy", tag: "Game Jam" },
+  { id: "sasta-minecraft", tag: "Voxel Sandbox" },
 ];
 
 export const reelFrames: ReelFrame[] = REEL.map(({ id, tag }) => {
