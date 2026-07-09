@@ -16,8 +16,9 @@ import { ROG_OFFSETS, ROG_OFFSET_MEAN } from "@/data/rogOffsets";
  */
 const FRAMES = 200;
 const HERO_IDX = 0; // hero resting pose (scroll 0), used for phone/static so it matches the live hero
-// ?v=3 busts the browser/CDN cache when the sequence is re-rendered (frames reuse the same names).
-const frameSrc = (i: number) => `/rog/f_${String(i).padStart(3, "0")}.webp?v=3`;
+// Two resolution tiers: /rog-hi (1200px tall, for retina / hi-DPI desktop where the low-res set
+// looked upscaled) and /rog (880px, everyone else + phone). ?v=4 busts the browser/CDN cache.
+const frameSrc = (folder: string, i: number) => `/${folder}/f_${String(i).padStart(3, "0")}.webp?v=4`;
 // Horizontal centering is now BAKED INTO the frames (each cropped centred on its smoothed body
 // centroid at export), so ROG never slides even though his mace swings. These offsets are ~0 and
 // kept only as a stable hook (falls back to the set mean).
@@ -52,6 +53,10 @@ export function ScrollSamurai() {
     const q = new URLSearchParams(location.search);
     const reduceOrStill = window.matchMedia("(prefers-reduced-motion: reduce)").matches || q.has("still") || q.has("cine");
     const phone = window.matchMedia("(max-width: 1023.98px)").matches;
+    // Retina / hi-DPI desktops get the hi-res tier (the low-res set looked upscaled → soft); every
+    // other device takes the light set, and phones decimate whatever they load.
+    const hi = !phone && (window.devicePixelRatio || 1) >= 1.5;
+    const folder = hi ? "rog-hi" : "rog";
     // Edge-dissolve mask on DESKTOP only, re-masking the canvas every repaint is costly on phones.
     if (!phone) { const m = "radial-gradient(64% 70% at 50% 56%, #000 52%, transparent 92%)"; canvas.style.setProperty("mask-image", m); canvas.style.setProperty("-webkit-mask-image", m); }
 
@@ -60,7 +65,7 @@ export function ScrollSamurai() {
 
     // Reduced-motion / still: one static frame, no sequence or scroll (a11y + screenshots).
     if (reduceOrStill) {
-      const im = new Image(); im.decoding = "async"; im.src = frameSrc(HERO_IDX);
+      const im = new Image(); im.decoding = "async"; im.src = frameSrc(folder, HERO_IDX);
       const drawStatic = () => { resize(); paint(im.complete && im.naturalWidth ? im : lastGood); };
       im.onload = drawStatic; window.removeEventListener("resize", resize); window.addEventListener("resize", drawStatic); drawStatic();
       return () => window.removeEventListener("resize", drawStatic);
@@ -79,7 +84,7 @@ export function ScrollSamurai() {
     const lead = phone ? 3 : 0; // phone: run ROG ahead (starts a frame further in) so his pointing pose lands BEFORE the About panel scrolls over him. PC stays 0.
 
     let target = 0, cur = 0, raf = 0, running = false, lastI = -1;
-    const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(i); return im; });
+    const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(folder, i); return im; });
     const draw = (idx: number) => {
       let i = Math.round(idx); i = Math.max(0, Math.min(N - 1, i));
       if (i === lastI) return; // only repaint when the frame actually changes, kills redundant redraws (big win on phone)

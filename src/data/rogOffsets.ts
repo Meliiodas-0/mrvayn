@@ -1,6 +1,5 @@
-// ROG horizontal centering is now BAKED INTO the frames (each cropped centred on its
-// smoothed body centroid during export, scratchpad/rog_proc4.py), so no draw-time shift
-// is needed, these are all ~0. Kept as a stable API for ScrollSamurai.
+// ROG horizontal centering is baked into the frames at export (scratchpad/rog_proc5.py),
+// so no draw-time shift is needed (all ~0). Two res tiers: /rog (880px) + /rog-hi (1200px).
 export const ROG_OFFSETS: number[] = [
   0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000,
   0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000,
