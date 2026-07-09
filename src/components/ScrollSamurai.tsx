@@ -14,12 +14,13 @@ import { ROG_OFFSETS, ROG_OFFSET_MEAN } from "@/data/rogOffsets";
  * `public/samurai/f_000..NNN.webp` (ffmpeg crop+fps -> rembg per frame -> webp),
  * then set FRAMES below. Nothing else changes.
  */
-const FRAMES = 144;
+const FRAMES = 200;
 const HERO_IDX = 0; // hero resting pose (scroll 0), used for phone/static so it matches the live hero
-const frameSrc = (i: number) => `/rog/f_${String(i).padStart(3, "0")}.webp`;
-// Per-frame horizontal offset that re-centres each frame's body mass, so ROG never slides
-// left↔right as the sequence scrubs (his pose/mace sway ~14% of the width across 144 frames
-//, that lateral slide is what looked broken on phone). Falls back to the set mean.
+// ?v=3 busts the browser/CDN cache when the sequence is re-rendered (frames reuse the same names).
+const frameSrc = (i: number) => `/rog/f_${String(i).padStart(3, "0")}.webp?v=3`;
+// Horizontal centering is now BAKED INTO the frames (each cropped centred on its smoothed body
+// centroid at export), so ROG never slides even though his mace swings. These offsets are ~0 and
+// kept only as a stable hook (falls back to the set mean).
 const offsetForFrame = (frame: number) => ROG_OFFSETS[frame] ?? ROG_OFFSET_MEAN;
 
 export function ScrollSamurai() {
@@ -66,7 +67,7 @@ export function ScrollSamurai() {
     }
 
     // Sequence + scroll scrub, on desktop AND phone. Phone reacts to scroll just like
-    // desktop, but loads a DECIMATED set (every 3rd frame ≈ 48 of 144, ~1.6MB vs 4.8MB)
+    // desktop, but loads a DECIMATED set (every 3rd frame ≈ 67 of 200, ~2.5MB vs ~7.6MB)
     // and stays fainter, to stay light on mobile data. The loop sleeps when not scrubbing.
     const STRIDE = phone ? 3 : 1;
     const idxs: number[] = [];

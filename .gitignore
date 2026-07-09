@@ -35,5 +35,6 @@ next-env.d.ts
 .claude/settings.local.json
 .gemini/
 
-# Raw HD character render (optimized frames live in public/rog)
+# Raw HD character renders (optimized frames live in public/rog)
 SevRender/
+SevRender2/
