@@ -55,10 +55,11 @@ export function ScrollSamurai() {
     const q = new URLSearchParams(location.search);
     const reduceOrStill = window.matchMedia("(prefers-reduced-motion: reduce)").matches || q.has("still") || q.has("cine");
     const phone = window.matchMedia("(max-width: 1023.98px)").matches;
-    // Retina / hi-DPI desktops get the hi-res tier (the low-res set looked upscaled → soft); every
-    // other device takes the light set, and phones decimate whatever they load.
+    // Three tiers: phones get /rog-sm (small 540px frames but ALL of them, so the scrub is as smooth
+    // as desktop while staying light on data ~5MB); retina/hi-DPI desktops get /rog-hi (1200px,
+    // crisp); standard desktops get /rog (880px).
     const hi = !phone && (window.devicePixelRatio || 1) >= 1.5;
-    const folder = hi ? "rog-hi" : "rog";
+    const folder = phone ? "rog-sm" : hi ? "rog-hi" : "rog";
     // Edge-dissolve mask on DESKTOP only, re-masking the canvas every repaint is costly on phones.
     if (!phone) { const m = "radial-gradient(64% 70% at 50% 56%, #000 52%, transparent 92%)"; canvas.style.setProperty("mask-image", m); canvas.style.setProperty("-webkit-mask-image", m); }
 
@@ -73,17 +74,17 @@ export function ScrollSamurai() {
       return () => window.removeEventListener("resize", drawStatic);
     }
 
-    // Sequence + scroll scrub, on desktop AND phone. Phone reacts to scroll just like
-    // desktop, but loads a DECIMATED set (every 3rd frame ≈ 67 of 200, ~2.5MB vs ~7.6MB)
-    // and stays fainter, to stay light on mobile data. The loop sleeps when not scrubbing.
-    const STRIDE = phone ? 3 : 1;
+    // Every frame on BOTH desktop and phone now (phone uses the small /rog-sm tier so all 200
+    // frames is only ~5MB) → the phone scrub is as smooth as desktop, no more decimation stepping.
+    // Phone just stays fainter. The loop sleeps when not scrubbing.
+    const STRIDE = 1;
     const idxs: number[] = [];
     for (let i = 0; i < FRAMES; i += STRIDE) idxs.push(i);
     if (idxs[idxs.length - 1] !== FRAMES - 1) idxs.push(FRAMES - 1);
     const N = idxs.length;
     const heroOp = phone ? 0.6 : 0.9, deepOp = phone ? 0.3 : 0.4; // ~2x more visible (owner request); still fades to a constant-size ghost deeper
     const ease = phone ? 0.22 : 0.12; // snappier on phone so the scrub tracks the scroll instead of trailing (fixes the "laggy" feel)
-    const lead = phone ? 3 : 0; // phone: run ROG ahead (starts a frame further in) so his pointing pose lands BEFORE the About panel scrolls over him. PC stays 0.
+    const lead = phone ? 9 : 0; // phone: run ROG ahead so his pointing pose lands BEFORE the About panel scrolls over him. Scaled to 9 now that phone plays all 200 frames (was 3 of ~67). PC stays 0.
 
     let target = 0, cur = 0, raf = 0, running = false, lastI = -1;
     const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(folder, i); return im; });
