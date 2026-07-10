@@ -38,3 +38,4 @@ next-env.d.ts
 # Raw HD character renders (optimized frames live in public/rog)
 SevRender/
 SevRender2/
+SevExpTest/

@@ -18,8 +18,9 @@ const FRAMES = 200;
 const HERO_IDX = 0; // hero resting pose (scroll 0), used for phone/static so it matches the live hero
 // Two resolution tiers: /rog-hi (1200px tall, for retina / hi-DPI desktop where the low-res set
 // looked upscaled) and /rog (880px, everyone else + phone). ?v=5 busts the browser/CDN cache
-// (v5 = colour-graded + sharpened + solid alpha key, was reading pale/soft before).
-const frameSrc = (folder: string, i: number) => `/${folder}/f_${String(i).padStart(3, "0")}.webp?v=5`;
+// (v7 = detail-preserving grade: contrast + saturation + clarity/local-contrast + edge sharpen,
+// no black-crush so shadow detail survives; reads richer + sharper without the washed/crunchy look).
+const frameSrc = (folder: string, i: number) => `/${folder}/f_${String(i).padStart(3, "0")}.webp?v=7`;
 // Horizontal centering is now BAKED INTO the frames (each cropped centred on its smoothed body
 // centroid at export), so ROG never slides even though his mace swings. These offsets are ~0 and
 // kept only as a stable hook (falls back to the set mean).
