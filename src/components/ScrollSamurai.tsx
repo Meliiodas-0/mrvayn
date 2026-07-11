@@ -137,7 +137,11 @@ export function ScrollSamurai() {
       ref={wrapRef}
       data-solid
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto h-[82vh] w-full max-w-[940px] max-lg:h-[66vh] max-lg:opacity-60"
+      // Desktop is 82vh, but on SHORT viewports (1080p-class, browser inner height <= 1150px)
+      // the bottom-anchored figure rose over the hero thesis/CTAs, so cap him at 48vh there:
+      // the hero is vertically centred, so 48vh keeps him fully in the free bottom half.
+      // Taller screens (2K+) keep the full 82vh. Phone stays 66vh.
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto h-[82vh] w-full max-w-[940px] lg:[@media(max-height:1150px)]:h-[48vh] max-lg:h-[66vh] max-lg:opacity-60"
     >
       {/* spectral aura behind him, a cool, ethereal halo so the bone-white figure reads as an apparition */}
       <div className="absolute inset-0" style={{ background: "radial-gradient(38% 36% at 50% 60%, rgb(var(--volt)/0.10), rgb(var(--ion)/0.07) 46%, transparent 70%)" }} />
