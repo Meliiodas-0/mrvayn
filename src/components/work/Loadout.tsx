@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Project } from "@/data/projects";
+import { reelFrames } from "@/data/showreel";
 import { ProjectTile } from "@/components/ui/ProjectTile";
 import { ProjectDetail } from "@/components/work/ProjectDetail";
 import { Reveal } from "@/components/motion/Reveal";
@@ -30,7 +31,8 @@ export function Loadout({ featured, others }: { featured: Project[]; others: Pro
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {others.map((p, i) => (
           <Reveal key={p.id} delay={(i % 3) * 0.06}>
-            <ProjectTile project={p} onSelect={() => setSelected(p)} />
+            {/* Faded showreel still behind each tile (projects without a frame just stay flat). */}
+            <ProjectTile project={p} bg={reelFrames.find((f) => f.id === p.id)?.img ?? null} onSelect={() => setSelected(p)} />
           </Reveal>
         ))}
       </div>

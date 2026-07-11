@@ -19,9 +19,10 @@ export function Manifesto() {
             Build. Ship. <span className="text-glow-surge text-surge">Repeat.</span>
           </h2>
           <p className="mx-auto mt-7 max-w-2xl font-sans leading-relaxed text-mist">
-            My first horror game went from an empty project to live on Roblox in 7 days.
-            Two years later I lead engineering at a 20-person studio building Antarya.
-            Same loop, bigger stakes: build it, ship it, learn from the players, go again.
+            I build in Unreal Engine 5 and ship software that lives in production.
+            Right now that means leading engineering on Antarya at Magadha Studios and
+            standing up a fantasy MMORPG, server architecture ready, combat systems in
+            progress. The loop never changes: build it, ship it, learn, go again.
           </p>
         </Reveal>
       </div>

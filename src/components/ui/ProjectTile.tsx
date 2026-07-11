@@ -11,11 +11,14 @@ export function ProjectTile({
   project,
   featured = false,
   onSelect,
+  bg = null,
 }: {
   project: Project;
   featured?: boolean;
   /** When set, the tile opens the detail panel instead of linking out. */
   onSelect?: () => void;
+  /** Faded background still for compact tiles (featured tiles show real media instead). */
+  bg?: string | null;
 }) {
   const primaryLink = project.links[0];
 
@@ -23,11 +26,25 @@ export function ProjectTile({
     <Panel
       edge={featured}
       className={cn(
-        "group flex h-full flex-col transition-colors duration-300",
+        "group flex h-full flex-col overflow-hidden transition-colors duration-300",
         featured ? "p-6 sm:p-8" : "p-5",
         project.locked ? "opacity-60" : "hover:border-surge/40",
       )}
     >
+      {/* Faded project still behind compact tiles; the gradient keeps the text readable. */}
+      {!featured && bg && (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={bg}
+            alt=""
+            aria-hidden
+            loading="lazy"
+            className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.14] saturate-[0.8] transition-opacity duration-300 group-hover:opacity-[0.26]"
+          />
+          <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-carbon/90 via-carbon/45 to-carbon/15" />
+        </>
+      )}
       {featured && (
         <div className="relative mb-5 aspect-video w-full overflow-hidden border border-steel bevel-sm">
           <Thumb src={projectThumb(project.media, project.links)} alt={`${project.title} preview`} />

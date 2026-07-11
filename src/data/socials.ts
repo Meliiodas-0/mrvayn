@@ -25,4 +25,5 @@ export const collaborations: Collab[] = [
   { title: "Funpunch India, Reel", href: "https://www.instagram.com/funpunch_india/reel/DBKPov_hWC3/" },
   { title: "TeamXO, Post", href: "https://www.instagram.com/p/Cm16kKABqVD/" },
   { title: "AceHack, Judge Reel", href: "https://www.instagram.com/reel/DHmFXt8gQ55/" },
+  { title: "Backstage collab", href: "https://www.youtube.com/watch?v=UradQ8kyPV8" },
 ];

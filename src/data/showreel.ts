@@ -16,14 +16,14 @@ export interface ReelFrame {
 // and Glazer Games. Ordered to alternate dark/bright builds so the marquee has rhythm.
 const REEL: { id: string; tag: string }[] = [
   { id: "antarya", tag: "Unreal Engine 5" },
-  { id: "couragely", tag: "Roblox · Horror" },
   { id: "cgi-teaser", tag: "UE5 Cinematics" },
-  { id: "unreal-horror", tag: "UE5 · Horror" },
   { id: "env-design-2", tag: "Environment Art" },
+  { id: "unreal-horror", tag: "UE5 · Horror" },
+  { id: "ai-therapist", tag: "AI Prototype" },
+  { id: "couragely", tag: "Roblox · Horror" },
   { id: "first-target-shooting", tag: "UE5 · Gameplay" },
   { id: "env-design", tag: "Environment Art" },
   { id: "rpg-prototype", tag: "RPG Systems" },
-  { id: "ai-therapist", tag: "AI Prototype" },
   { id: "bharatverse", tag: "World Design" },
   { id: "techademy", tag: "Game Jam" },
   { id: "sasta-minecraft", tag: "Voxel Sandbox" },

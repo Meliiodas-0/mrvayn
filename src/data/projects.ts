@@ -58,7 +58,6 @@ export const projects: Project[] = [
     tech: ["Roblox", "Luau", "Horror", "Live Ops"],
     links: [{ label: "Play on Roblox", href: "https://www.roblox.com/games/137847988705947/Couragely" }],
     badge: "LIVE",
-    featured: true,
     shipped: true,
     media: "https://tr.rbxcdn.com/180DAY-8c1ca43249f81b505fa0eb47531f04ee/500/280/Image/Jpeg/noFilter",
     problem:
@@ -68,8 +67,28 @@ export const projects: Project[] = [
     result:
       "12.2K visits · 601 favorites · 638,391 impressions · 9,432 plays in the first two weeks.",
   },
+  { id: "ai-therapist", title: "Virtual AI Therapist", role: "Developer", year: "2023", summary: "An AI-driven conversational prototype that handles real-time dialogue and reads sentiment.", tech: ["AI", "LangChain", "RAG", "Prototype"], links: [{ label: "View", href: "https://drive.google.com/file/d/1WV2xYvS9aCd0mrpUbshdrsm8rcOFGNf8/view?usp=drive_link" }] },
   { id: "unreal-horror", title: "Unreal Horror Game", role: "Developer", year: "2023", summary: "An atmospheric horror prototype in Unreal Engine 5.", tech: ["Unreal Engine 5", "Horror"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1X1QuGVAsIcP6mcX-Q5LFw_Sr0XxBt8Xb/view?usp=sharing" }] },
-  { id: "multiplayer-tba", title: "Multiplayer Project", role: "Developer", year: "TBA", summary: "A multiplayer title, private, to be announced.", tech: ["Unreal Engine 5", "Multiplayer", "Netcode"], links: [], locked: true },
+  {
+    id: "multiplayer-tba",
+    title: "Fantasy MMORPG",
+    role: "Solo build, latest work",
+    year: "2026",
+    summary:
+      "A fantasy MMORPG in active development. Dedicated-server architecture is ready; PvP, PvE, inventory, ability, and combat frameworks are in progress.",
+    tech: ["Unreal Engine 5", "Dedicated Servers", "Ability System", "PvP & PvE", "Inventory", "Combat Framework"],
+    links: [],
+    badge: "IN DEV",
+    featured: true,
+    shipped: false,
+    media: "/projects/mmorpg.webp", // owner's top-down shot of the floating-island hub town
+    problem:
+      "Multiplayer at MMO scale is unforgiving: persistence, replication, and combat all have to hold up with many players in one world.",
+    approach:
+      "Server architecture first, then data-driven frameworks on top: ability system, combat, inventory, and the PvP and PvE loops, built to scale before content fills them.",
+    result:
+      "Dedicated-server architecture is up and running; combat, ability, and inventory systems are in active development. Reveal to come.",
+  },
   { id: "sasta-minecraft", title: "Sasta Minecraft", role: "Developer", year: "2023", summary: "A voxel sandbox experiment.", tech: ["Unreal Engine 5", "Systems"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1BkugwIClcTx4aLtK-34aaelw40YbYxDk/view?usp=drive_link" }] },
   { id: "env-design-2", title: "Environment Design 2.0", role: "Environment Artist", year: "2023", summary: "Real-time environment art in UE5.", tech: ["Unreal Engine 5", "Environment"], links: [{ label: "View", href: "https://drive.google.com/file/d/1hwlbVTwMOzlgakO_T6ooHetDxh7mE4JC/view?usp=drive_link" }] },
   { id: "env-design", title: "Environment Design", role: "Environment Artist", year: "2023", summary: "Immersive environment design under tight deadlines.", tech: ["Unreal Engine 5", "Environment"], links: [{ label: "View", href: "https://drive.google.com/file/d/1Io3zeGNmbGLYUTxSnldVEFKCwFcjmO5p/view?usp=drive_link" }] },
@@ -79,7 +98,6 @@ export const projects: Project[] = [
   { id: "rpg-prototype", title: "RPG Game Prototype", role: "Developer", year: "2023", summary: "An RPG systems prototype.", tech: ["Unreal Engine 5", "RPG Systems"], links: [{ label: "View", href: "https://drive.google.com/drive/folders/1WuzkMKut5wKKHKTDJ9IC5vR8q_y1sL5z" }] },
   { id: "glazer-site", title: "Glazer Games Website", role: "Web Developer", year: "2023", summary: "Production website for Glazer Games.", tech: ["Web", "Frontend"], links: [{ label: "Visit", href: "https://www.glazer.games" }] },
   { id: "bharatverse", title: "Bharatverse", role: "Developer", year: "2023", summary: "A concept/world-building project.", tech: ["Unreal Engine 5", "World Design"], links: [{ label: "View", href: "https://drive.google.com/file/d/11bqGKg3IUZTWWNw6ofC_pv7yLPN8nxPu/view" }] },
-  { id: "ai-therapist", title: "Virtual AI Therapist", role: "Developer", year: "2023", summary: "An AI-driven conversational prototype that handles real-time dialogue and reads sentiment.", tech: ["AI", "LangChain", "RAG", "Prototype"], links: [{ label: "View", href: "https://drive.google.com/file/d/1WV2xYvS9aCd0mrpUbshdrsm8rcOFGNf8/view?usp=drive_link" }] },
   {
     id: "grannyspot",
     title: "Grannyspot",
