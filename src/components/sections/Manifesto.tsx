@@ -21,8 +21,9 @@ export function Manifesto() {
           <p className="mx-auto mt-7 max-w-2xl font-sans leading-relaxed text-mist">
             I build in Unreal Engine 5 and ship software that lives in production.
             Right now that means leading engineering on Antarya at Magadha Studios and
-            standing up a fantasy MMORPG, server architecture ready, combat systems in
-            progress. The loop never changes: build it, ship it, learn, go again.
+            expanding a fantasy MMORPG that is already playable, on server architecture
+            and a combat framework I built from scratch. The loop never changes:
+            build it, ship it, learn, go again.
           </p>
         </Reveal>
       </div>

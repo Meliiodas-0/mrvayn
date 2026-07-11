@@ -49,6 +49,23 @@ export const projects: Project[] = [
       "The framework powered Antarya's showcase at IGDC 2025; a playable demo is in progress.",
   },
   {
+    id: "ue-mcp",
+    title: "Unreal Engine MCP",
+    role: "Creator, dev tooling",
+    year: "2026",
+    summary:
+      "A custom MCP server that lets AI agents drive the Unreal Editor: scene control, asset pipelines, and editor automation with a deeper toolset than the stock integrations.",
+    tech: ["MCP", "TypeScript", "Unreal Engine", "AI Agents", "Editor Automation"],
+    links: [],
+    badge: "IN DEV",
+    problem:
+      "AI assistants can write code, but driving a live Unreal Editor session (scenes, assets, sequences, builds) needs a real protocol bridge, and the stock options cover too little.",
+    approach:
+      "A custom Model Context Protocol server for Unreal: a typed TypeScript toolset over the editor's automation surface, designed for agent workflows end to end.",
+    result:
+      "In active development and already driving real editor work day to day, with a broader toolset than the native integrations.",
+  },
+  {
     id: "couragely",
     title: "Couragely",
     role: "Solo build, Roblox horror",
@@ -75,19 +92,19 @@ export const projects: Project[] = [
     role: "Solo build, latest work",
     year: "2026",
     summary:
-      "A fantasy MMORPG in active development. Dedicated-server architecture is ready; PvP, PvE, inventory, ability, and combat frameworks are in progress.",
-    tech: ["Unreal Engine 5", "Dedicated Servers", "Ability System", "PvP & PvE", "Inventory", "Combat Framework"],
+      "A fantasy MMORPG with a playable prototype: dedicated-server architecture, custom combat framework, PvP, PvE, ability system, and inventory all working, now being expanded.",
+    tech: ["Unreal Engine 5", "Dedicated Servers", "Combat Framework", "PvP & PvE", "Ability System", "Inventory"],
     links: [],
-    badge: "IN DEV",
+    badge: "PLAYABLE",
     featured: true,
     shipped: false,
     media: "/projects/mmorpg.webp", // owner's top-down shot of the floating-island hub town
     problem:
       "Multiplayer at MMO scale is unforgiving: persistence, replication, and combat all have to hold up with many players in one world.",
     approach:
-      "Server architecture first, then data-driven frameworks on top: ability system, combat, inventory, and the PvP and PvE loops, built to scale before content fills them.",
+      "Server architecture first, then custom frameworks on top: combat, abilities, inventory, and the PvP and PvE loops, all data-driven and built to scale before content fills them.",
     result:
-      "Dedicated-server architecture is up and running; combat, ability, and inventory systems are in active development. Reveal to come.",
+      "A playable prototype is ready: core systems working end to end and now expanding toward a bigger world. Reveal to come.",
   },
   { id: "sasta-minecraft", title: "Sasta Minecraft", role: "Developer", year: "2023", summary: "A voxel sandbox experiment.", tech: ["Unreal Engine 5", "Systems"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1BkugwIClcTx4aLtK-34aaelw40YbYxDk/view?usp=drive_link" }] },
   { id: "env-design-2", title: "Environment Design 2.0", role: "Environment Artist", year: "2023", summary: "Real-time environment art in UE5.", tech: ["Unreal Engine 5", "Environment"], links: [{ label: "View", href: "https://drive.google.com/file/d/1hwlbVTwMOzlgakO_T6ooHetDxh7mE4JC/view?usp=drive_link" }] },

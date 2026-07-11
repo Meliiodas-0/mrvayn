@@ -7,7 +7,8 @@ export const proofChips: string[] = [
   "Unreal Engine 5 · gameplay, netcode, VFX",
   "CTO at Magadha Studios · building Antarya",
   "Antarya showcased at IGDC 2025",
-  "Fantasy MMORPG in development",
+  "Fantasy MMORPG · playable prototype",
+  "Custom MCP server for Unreal Engine",
   "Full-stack & AI product engineering",
   "3 products live in production",
 ];
@@ -22,7 +23,7 @@ export interface ImpactStat {
 export const impactStats: ImpactStat[] = [
   { value: "15+", label: "Person engineering team", context: "Led as CTO at Magadha Studios, heads-down on Antarya." },
   { value: "IGDC", label: "2025 showcase", context: "Antarya demoed on India's biggest game-dev stage." },
-  { value: "MMO", label: "In development", context: "Fantasy multiplayer: server architecture ready, combat, abilities, and inventory in progress." },
+  { value: "MMO", label: "Playable prototype", context: "Fantasy multiplayer: server architecture, custom combat, PvP, PvE, and inventory working, now expanding." },
   { value: "1st", label: "Round closed", context: "Magadha Studios is funded and focused on shipping." },
   { value: "3", label: "Products live", context: "A game, a storefront, and a studio site running in production." },
   { value: "7", label: "Days to ship", context: "Couragely, a solo Roblox horror experiment: 12K visits in two weeks." },
