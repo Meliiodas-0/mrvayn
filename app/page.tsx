@@ -8,8 +8,11 @@ import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
 import { ScrollSamurai } from "@/components/ScrollSamurai";
 import { About } from "@/components/sections/About";
+import { ProofTicker } from "@/components/sections/ProofTicker";
 import { Showreel } from "@/components/sections/Showreel";
 import { Work } from "@/components/sections/Work";
+import { Impact } from "@/components/sections/Impact";
+import { Manifesto } from "@/components/sections/Manifesto";
 import { Skills } from "@/components/sections/Skills";
 import { Timeline } from "@/components/sections/Timeline";
 import { Contact } from "@/components/sections/Contact";
@@ -34,11 +37,14 @@ export default function Home() {
 
       <main id="content" className="grain relative z-10">
         <Hero />
+        <ProofTicker />
         <About />
         <Showreel />
         <Work />
+        <Impact />
         <Skills />
         <Timeline />
+        <Manifesto />
         <Contact />
       </main>
 
