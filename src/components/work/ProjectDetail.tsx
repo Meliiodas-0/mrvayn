@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { X, ArrowUpRight, Lock } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X, ArrowUpRight, Lock, Play } from "lucide-react";
 import type { Project } from "@/data/projects";
 import { driveEmbed, driveThumb } from "@/lib/drive";
 import { Tag } from "@/components/ui/Tag";
@@ -24,11 +24,16 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
   const primaryHref = project.links[0]?.href;
   const embed = primaryHref ? driveEmbed(primaryHref) : null;
   const image = project.media || (primaryHref ? driveThumb(primaryHref, 1280) : null);
+  // The Drive iframe is a whole video player; loading it the instant the panel opens
+  // janks the entrance. Show the poster first and only mount the player on demand.
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const prevFocus = document.activeElement as HTMLElement | null;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // Let CSS pause the marquees/ghost drifts hidden behind the panel (globals.css).
+    document.documentElement.setAttribute("data-modal", "1");
     closeRef.current?.focus();
 
     const onKey = (e: KeyboardEvent) => {
@@ -47,6 +52,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
     return () => {
       document.removeEventListener("keydown", onKey, true);
       document.body.style.overflow = prevOverflow;
+      document.documentElement.removeAttribute("data-modal");
       prevFocus?.focus?.();
     };
   }, [onClose]);
@@ -55,7 +61,9 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
   // WebKit and could leave the dialog invisible; these only animate TOWARD visible.
   return (
     <div
-      className="mv-fade fixed inset-0 z-[90] flex items-end justify-center overflow-y-auto bg-void/80 backdrop-blur-sm sm:items-center"
+      // Plain dark overlay, NOT backdrop-blur: blurring the whole viewport re-renders every
+      // frame while the canvases animate behind it, which is what made the panel lag.
+      className="mv-fade fixed inset-0 z-[90] flex items-end justify-center overflow-y-auto bg-void/[0.92] sm:items-center"
       onClick={onClose}
     >
       <div
@@ -87,13 +95,26 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
 
         {/* media, pulled from the project's own links (Drive preview / thumbnail). */}
         <HudFrame scanlines className="mt-5 aspect-video w-full overflow-hidden bevel-sm">
-          {embed ? (
+          {embed && playing ? (
             <iframe
               src={embed}
               title={`${project.title} preview`}
               allow="autoplay"
               className="h-full w-full border-0"
             />
+          ) : embed ? (
+            <button
+              onClick={() => setPlaying(true)}
+              aria-label={`Play ${project.title} preview`}
+              className="group relative block h-full w-full"
+            >
+              <Thumb src={image} alt={`${project.title} preview`} />
+              <span className="absolute inset-0 grid place-items-center bg-void/30 transition-colors group-hover:bg-void/10">
+                <span className="grid h-14 w-14 place-items-center border border-bone/40 bg-void/70 text-bone transition-colors group-hover:border-surge group-hover:text-surge bevel-sm">
+                  <Play className="ml-0.5 h-6 w-6" />
+                </span>
+              </span>
+            </button>
           ) : image ? (
             <Thumb src={image} alt={`${project.title} preview`} />
           ) : (

@@ -70,6 +70,12 @@ html[data-scanlines="off"] .scanlines::after { display: none; }
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
+/* While a modal is open (ProjectDetail sets html[data-modal]), pause the marquees and
+   ghost drifts hidden behind it, no point compositing animation under an overlay. */
+html[data-modal] .mv-marquee,
+html[data-modal] .mv-ghost-a,
+html[data-modal] .mv-ghost-b,
+html[data-modal] .mv-ghost-c { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .mv-marquee, .mv-ghost-a, .mv-ghost-b, .mv-ghost-c { animation: none; }
   /* No auto-motion: let the frames be browsed by hand instead. */
