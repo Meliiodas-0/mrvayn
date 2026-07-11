@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { X, ArrowUpRight, Lock, Play } from "lucide-react";
 import type { Project } from "@/data/projects";
+import { reelFrames } from "@/data/showreel";
 import { driveEmbed, driveThumb } from "@/lib/drive";
 import { Tag } from "@/components/ui/Tag";
 import { HudFrame } from "@/components/ui/HudFrame";
@@ -23,7 +24,12 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
 
   const primaryHref = project.links[0]?.href;
   const embed = primaryHref ? driveEmbed(primaryHref) : null;
-  const image = project.media || (primaryHref ? driveThumb(primaryHref, 1280) : null);
+  // Preview chain: the project's own media, else its showreel still (real gameplay,
+  // beats Drive's junk first-frame poster), else a Drive thumbnail as a last resort.
+  const image =
+    project.media ||
+    reelFrames.find((f) => f.id === project.id)?.img ||
+    (primaryHref ? driveThumb(primaryHref, 1280) : null);
   // The Drive iframe is a whole video player; loading it the instant the panel opens
   // janks the entrance. Show the poster first and only mount the player on demand.
   const [playing, setPlaying] = useState(false);
