@@ -26,5 +26,5 @@ export const impactStats: ImpactStat[] = [
   { value: "MMO", label: "Playable prototype", context: "Fantasy multiplayer: server architecture, custom combat, PvP, PvE, and inventory working, now expanding." },
   { value: "1st", label: "Round closed", context: "Magadha Studios is funded and focused on shipping." },
   { value: "3", label: "Products live", context: "A game, a storefront, and a studio site running in production." },
-  { value: "7", label: "Days to ship", context: "Couragely, a solo Roblox horror experiment: 12K visits in two weeks." },
+  { value: "40x", label: "Faster editor iteration", context: "My custom Unreal MCP: 70+ tools and 23 workflow recipes turning hours of editor busywork into minutes." },
 ];
