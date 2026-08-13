@@ -12,10 +12,12 @@ export interface ReelFrame {
 
 // Preview stills pulled from each project's showcase video / media and baked into
 // /public/showreel/*.webp (viewport-cropped past the OBS/editor chrome + shadow-lifted;
-// see scratchpad extractors). Every project EXCEPT Grannyspot, the locked Multiplayer,
-// and Glazer Games. Ordered to alternate dark/bright builds so the marquee has rhythm.
+// see scratchpad extractors). Includes the flagship SAO-X (multiplayer-tba) and MagViz;
+// excludes Grannyspot and Glazer Games. Ordered to alternate dark/bright for rhythm.
 const REEL: { id: string; tag: string }[] = [
   { id: "antarya", tag: "Unreal Engine 5" },
+  { id: "multiplayer-tba", tag: "UE5 · MMORPG" },
+  { id: "magviz", tag: "UE5 · Archviz" },
   { id: "cgi-teaser", tag: "UE5 Cinematics" },
   { id: "env-design-2", tag: "Environment Art" },
   { id: "unreal-horror", tag: "UE5 · Horror" },
@@ -23,8 +25,6 @@ const REEL: { id: string; tag: string }[] = [
   { id: "couragely", tag: "Roblox · Horror" },
   { id: "first-target-shooting", tag: "UE5 · Gameplay" },
   { id: "env-design", tag: "Environment Art" },
-  { id: "rpg-prototype", tag: "RPG Systems" },
-  { id: "bharatverse", tag: "World Design" },
   { id: "techademy", tag: "Game Jam" },
   { id: "sasta-minecraft", tag: "Voxel Sandbox" },
 ];

@@ -1,24 +1,29 @@
 import type { ReactNode } from "react";
 
+type Fx = "up" | "left" | "right" | "pop" | "tilt" | "glass" | "deal-l" | "deal-r" | "flip";
+
 interface RevealProps {
   children: ReactNode;
   className?: string;
   delay?: number;
-  /** Slight skew-in for kinetic feel (NFS). */
+  /** Kept for API compat: skew maps to the "tilt" variant. */
   skew?: boolean;
+  /** Scroll-animation variant (v4): up | left | right | pop | tilt | glass. */
+  fx?: Fx;
 }
 
 /**
- * Fade + rise reveal via a PURE-CSS animation (`.mv-reveal` in globals.css), no
- * framer-motion. framer's animations don't apply on iOS WebKit and were leaving the
- * page blank; this only animates toward opacity 1 and the base state is visible, so
- * content can never stay hidden. Server-renderable, so the copy is in the SSR HTML.
- * Honors prefers-reduced-motion (keyframes only run under no-preference).
+ * v4 scroll reveal: server-renderable div tagged [data-sfx]; ScrollFx adds .sfx-in
+ * when it enters the viewport and the CSS variant plays once (stagger via delay).
+ * The base state is VISIBLE (never opacity:0 in markup), so content can never be
+ * left hidden if JS fails, the hard iOS lesson. Reduced-motion gated in CSS.
  */
-export function Reveal({ children, className, delay = 0, skew = false }: RevealProps) {
+export function Reveal({ children, className, delay = 0, skew = false, fx }: RevealProps) {
+  const variant: Fx = fx ?? (skew ? "tilt" : "up");
   return (
     <div
-      className={[skew ? "mv-reveal-skew" : "mv-reveal", className].filter(Boolean).join(" ")}
+      data-sfx={variant}
+      className={className}
       style={delay ? { animationDelay: `${delay}s` } : undefined}
     >
       {children}

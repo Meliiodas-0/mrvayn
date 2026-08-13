@@ -1,120 +1,121 @@
 import { ArrowRight, Mail } from "lucide-react";
 import { profile } from "@/data/profile";
+import { proofChips } from "@/data/impact";
 import { BevelButton } from "@/components/ui/BevelButton";
+import { RoleFlip } from "@/components/fx/RoleFlip";
+import { AnimatedRays } from "@/components/vendor/animated-rays";
 import { Reveal } from "@/components/motion/Reveal";
-import { HeroMachinery } from "@/components/HeroMachinery";
 
-// No framer-motion: its animations don't apply on iOS WebKit and were blanking the
-// hero. Content is plain + always visible (server-rendered into the HTML); the
-// entrance is the pure-CSS Reveal. No scroll-driven fade (it relied on framer).
+// Continuous flip roles (first one is the SSR text, so no-JS still reads correctly).
+const ROLES = [profile.role, "SAO-X · MMORPG Architect", "CTO at Magadha Studios", "Niagara VFX & Netcode"];
+
+// v3 hero: wide, asymmetric, engineered. Copy spans the left (cols 1-8) and ROG's
+// canvas occupies the right, overlapping the text's z-space. No decorative glows,
+// brackets, or machinery; the red-dim bleed behind ROG is the ONE glow allowed.
+// Server component; content is always in the SSR HTML (iOS-safe reveals).
 export function Hero() {
   return (
-    <section
-      id="hero"
-      className="scanlines relative flex min-h-screen flex-col overflow-hidden px-5 pb-10 pt-24 sm:pt-28"
-    >
-      {/* Glow under the wordmark (top-center). */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-[26%] -z-0 h-[40rem] w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 blur-[150px]"
-        style={{ background: "radial-gradient(circle, rgb(var(--surge)/0.8), rgb(var(--ion)/0.4) 46%, transparent 74%)" }}
-      />
-
-      {/* Refined machinery, solid monochrome gears framing both sides + embers. */}
-      <HeroMachinery />
-
-      {/* Low spectral horizon glow grounds ROG at center-bottom (cool, ethereal). */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-0"
-        style={{ background: "radial-gradient(85% 52% at 50% 112%, rgb(var(--ion)/0.12), rgb(var(--volt)/0.06) 42%, transparent 66%)" }}
-      />
-      {/* Vignette pulls focus inward + tones the gears down at the edges. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-0"
-        style={{ background: "radial-gradient(120% 100% at 50% 32%, transparent 48%, rgb(var(--void)/0.62) 100%)" }}
-      />
-
-      {/* Corner brackets framing the viewport. */}
-      <span aria-hidden className="pointer-events-none absolute left-4 top-[4.5rem] h-7 w-7 border-l-2 border-t-2 border-surge/40" />
-      <span aria-hidden className="pointer-events-none absolute right-4 top-[4.5rem] h-7 w-7 border-r-2 border-t-2 border-surge/40" />
-      <span aria-hidden className="pointer-events-none absolute bottom-9 left-4 h-7 w-7 border-b-2 border-l-2 border-surge/40" />
-      <span aria-hidden className="pointer-events-none absolute bottom-9 right-4 h-7 w-7 border-b-2 border-r-2 border-surge/40" />
-
-      {/* Left rail, operator spec, flanking the center (wide screens only). */}
-      <div
-        data-solid
-        className="absolute left-7 top-1/2 z-10 hidden -translate-y-1/2 flex-col gap-7 border-l border-steel/60 pl-5 xl:flex"
-      >
-        {profile.specialties.slice(0, 3).map((s) => (
-          <div key={s.label}>
-            <div className="font-display text-2xl font-black uppercase leading-none text-bone">{s.value}</div>
-            <div className="mt-1.5 font-hud text-[0.58rem] uppercase tracking-[0.24em] text-mist">{s.label}</div>
-          </div>
-        ))}
+    <section id="hero" className="relative flex min-h-screen flex-col justify-center overflow-hidden pb-20 pt-28">
+      {/* VengenceUI AnimatedRays: soft aurora stripes behind the composition */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.32]">
+        <AnimatedRays className="h-full w-full" />
       </div>
 
-      {/* Right rail, status / signal, flanking the center (wide screens only). */}
-      <div
-        data-solid
-        className="absolute right-7 top-1/2 z-10 hidden -translate-y-1/2 flex-col items-end gap-6 border-r border-steel/60 pr-5 text-right xl:flex"
-      >
-        <div className="flex items-center gap-2 font-hud text-[0.62rem] uppercase tracking-[0.22em] text-volt">
-          Open to work
-          <span aria-hidden className="h-1.5 w-1.5 animate-pulse rounded-full bg-volt shadow-[0_0_8px_0] shadow-volt motion-reduce:animate-none" />
+      <div className="relative mx-auto w-[min(1440px,100%-clamp(32px,6vw,128px))]">
+        <div className="grid grid-cols-12">
+          <div className="col-span-12 lg:col-span-8">
+            {/* glass identity pill with the cycling role */}
+            <Reveal>
+              <span className="glass inline-flex items-center gap-2.5 rounded-full px-4 py-2 font-hud text-[0.8125rem] uppercase text-surge">
+                <span aria-hidden className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-ion" />
+                <RoleFlip words={ROLES} />
+              </span>
+            </Reveal>
+
+            <Reveal delay={0.08}>
+              <div className="relative mt-6">
+                {/* ghost echo behind the wordmark for depth (outline, no new colors) */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -top-[0.52em] left-[0.02em] select-none font-display font-semibold uppercase leading-none text-transparent"
+                  style={{ fontSize: "clamp(4.5rem, 11vw, 10.5rem)", WebkitTextStroke: "1px rgb(var(--steel))", opacity: 0.7 }}
+                >
+                  MRVAYN
+                </span>
+                <h1
+                  data-solid
+                  aria-label="MrVayn"
+                  className="relative font-display font-semibold uppercase leading-[0.9] text-bone"
+                  style={{ fontSize: "clamp(3.5rem, 8.5vw, 8rem)" }}
+                >
+                  {"MrVayn".split("").map((c, i) => (
+                    <span key={i} aria-hidden className="ltr" style={{ animationDelay: `${0.12 + i * 0.05}s` }}>
+                      {c}
+                    </span>
+                  ))}
+                </h1>
+                {/* the red slab: the signature mark under the name */}
+                <span aria-hidden className="mt-4 block h-2.5 w-[34%] max-w-[240px] bg-ion" />
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.16}>
+              <p data-solid className="mt-7 max-w-[65ch] font-sans text-base leading-[1.7] text-mist lg:max-w-xl">
+                {profile.thesis}
+              </p>
+            </Reveal>
+
+            <Reveal delay={0.24}>
+              <div data-solid className="mt-8 flex flex-wrap items-center gap-3">
+                <BevelButton href="#loadout" variant="primary" className="max-sm:w-full">
+                  View work
+                  <ArrowRight className="h-4 w-4" />
+                </BevelButton>
+                <BevelButton href={profile.emailHref} variant="ghost" className="max-sm:w-full">
+                  <Mail className="h-4 w-4" />
+                  Get in touch
+                </BevelButton>
+              </div>
+            </Reveal>
+
+            {/* glass meta strip: the operator readout in the data voice */}
+            <Reveal delay={0.3}>
+              <div data-solid className="glass mt-12 inline-flex max-w-full flex-wrap items-center gap-x-8 gap-y-3 rounded-lg px-5 py-3.5 font-mono text-[0.8125rem] uppercase text-volt">
+                {profile.specialties.slice(0, 3).map((s) => (
+                  <span key={s.label} className="whitespace-nowrap">
+                    <span className="text-bone">{s.value}</span> {s.label}
+                  </span>
+                ))}
+                <span className="inline-flex items-center gap-2 whitespace-nowrap">
+                  <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-ion" />
+                  Open to work
+                </span>
+              </div>
+            </Reveal>
+          </div>
+          {/* cols 9-12: ROG's canvas (fixed right by ScrollSamurai) owns this space */}
         </div>
-        <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-mist/80">Est. 2019</div>
-        <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-mist/80">Delhi · IN</div>
-        <div className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-surge/80">IGDC &apos;25</div>
       </div>
 
-      {/* ===== Compact centered content, the ronin owns center-bottom ===== */}
-      {/* lg+: nudged down so the copy sits closer to ROG (less empty gap above him). */}
-      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center lg:mt-[4vh]">
-        <Reveal>
-          <span className="inline-flex items-center gap-2.5 font-hud text-[0.7rem] uppercase tracking-[0.34em] text-surge max-sm:text-[0.6rem] max-sm:tracking-[0.2em]">
-            <span aria-hidden className="inline-block h-1.5 w-1.5 bg-surge" />
-            {profile.role}
-          </span>
-        </Reveal>
-
-        <Reveal delay={0.08}>
-          <h1
-            data-solid
-            className="mt-4 font-anton uppercase leading-[0.8] text-bone text-glow-surge"
-            style={{ fontSize: "clamp(3.5rem, 10vw, 8.5rem)" }}
-          >
-            MrVayn
-          </h1>
-          <span aria-hidden className="mx-auto mt-4 block h-[2px] w-2/3 max-w-sm bg-gradient-to-r from-transparent via-surge to-transparent" />
-        </Reveal>
-
-        <Reveal delay={0.16}>
-          <p data-solid className="mx-auto mt-5 max-w-xl font-sans text-sm leading-relaxed text-mist sm:text-base">{profile.thesis}</p>
-        </Reveal>
-
-        <Reveal delay={0.24}>
-          <div data-solid className="mt-6 flex w-full flex-wrap items-center justify-center gap-3 sm:w-auto">
-            <BevelButton href="#loadout" variant="primary" className="max-sm:w-full">
-              View work
-              <ArrowRight className="h-4 w-4" />
-            </BevelButton>
-            <BevelButton href={profile.emailHref} variant="ghost" className="max-sm:w-full">
-              <Mail className="h-4 w-4" />
-              Get in touch
-            </BevelButton>
-          </div>
-        </Reveal>
-      </div>
-
-      {/* Scroll hint pinned bottom-center, above the ronin's grounding glow. */}
+      {/* scroll hint on the bottom rule */}
       <a
         href="#operator"
-        className="pointer-events-auto absolute bottom-5 left-1/2 z-10 -translate-x-1/2 font-mono text-[0.62rem] uppercase tracking-[0.35em] text-mist/45 transition-colors hover:text-surge"
+        className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 font-mono text-[0.8125rem] uppercase text-volt transition-colors duration-200 ease-snap hover:text-surge"
       >
         Scroll ↓
       </a>
+
+      {/* ambient proof strip: slow continuous marquee in the data voice */}
+      <div className="absolute inset-x-0 bottom-0 overflow-hidden border-t border-steel bg-bg1/60 max-sm:hidden">
+        <ul className="mv-marquee mv-marquee--slow flex w-max items-center gap-10 py-3 font-mono text-[11px] uppercase text-volt">
+          {[...proofChips, ...proofChips].map((chip, i) => (
+            <li key={`${chip}-${i}`} aria-hidden={i >= proofChips.length} className="flex shrink-0 items-center gap-10 whitespace-nowrap">
+              <span aria-hidden className="text-surge">◆</span>
+              {chip}
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }

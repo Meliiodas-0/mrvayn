@@ -5,7 +5,7 @@ import { Reveal } from "@/components/motion/Reveal";
 
 export function Timeline() {
   return (
-    <SectionShell id="timeline" eyebrow="Timeline" title="Trajectory">
+    <SectionShell id="timeline" eyebrow="Journey" title="Trajectory" index="05" alt>
       <ol className="relative space-y-5 before:absolute before:bottom-2 before:left-[0.6rem] before:top-2 before:w-px before:bg-steel sm:before:left-[0.7rem]">
         {experience.map((e, i) => (
           <Reveal key={`${e.year}-${e.title}`} delay={(i % 4) * 0.05}>
@@ -19,7 +19,7 @@ export function Timeline() {
               </span>
               <Panel className="p-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h3 className="font-display text-lg font-black uppercase text-bone">{e.title}</h3>
+                  <h3 className="font-display text-lg font-semibold uppercase text-bone">{e.title}</h3>
                   <span className="font-mono text-[0.7rem] uppercase tracking-widest text-mist">{e.year}</span>
                 </div>
                 <p className="mt-0.5 font-hud text-xs uppercase tracking-wide text-surge/80">{e.org}</p>
@@ -35,7 +35,7 @@ export function Timeline() {
         <Reveal>
           <Panel edge className="h-full p-5 sm:p-6">
             <h3 className="font-hud text-xs uppercase tracking-[0.22em] text-surge">Education</h3>
-            <p className="mt-4 font-display text-lg font-black uppercase leading-tight text-bone">{education.degree}</p>
+            <p className="mt-4 font-display text-lg font-semibold uppercase leading-tight text-bone">{education.degree}</p>
             <p className="mt-1 font-hud text-xs uppercase tracking-wide text-mist">{education.org}</p>
             <p className="mt-1 font-mono text-[0.7rem] uppercase tracking-widest text-mist/70">{education.year}</p>
           </Panel>

@@ -3,10 +3,18 @@
   "short_name": "MrVayn",
   "description": "AAA-caliber game feel in Unreal Engine 5, plus full-stack web apps with Next.js and TypeScript.",
   "icons": [
-    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
-    { "src": "/favicon.png", "type": "image/png", "sizes": "1024x1024" }
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "1024x1024"
+    }
   ],
-  "theme_color": "#08090C",
-  "background_color": "#08090C",
+  "theme_color": "#F0F2F6",
+  "background_color": "#F0F2F6",
   "display": "standalone"
 }

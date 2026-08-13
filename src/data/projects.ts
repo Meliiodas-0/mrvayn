@@ -21,6 +21,8 @@ export interface Project {
   shipped?: boolean;
   /** Path under /public, TODO(MrVayn): replace placeholder media. */
   media?: string;
+  /** Optional local video clip (under /public), plays in the detail panel. */
+  clip?: string;
   /** Case study (shown in the detail panel). TODO(MrVayn): real copy. */
   problem?: string;
   approach?: string;
@@ -50,21 +52,21 @@ export const projects: Project[] = [
   },
   {
     id: "ue-mcp",
-    title: "Unreal Engine MCP",
-    role: "Creator, dev tooling",
+    title: "UE MCP Conductor",
+    role: "Creator, autonomous AI tooling",
     year: "2026",
     summary:
-      "A custom MCP server that lets AI agents drive the Unreal Editor: scene control, asset pipelines, and editor automation with a deeper toolset than the stock integrations.",
-    tech: ["MCP", "TypeScript", "Unreal Engine", "AI Agents", "Editor Automation"],
+      "Autonomous AI tooling for Unreal Engine: it auto-detects the connected MCP servers and routes any UE task to the best available tool, C++, Blueprints, Niagara, materials, Control Rig, animation, PCG, lighting, UMG, Sequencer, GAS, physics, multiplayer, profiling, packaging, even Blender.",
+    tech: ["AI Agents", "MCP", "TypeScript", "Python", "Unreal Engine 5.8 / 5.6", "Blender"],
     links: [],
     badge: "IN DEV",
     media: "/projects/ue-mcp.webp", // owner's screenshot of the branded app
     problem:
-      "AI assistants can write code, but driving a live Unreal Editor session (scenes, assets, sequences, builds) needs a real protocol bridge, and the stock options cover too little.",
+      "No single MCP server covers all of Unreal, and picking the right one per task (and per engine version) by hand is slow and error-prone, one wrong tool call can corrupt a live editor session.",
     approach:
-      "A custom Model Context Protocol server for Unreal: a typed TypeScript toolset over the editor's automation surface, designed for agent workflows end to end.",
+      "A Claude Code skill that auto-detects the connected MCP servers and routes each request to the best tool, version-aware across UE 5.8 and 5.6, with fallback ladders when a server is down and anti-hallucination, production-safety rules on top.",
     result:
-      "In active development and already driving real editor work day to day, with a broader toolset than the native integrations.",
+      "One command surface over the whole engine: 70+ tools and 23 workflow recipes, turning hours of editor busywork into minutes and driving real day-to-day work.",
   },
   {
     id: "couragely",
@@ -89,23 +91,45 @@ export const projects: Project[] = [
   { id: "unreal-horror", title: "Unreal Horror Game", role: "Developer", year: "2023", summary: "An atmospheric horror prototype in Unreal Engine 5.", tech: ["Unreal Engine 5", "Horror"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1X1QuGVAsIcP6mcX-Q5LFw_Sr0XxBt8Xb/view?usp=sharing" }] },
   {
     id: "multiplayer-tba",
-    title: "Fantasy MMORPG",
-    role: "Solo build, latest work",
+    title: "SAO-X · Skill Art Online",
+    role: "Solo build, personal",
     year: "2026",
     summary:
-      "A fantasy MMORPG with a playable prototype: dedicated-server architecture, custom combat framework, PvP, PvE, ability system, and inventory all working, now being expanded.",
-    tech: ["Unreal Engine 5", "Dedicated Servers", "Combat Framework", "PvP & PvE", "Ability System", "Inventory"],
+      "A multiplayer action RPG on Unreal Engine 5.8 and the Gameplay Ability System: UMG inventory, player-to-player trading, PvP zones, and a behavior-tracked “Awakening Diagnosis” that reads how you play to place you in one of 6 races. Backed by a dedicated Docker stack running 100 concurrent players per server instance.",
+    tech: ["Unreal Engine 5.8", "C++", "GAS", "Dedicated Server", "Docker", "PostgreSQL", "Redis", "NATS", "JWT Auth"],
     links: [],
     badge: "PLAYABLE",
     featured: true,
     shipped: false,
-    media: "/projects/mmorpg.webp", // owner's top-down shot of the floating-island hub town
+    media: "/projects/saox.webp", // hero still: ability-cast combat beat (own gameplay capture)
+    clip: "/projects/saox.mp4", // ~9s combat exchange ending on the ability burst
     problem:
-      "Multiplayer at MMO scale is unforgiving: persistence, replication, and combat all have to hold up with many players in one world.",
+      "Action-RPG combat at MMO scale is unforgiving: abilities, trading, PvP, and persistence all have to stay authoritative and in sync with many players sharing one world.",
     approach:
-      "Server architecture first, then custom frameworks on top: combat, abilities, inventory, and the PvP and PvE loops, all data-driven and built to scale before content fills them.",
+      "Built on Unreal's Gameplay Ability System with a C++ core, then a dedicated backend on Docker (Postgres, Redis, NATS) and JWT auth with handoff tokens for clean server transfers. Player behavior is tracked into an “Awakening Diagnosis” that assigns one of 6 races.",
     result:
-      "A playable prototype is ready: core systems working end to end and now expanding toward a bigger world. Reveal to come.",
+      "A playable build: inventory, trading, PvP zones, and the ability system working end to end at 100 concurrent players per instance, now expanding toward a bigger world.",
+  },
+  {
+    id: "magviz",
+    title: "MagViz",
+    role: "Creator, Vayn Studios (commercial)",
+    year: "2026",
+    summary:
+      "A real-time archviz sales tool built in Unreal Engine 5.8 and C++: it turns an architect's CAD model into a standalone, offline app, fly-through and first-person walk, clickable apartments with live pricing and availability, floor-by-floor section cuts, swappable facade finishes, and dynamic time-of-day.",
+    tech: ["Unreal Engine 5.8", "C++", "Datasmith / FBX", "Lumen GI", "UMG", "Windows Build"],
+    links: [],
+    badge: "COMMERCIAL",
+    featured: true,
+    shipped: true,
+    media: "/projects/magviz.webp", // hero still: dusk aerial with the live tool UI (own capture)
+    clip: "/projects/magviz.mp4", // ~9s aerial with the live time-of-day cycle
+    problem:
+      "Selling an unbuilt development off static renders and a PDF price list is flat, buyers can't explore the building, see what's still available, or picture it at a different time of day.",
+    approach:
+      "A real-time UE 5.8 + C++ app: Datasmith/FBX ingest of the architect's model, dynamic Lumen GI, and a UMG layer for fly-through/walk, clickable per-unit pricing and availability, section cuts, finish swaps, and time-of-day, packaged as a standalone Windows build that runs offline.",
+    result:
+      "An interactive sales tool a developer can hand a buyer on a laptop with no internet, sold commercially through Vayn Studios.",
   },
   { id: "sasta-minecraft", title: "Sasta Minecraft", role: "Developer", year: "2023", summary: "A voxel sandbox experiment.", tech: ["Unreal Engine 5", "Systems"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1BkugwIClcTx4aLtK-34aaelw40YbYxDk/view?usp=drive_link" }] },
   { id: "env-design-2", title: "Environment Design 2.0", role: "Environment Artist", year: "2023", summary: "Real-time environment art in UE5.", tech: ["Unreal Engine 5", "Environment"], links: [{ label: "View", href: "https://drive.google.com/file/d/1hwlbVTwMOzlgakO_T6ooHetDxh7mE4JC/view?usp=drive_link" }] },
@@ -113,9 +137,7 @@ export const projects: Project[] = [
   { id: "techademy", title: "Techademy", role: "Hackathon", year: "2023", summary: "A hackathon build.", tech: ["Game Jam", "Rapid Prototype"], links: [{ label: "View", href: "https://drive.google.com/file/d/1acw_QwxZmLBwmQIKrSJf6_nW2ozH77vk/view?usp=sharing" }] },
   { id: "first-target-shooting", title: "First Target Shooting Game", role: "Developer", year: "2022", summary: "An early target/aim shooting prototype.", tech: ["Unreal Engine 5", "Gameplay"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1de3noEKBFLNmfWG58Uw-CHItLTLSuL4S/view?usp=drive_link" }] },
   { id: "cgi-teaser", title: "CGI Animated Teaser", role: "VFX / CGI", year: "2023", summary: "A cinematic CGI teaser produced in UE5.", tech: ["UE5 Cinematics", "Sequencer", "VFX"], links: [{ label: "View", href: "https://drive.google.com/drive/folders/1D7sYdJ2a0RIfLjLvWnXD1F4m0ldMqFJW?usp=drive_link" }] },
-  { id: "rpg-prototype", title: "RPG Game Prototype", role: "Developer", year: "2023", summary: "An RPG systems prototype.", tech: ["Unreal Engine 5", "RPG Systems"], links: [{ label: "View", href: "https://drive.google.com/drive/folders/1WuzkMKut5wKKHKTDJ9IC5vR8q_y1sL5z" }] },
   { id: "glazer-site", title: "Glazer Games Website", role: "Web Developer", year: "2023", summary: "Production website for Glazer Games.", tech: ["Web", "Frontend"], links: [{ label: "Visit", href: "https://www.glazer.games" }], media: "/projects/glazer-site.webp" },
-  { id: "bharatverse", title: "Bharatverse", role: "Developer", year: "2023", summary: "A concept/world-building project.", tech: ["Unreal Engine 5", "World Design"], links: [{ label: "View", href: "https://drive.google.com/file/d/11bqGKg3IUZTWWNw6ofC_pv7yLPN8nxPu/view" }] },
   {
     id: "grannyspot",
     title: "Grannyspot",

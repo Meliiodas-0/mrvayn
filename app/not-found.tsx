@@ -7,7 +7,7 @@ export default function NotFound() {
     <main className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
       <p className="font-hud uppercase tracking-[0.35em] text-surge text-xs sm:text-sm">Error // 404</p>
       <h1
-        className="font-display font-black uppercase text-bone leading-[0.92]"
+        className="font-display font-semibold uppercase text-bone leading-[0.92]"
         style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
       >
         Signal lost

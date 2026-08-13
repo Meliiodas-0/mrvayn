@@ -1,14 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Chakra_Petch, Inter, JetBrains_Mono, Anton } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-// Headlines, Archivo (variable; used heavy/expanded). Hero word alt, Anton.
-const archivo = Archivo({ subsets: ["latin"], variable: "--font-archivo", display: "swap" });
-const anton = Anton({ subsets: ["latin"], weight: "400", variable: "--font-anton", display: "swap" });
-// HUD / labels, Chakra Petch. Body, Inter. Mono, JetBrains Mono.
-const chakra = Chakra_Petch({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-chakra", display: "swap" });
+// DESIGN SYSTEM v3, three voices: Space Grotesk 600 (h1/h2 only), Inter (body),
+// JetBrains Mono (ALL meta: labels, years, tags, stats, nav, footer).
+const grotesk = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-grotesk", display: "swap" });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], weight: ["400"], variable: "--font-jetbrains", display: "swap" });
 
 const SITE = "https://mrvayn.live";
 const TITLE = "MrVayn | Unreal Engine & Full-Stack Developer";
@@ -105,8 +103,8 @@ const structuredData = [
 ];
 
 export const viewport: Viewport = {
-  themeColor: "#08090C",
-  colorScheme: "dark",
+  themeColor: "#F0F2F6",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -115,7 +113,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       data-grain="off"
       data-scanlines="off"
-      className={`${archivo.variable} ${anton.variable} ${chakra.variable} ${inter.variable} ${jetbrains.variable}`}
+      className={`${grotesk.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body className="font-sans antialiased">
         {children}

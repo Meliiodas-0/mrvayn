@@ -19,12 +19,12 @@ export const profile = {
   specialties: [
     { value: "6+", label: "Years building" },
     { value: "UE5", label: "Primary engine" },
-    { value: "14+", label: "Builds & prototypes" },
+    { value: "15+", label: "Builds & prototypes" },
     { value: "IGDC", label: "Showcased 2025" },
   ],
 
   // Core disciplines, used by the About section's second container.
-  // Intentionally NOT the hero stats (6+/UE5/14+/IGDC) so nothing repeats.
+  // Intentionally NOT the hero stats (6+/UE5/15+/IGDC) so nothing repeats.
   // Spans both résumés: UE5 game dev + full-stack web + AI.
   capabilities: [
     "UE5 gameplay systems & frameworks",

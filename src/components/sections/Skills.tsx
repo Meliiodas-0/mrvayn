@@ -4,14 +4,14 @@ import { Reveal } from "@/components/motion/Reveal";
 
 export function Skills() {
   return (
-    <SectionShell id="arsenal" eyebrow="Arsenal" title="Tech stack">
+    <SectionShell id="arsenal" eyebrow="Skills" title="Tech stack" index="04">
       <div className="border-t border-steel/60">
         {skillGroups.map((group, i) => (
           <Reveal key={group.label} delay={(i % 4) * 0.05}>
             <div className="grid items-start gap-x-10 gap-y-3 border-b border-steel/60 py-6 transition-colors hover:bg-steel/[0.06] sm:grid-cols-[minmax(0,15rem)_1fr] sm:py-7">
               <div className="flex items-baseline gap-3">
                 <span className="font-mono text-xs tabular-nums text-surge/80">{String(i + 1).padStart(2, "0")}</span>
-                <h3 className="font-display text-base font-black uppercase tracking-wide text-bone sm:text-lg">{group.label}</h3>
+                <h3 className="font-display text-base font-semibold uppercase tracking-wide text-bone sm:text-lg">{group.label}</h3>
               </div>
               <ul className="flex flex-wrap gap-2">
                 {group.items.map((item) => (

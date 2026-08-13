@@ -5,13 +5,16 @@ import { Reveal } from "@/components/motion/Reveal";
 
 export function About() {
   return (
-    <SectionShell id="operator" eyebrow="Operator file" title="About">
-      <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <Reveal>
-          <Panel edge className="h-full p-6 sm:p-8">
+    <SectionShell id="operator" eyebrow="About" title="About" index="01" alt>
+      {/* v3 asymmetry: text cols 1-6, disciplines cols 8-12 */}
+      <div className="grid gap-6 lg:grid-cols-12">
+        <Reveal fx="left" className="lg:col-span-7">
+          <Panel edge className="relative h-full overflow-hidden p-6 sm:p-8">
+            {/* ROG's scan beam sweeps the operator file once as it reveals */}
+            <span aria-hidden className="scan-beam pointer-events-none absolute inset-y-0 left-0 w-[2px] bg-surge/70" />
             <div className="flex items-center justify-between border-b border-steel/70 pb-4">
               <div>
-                <p className="font-display text-xl font-black uppercase text-bone">{profile.name}</p>
+                <p className="font-display text-xl font-semibold uppercase text-bone">{profile.name}</p>
                 <p className="font-hud text-xs uppercase tracking-[0.2em] text-surge/80">{profile.role}</p>
               </div>
               <span className="flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-widest text-mist">
@@ -23,7 +26,7 @@ export function About() {
           </Panel>
         </Reveal>
 
-        <Reveal delay={0.1}>
+        <Reveal fx="right" delay={0.12} className="lg:col-span-5 lg:col-start-8">
           <Panel className="h-full p-6 sm:p-8">
             <p className="font-hud text-xs uppercase tracking-[0.25em] text-mist">Core disciplines</p>
             <ul className="mt-6 space-y-px">

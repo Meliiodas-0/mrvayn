@@ -7,8 +7,9 @@ export const proofChips: string[] = [
   "Unreal Engine 5 · gameplay, netcode, VFX",
   "CTO at Magadha Studios · building Antarya",
   "Antarya showcased at IGDC 2025",
-  "Fantasy MMORPG · playable prototype",
-  "Custom MCP server for Unreal Engine",
+  "SAO-X · playable multiplayer RPG",
+  "MagViz · real-time archviz, sold commercially",
+  "UE MCP Conductor · autonomous AI tooling",
   "Full-stack & AI product engineering",
   "3 products live in production",
 ];
@@ -23,7 +24,7 @@ export interface ImpactStat {
 export const impactStats: ImpactStat[] = [
   { value: "15+", label: "Person engineering team", context: "Led as CTO at Magadha Studios, heads-down on Antarya." },
   { value: "IGDC", label: "2025 showcase", context: "Antarya demoed on India's biggest game-dev stage." },
-  { value: "MMO", label: "Playable prototype", context: "Fantasy multiplayer: server architecture, custom combat, PvP, PvE, and inventory working, now expanding." },
+  { value: "MMO", label: "Playable prototype", context: "SAO-X, a multiplayer action RPG: GAS combat, trading, PvP, and inventory working at 100 players per instance." },
   { value: "1st", label: "Round closed", context: "Magadha Studios is funded and focused on shipping." },
   { value: "3", label: "Products live", context: "A game, a storefront, and a studio site running in production." },
   { value: "40x", label: "Faster editor iteration", context: "My custom Unreal MCP: 70+ tools and 23 workflow recipes turning hours of editor busywork into minutes." },

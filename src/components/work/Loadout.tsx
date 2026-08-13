@@ -14,23 +14,31 @@ export function Loadout({ featured, others }: { featured: Project[]; others: Pro
 
   return (
     <>
-      <div className="grid gap-6 sm:grid-cols-2">
-        {featured.map((p, i) => (
-          <Reveal key={p.id} delay={i * 0.08} skew>
-            <ProjectTile project={p} featured onSelect={() => setSelected(p)} />
-          </Reveal>
-        ))}
+      {/* v3 asymmetry: featured items span 7 and 5 columns, alternating; a lone
+          trailing tile (odd count) spans the full row so nothing is left dangling. */}
+      <div className="grid gap-6 lg:grid-cols-12">
+        {featured.map((p, i) => {
+          const lastOdd = i === featured.length - 1 && featured.length % 2 === 1;
+          const span = lastOdd ? "lg:col-span-12" : i % 2 === 0 ? "lg:col-span-7" : "lg:col-span-5";
+          return (
+            <Reveal key={p.id} delay={i * 0.06} fx={i % 2 === 0 ? "deal-l" : "deal-r"} className={span}>
+              {/* tilt-card: FxLayer drives a +-4deg cursor tilt on featured tiles */}
+              <div className="tilt-card h-full">
+                <ProjectTile project={p} featured onSelect={() => setSelected(p)} />
+              </div>
+            </Reveal>
+          );
+        })}
       </div>
 
-      <div className="my-12 flex items-center gap-5">
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-steel to-transparent" />
-        <span className="font-hud text-xs uppercase tracking-[0.3em] text-mist">More builds</span>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-steel to-transparent" />
+      <div className="my-12 flex items-center gap-5 border-t border-steel pt-0">
+        {/* concrete section ground (matches SectionShell) so the border rule is masked behind the label, not drawn through it */}
+        <span className="-translate-y-1/2 pr-2 font-mono text-[0.8125rem] uppercase text-volt" style={{ backgroundColor: "rgb(var(--void) / 0.86)" }}>More builds</span>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="dim-grid grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
         {others.map((p, i) => (
-          <Reveal key={p.id} delay={(i % 3) * 0.06}>
+          <Reveal fx="flip" key={p.id} delay={(i % 4) * 0.07}>
             {/* Faded showreel still behind each tile (projects without a frame just stay flat). */}
             <ProjectTile project={p} bg={reelFrames.find((f) => f.id === p.id)?.img ?? null} onSelect={() => setSelected(p)} />
           </Reveal>

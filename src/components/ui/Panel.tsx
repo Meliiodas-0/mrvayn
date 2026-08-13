@@ -1,21 +1,25 @@
 import { cn } from "@/lib/cn";
 
 interface PanelProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** Show the signature 2px surge edge on the left. */
+  /** Show the signature 2px red edge on the left. */
   edge?: boolean;
-  /** Smaller bevel for compact panels. */
+  /** Card hover treatment (v3): bg-3, line-2 border, red left edge, -2px lift, 200ms. */
+  interactive?: boolean;
+  /** Kept for API compat; v3 cards share one radius. */
   compact?: boolean;
 }
 
-/** Carbon panel with the signature bevel + steel border (DESIGN_SYSTEM §4). */
-export function Panel({ className, edge = false, compact = false, children, ...props }: PanelProps) {
+/** v3 card: bg-2, 1px line-1 hairline, 4px radius, sharp and instrument-like. */
+export function Panel({ className, edge = false, interactive = false, compact: _c, children, ...props }: PanelProps) {
   return (
     <div
       data-solid
       className={cn(
-        // ~10% translucent so the ROG figure behind the page faintly ghosts through; still 90% solid.
-        "relative bevel border border-steel bg-carbon/90",
-        compact && "bevel-sm",
+        // v4 glass card (blur + inner light edge); ROG ghosts through the glass.
+        // spot-card = cursor spotlight (FxLayer).
+        "spot-card glass relative overflow-hidden rounded-lg",
+        interactive &&
+          "transition-[background-color,border-color,transform,box-shadow] duration-200 ease-snap hover:-translate-y-[2px] hover:border-line2 hover:bg-[rgba(236,240,247,0.8)]",
         className,
       )}
       {...props}

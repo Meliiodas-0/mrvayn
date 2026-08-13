@@ -13,8 +13,8 @@ export function Manifesto() {
           <p className="font-hud text-xs uppercase tracking-[0.3em] text-surge">Directive</p>
           <h2
             data-solid
-            className="mx-auto mt-6 font-display font-black uppercase leading-[0.95] text-bone"
-            style={{ fontSize: "clamp(2.6rem, 7vw, 5.5rem)", fontStretch: "expanded" }}
+            className="mx-auto mt-6 font-display font-semibold uppercase leading-[0.95] text-bone"
+            style={{ fontSize: "clamp(2.6rem, 7vw, 5.5rem)" }}
           >
             Build. Ship. <span className="text-glow-surge text-surge">Repeat.</span>
           </h2>

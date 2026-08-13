@@ -25,10 +25,11 @@ export function ProjectTile({
   const inner = (
     <Panel
       edge={featured}
+      interactive={!project.locked}
       className={cn(
-        "group flex h-full flex-col overflow-hidden transition-colors duration-300",
+        "group flex h-full flex-col overflow-hidden",
         featured ? "p-6 sm:p-8" : "p-5",
-        project.locked ? "opacity-60" : "hover:border-surge/40",
+        project.locked && "opacity-60",
       )}
     >
       {/* Faded project still behind compact tiles; the gradient keeps the text readable. */}
@@ -46,8 +47,8 @@ export function ProjectTile({
         </>
       )}
       {featured && (
-        <div className="relative mb-5 aspect-video w-full overflow-hidden border border-steel bevel-sm">
-          <Thumb src={projectThumb(project.media, project.links)} alt={`${project.title} preview`} />
+        <div className="wipe-in relative mb-5 aspect-video w-full overflow-hidden rounded border border-steel">
+          <Thumb src={projectThumb(project.media, project.links)} alt={`${project.title} preview`} className="transition-transform duration-500 ease-out3 group-hover:scale-[1.03]" />
           <span aria-hidden className="scanlines pointer-events-none absolute inset-0" />
         </div>
       )}
@@ -65,7 +66,7 @@ export function ProjectTile({
 
       <h3
         className={cn(
-          "mt-4 font-display font-black uppercase leading-none text-bone transition-colors group-hover:text-surge",
+          "mt-4 font-display font-semibold uppercase leading-none text-bone transition-colors group-hover:text-surge",
           featured ? "text-2xl sm:text-3xl" : "text-lg",
         )}
       >

@@ -2,20 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== OVERDRIVE tokens (docs/DESIGN_SYSTEM.md), RGB channels for alpha ===== */
+/* ===== DESIGN SYSTEM v3 tokens: one hue family (cool graphite), one signal (red).
+   Legacy var names stay (the whole tree reads them) but carry v3 values:
+   void=bg-0, carbon=bg-2 (cards), steel=line-1, mist=fg-2, bone=fg-1,
+   surge=red-hi (text/border/icon red ONLY), ion=red (solid fills ONLY), volt=fg-3. */
 :root {
-  /* default theme = "Ghost" (monochrome). ThemeControl overrides these at
-     runtime; presets live in src/data/themes.ts (keep this in sync with the
-     "mono" preset there). */
-  --void: 8 9 12;
-  --carbon: 16 18 22;
-  --steel: 30 33 40;
-  --mist: 140 146 158;
-  --bone: 236 240 248;
-  --surge: 226 232 244; /* primary accent */
-  --volt: 150 160 180; /* secondary */
-  --ion: 108 118 140; /* tertiary */
-  --bevel: 14px; /* signature clipped-corner size */
+  /* v4 LIGHT GLASS: white paper, ink text, glassy containers, red signal. */
+  --void: 240 242 246;  /* --bg-0 page (off-white) */
+  --bg-1: 231 234 240;  /* alternating sections */
+  --carbon: 236 239 245;/* --bg-2 card base (grey glass) */
+  --bg-3: 244 246 250;  /* hover / raised */
+  --steel: 205 210 220; /* --line-1 default hairline (a touch darker for definition) */
+  --line-2: 182 189 202;/* hover borders */
+  --bone: 11 14 20;     /* --fg-1 headings (ink) */
+  --mist: 62 70 82;     /* --fg-2 body */
+  --volt: 122 130 143;  /* --fg-3 captions/meta */
+  --surge: 212 14 40;   /* --red-hi text/border/icon red (AA on white) */
+  --ion: 232 17 45;     /* --red solid fills (btn, marquee, active dot) */
+  --red-dim: rgba(232, 17, 45, 0.1); /* glows + the radial bleed behind ROG */
+  --ink-dim: rgba(15, 23, 42, 0.1);  /* soft graphite shadow tint for glass */
+  --bevel: 10px;
+  --ease-beat: cubic-bezier(0.22, 1.2, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.7, 0, 0.2, 1);
 }
 
 /* Texture toggles (ThemeControl sets these data attributes on <html>). */
@@ -27,8 +36,8 @@ html[data-scanlines="off"] .scanlines::after { display: none; }
    ever ANIMATES TOWARD opacity 1 and the base state is visible. */
 .mv-reveal, .mv-reveal-skew { opacity: 1; }
 @media (prefers-reduced-motion: no-preference) {
-  .mv-reveal { animation: mv-reveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .mv-reveal-skew { animation: mv-reveal-skew 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .mv-reveal { animation: mv-reveal 0.6s var(--ease-out) both; }
+  .mv-reveal-skew { animation: mv-reveal-skew 0.6s var(--ease-out) both; }
 }
 @keyframes mv-reveal {
   from { opacity: 0; transform: translateY(24px); }
@@ -38,6 +47,218 @@ html[data-scanlines="off"] .scanlines::after { display: none; }
   from { opacity: 0; transform: translateY(24px) skewX(-3deg); }
   to { opacity: 1; transform: none; }
 }
+/* ===== v4 GLASS ===== */
+.glass {
+  /* greyish glass: slate-tinted panes over the off-white page */
+  background: linear-gradient(135deg, rgb(226 230 238 / 0.62), rgb(209 215 227 / 0.4));
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.5);
+  border: 1px solid rgb(255 255 255 / 0.55);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.75),
+    inset 0 -1px 0 0 rgb(15 23 42 / 0.06),
+    0 10px 40px var(--ink-dim);
+}
+
+/* Ambient colour blobs BEHIND the glass: without colour to refract, glass reads as
+   flat white. Two soft drifting fields (red + slate, no new hues) fixed under main. */
+.blob {
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.55;
+}
+.blob-red { background: radial-gradient(circle, rgba(232, 17, 45, 0.28), transparent 65%); }
+.blob-ink { background: radial-gradient(circle, rgba(30, 41, 66, 0.22), transparent 65%); }
+@media (prefers-reduced-motion: no-preference) {
+  .blob-red { animation: blob-drift-a 26s ease-in-out infinite alternate; }
+  .blob-ink { animation: blob-drift-b 34s ease-in-out infinite alternate; }
+}
+@keyframes blob-drift-a {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(9vw, 14vh) scale(1.15); }
+}
+@keyframes blob-drift-b {
+  from { transform: translate(0, 0) scale(1.1); }
+  to { transform: translate(-8vw, -10vh) scale(0.95); }
+}
+.glass-strong {
+  background: linear-gradient(135deg, rgb(233 236 243 / 0.9), rgb(222 227 236 / 0.8));
+}
+/* Phones get a lighter blur (cost) but keep the glass look. */
+@media (max-width: 1023.98px) {
+  .glass { -webkit-backdrop-filter: blur(8px) saturate(1.4); backdrop-filter: blur(8px) saturate(1.4); }
+}
+
+/* ===== Scroll-triggered container animations (Vengeance/Skiper/Animmaster style).
+   SAFETY CONTRACT: base state is ALWAYS visible; ScrollFx only ADDS .sfx-in when the
+   element enters the viewport, and every keyframe ends at the natural state. If JS
+   never runs, nothing is ever hidden (the iOS rule). Variants via data-sfx. ===== */
+@media (prefers-reduced-motion: no-preference) {
+  .sfx-in[data-sfx="up"] { animation: sfx-up 0.7s var(--ease-out) both; }
+  .sfx-in[data-sfx="left"] { animation: sfx-left 0.75s var(--ease-out) both; }
+  .sfx-in[data-sfx="right"] { animation: sfx-right 0.75s var(--ease-out) both; }
+  .sfx-in[data-sfx="pop"] { animation: sfx-pop 0.65s var(--ease-beat) both; }
+  .sfx-in[data-sfx="tilt"] { animation: sfx-tilt 0.8s var(--ease-beat) both; }
+  .sfx-in[data-sfx="glass"] { animation: sfx-glass 0.8s var(--ease-out) both; }
+}
+@keyframes sfx-up { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: none; } }
+@keyframes sfx-left { from { opacity: 0; transform: translateX(-42px); } to { opacity: 1; transform: none; } }
+@keyframes sfx-right { from { opacity: 0; transform: translateX(42px); } to { opacity: 1; transform: none; } }
+@keyframes sfx-pop { from { opacity: 0; transform: translateY(18px) scale(0.94); } to { opacity: 1; transform: none; } }
+@keyframes sfx-tilt { from { opacity: 0; transform: translateY(26px) rotate(-1.6deg) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes sfx-glass { from { opacity: 0; transform: translateY(24px); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+
+/* ===== FX pack (adapted from Vengeance/Skiper/Animmaster patterns, zero framer) ===== */
+/* Cursor spotlight: a red-dim radial that follows the pointer across any .spot-card
+   (FxLayer sets --mx/--my). Visible only on hover; pure compositing, no layout. */
+.spot-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-snap);
+  background: radial-gradient(230px circle at var(--mx, 50%) var(--my, 50%), var(--red-dim), transparent 68%);
+}
+.spot-card:hover::after { opacity: 1; }
+
+/* Letter cascade (hero wordmark): rises per-letter on the beat curve. Base state is
+   VISIBLE; the animation only runs when motion is allowed (iOS-safe rule). */
+@media (prefers-reduced-motion: no-preference) {
+  .ltr { animation: mv-ltr 0.7s var(--ease-beat) both; }
+}
+.ltr { display: inline-block; }
+@keyframes mv-ltr {
+  from { opacity: 0; transform: translateY(0.55em); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Image reveal: featured media wipes in once (clip-path, decorative, base visible). */
+@media (prefers-reduced-motion: no-preference) {
+  .wipe-in { animation: mv-wipe 0.9s var(--ease-out) 0.15s both; }
+}
+@keyframes mv-wipe {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+/* Kinetic strip: FxLayer maps scroll velocity to a skew on the showreel track. */
+.kinetic-skew { transform: skewX(var(--reel-skew, 0deg)); transition: transform 0.18s var(--ease-snap); will-change: transform; }
+
+/* VengenceUI flip-text companion keyframes: each char flips on its --flip-delay. */
+@media (prefers-reduced-motion: no-preference) {
+  .flip-char { animation: v-flip var(--flip-duration, 2.2s) var(--flip-delay, 0s) var(--flip-iteration, 1) both; backface-visibility: hidden; }
+}
+@keyframes v-flip {
+  0% { transform: rotateX(90deg); opacity: 0; }
+  38% { transform: rotateX(-14deg); opacity: 1; }
+  55% { transform: rotateX(6deg); }
+  70%, 100% { transform: rotateX(0); opacity: 1; }
+}
+
+/* Flip Text: each role swap rotates in from below (RoleFlip re-keys the span). */
+@media (prefers-reduced-motion: no-preference) {
+  .mv-flip { animation: mv-flip 0.55s var(--ease-beat) both; transform-origin: 50% 100%; }
+}
+@keyframes mv-flip {
+  from { opacity: 0; transform: rotateX(70deg) translateY(0.3em); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Animated ray: one slow red scanline sweeping the page forever (ambient life). */
+@media (prefers-reduced-motion: no-preference) {
+  .page-scanline { animation: mv-page-scan 14s linear infinite; }
+}
+.page-scanline {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.05;
+  background: rgb(var(--surge));
+  transform: translateY(-4vh);
+}
+@keyframes mv-page-scan {
+  from { transform: translateY(-4vh); }
+  to { transform: translateY(104vh); }
+}
+
+/* Radar sweep behind ROG: a slow rotating conic blade in red-dim (36s). */
+@media (prefers-reduced-motion: no-preference) {
+  .radar-sweep { animation: mv-radar 36s linear infinite; }
+}
+.radar-sweep {
+  background: conic-gradient(from 0deg, transparent 0deg 336deg, var(--red-dim) 354deg, transparent 360deg);
+  border-radius: 9999px;
+}
+@keyframes mv-radar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* EQ bars beside the REC label (continuous). */
+.eq { display: inline-block; width: 3px; height: 12px; transform-origin: 50% 100%; background: currentColor; }
+@media (prefers-reduced-motion: no-preference) {
+  .eq { animation: mv-eq 0.9s ease-in-out infinite alternate; }
+  .eq:nth-child(2) { animation-delay: 0.2s; }
+  .eq:nth-child(3) { animation-delay: 0.45s; }
+}
+@keyframes mv-eq {
+  from { transform: scaleY(0.35); }
+  to { transform: scaleY(1); }
+}
+
+/* Staggered-grid focus: hovering the More-builds grid dims the siblings. */
+.dim-grid:hover > * { opacity: 0.72; transition: opacity 0.25s var(--ease-snap); }
+.dim-grid:hover > *:hover { opacity: 1; }
+
+/* Featured tiles: cursor tilt (FxLayer drives the vars). */
+.tilt-card {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.25s var(--ease-snap);
+  will-change: transform;
+}
+
+/* Timeline scrub spine: fills red as you scroll through the section (FxLayer sets --tl). */
+#timeline ol { position: relative; }
+#timeline ol::before,
+#timeline ol::after {
+  content: "";
+  position: absolute;
+  left: 0.68rem;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  width: 2px;
+}
+#timeline ol::before { background: rgb(var(--steel)); }
+#timeline ol::after {
+  background: rgb(var(--ion));
+  transform-origin: 50% 0%;
+  transform: scaleY(var(--tl, 0));
+}
+
+/* Slow ambient marquee for the hero proof strip. */
+.mv-marquee--slow { animation: mv-marquee 70s linear infinite; }
+.mv-marquee--slow:hover { animation-play-state: paused; }
+
+/* ROG's scan beam: a thin red line sweeps the About panel once on reveal.
+   Decorative only (aria-hidden), ends invisible, skipped under reduced motion. */
+.scan-beam { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .scan-beam { animation: mv-scan 1.1s var(--ease-out) 0.35s both; }
+}
+@keyframes mv-scan {
+  0% { opacity: 0; transform: translateX(0); }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(min(56rem, 92vw)); }
+}
+
 /* Plain fade (modal backdrop), same rule: base visible, only animates toward 1. */
 .mv-fade { opacity: 1; }
 @media (prefers-reduced-motion: no-preference) {
@@ -92,9 +313,15 @@ html[data-modal] .mv-ghost-c { animation-play-state: paused; }
   body {
     background-color: rgb(var(--void));
     color: rgb(var(--bone));
+    line-height: 1.7; /* v3 body rhythm: 16px/1.7 */
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
+  /* v3 typography discipline: display voice is tight (-0.02em); the mono/meta voice
+     is 0.14em uppercase EVERYWHERE (overrides per-instance tracking utilities so the
+     instrument-panel voice is uniform). */
+  .font-display { letter-spacing: -0.02em; }
+  .font-hud, .font-mono { letter-spacing: 0.14em !important; }
   /* Themed scrollbar (WebKit/Blink), thin, steel on void, brightens on hover. */
   ::-webkit-scrollbar {
     width: 10px;
@@ -127,19 +354,19 @@ html[data-modal] .mv-ghost-c { animation-play-state: paused; }
 }
 
 @layer utilities {
-  /* Signature bevel: consistent clipped corners (top-right + bottom-left). */
+  /* v3 notch: ONE 10px 45-degree corner cut (bottom-right), radius stays 0 on the
+     element itself. Used by the primary button and small chrome pieces. */
   .bevel {
     clip-path: polygon(
       0 0,
-      calc(100% - var(--bevel)) 0,
-      100% var(--bevel),
-      100% 100%,
-      var(--bevel) 100%,
-      0 calc(100% - var(--bevel))
+      100% 0,
+      100% calc(100% - var(--bevel)),
+      calc(100% - var(--bevel)) 100%,
+      0 100%
     );
   }
   .bevel-sm {
-    --bevel: 8px;
+    --bevel: 10px;
   }
 
   /* Faint scanline overlay for HUD/hero/media. */

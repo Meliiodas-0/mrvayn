@@ -17,13 +17,13 @@ export default function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          background: "#08090C",
+          background: "#F0F2F6",
           color: "#ECF0F8",
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 18, color: "#E2E8F4", fontSize: 26, letterSpacing: 6 }}>
-          <div style={{ width: 18, height: 18, background: "#E2E8F4" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 18, color: "#0B0E14", fontSize: 26, letterSpacing: 6 }}>
+          <div style={{ width: 18, height: 18, background: "#0B0E14" }} />
           UNREAL ENGINE & FULL-STACK DEVELOPER
         </div>
         <div style={{ fontSize: 168, fontWeight: 900, lineHeight: 1, marginTop: 20, letterSpacing: -2 }}>MRVAYN</div>
@@ -35,7 +35,7 @@ export default function OpengraphImage() {
             marginTop: "auto",
             width: "100%",
             height: 10,
-            background: "linear-gradient(90deg,#E2E8F4,#96A0B4,#3A404C)",
+            background: "linear-gradient(90deg,#0B0E14,#96A0B4,#3A404C)",
           }}
         />
       </div>

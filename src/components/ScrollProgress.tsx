@@ -33,8 +33,7 @@ export function ScrollProgress() {
       className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[2px] origin-left"
       style={{
         transform: "scaleX(0)",
-        background: "linear-gradient(90deg, rgb(var(--surge)), rgb(var(--volt)))",
-        boxShadow: "0 0 8px rgb(var(--surge)/0.5)",
+        background: "rgb(var(--ion))",
       }}
     />
   );

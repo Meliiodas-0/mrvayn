@@ -7,7 +7,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-10 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2.5">
           <span aria-hidden className="bevel-sm inline-block h-5 w-5 bg-surge" />
-          <span className="font-display text-base font-black uppercase tracking-wide text-bone">MrVayn</span>
+          <span className="font-display text-base font-semibold uppercase tracking-wide text-bone">MrVayn</span>
         </div>
 
         <nav aria-label="Social" className="flex flex-wrap items-center gap-x-5 gap-y-2">

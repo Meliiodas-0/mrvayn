@@ -23,6 +23,9 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
   const closeRef = useRef<HTMLButtonElement>(null);
 
   const primaryHref = project.links[0]?.href;
+  // A self-hosted clip (under /public) wins over any Drive embed; it plays inline
+  // with no third-party iframe. Used by the flagship builds without a public link.
+  const clip = project.clip ?? null;
   const embed = primaryHref ? driveEmbed(primaryHref) : null;
   // Preview chain: the project's own media, else its showreel still (real gameplay,
   // beats Drive's junk first-frame poster), else a Drive thumbnail as a last resort.
@@ -46,7 +49,9 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
       if (e.key === "Escape") { e.stopPropagation(); onClose(); return; }
       if (e.key === "Tab" && panelRef.current) {
         const f = panelRef.current.querySelectorAll<HTMLElement>(
-          'a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])',
+          // include video/iframe: a playing clip (no trailing link for SAO-X/MagViz)
+          // is otherwise a focusable tab-stop outside the trap, letting Tab escape.
+          'a[href],button:not([disabled]),video,iframe,[tabindex]:not([tabindex="-1"])',
         );
         if (!f.length) return;
         const first = f[0], last = f[f.length - 1];
@@ -69,7 +74,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
     <div
       // Plain dark overlay, NOT backdrop-blur: blurring the whole viewport re-renders every
       // frame while the canvases animate behind it, which is what made the panel lag.
-      className="mv-fade fixed inset-0 z-[90] flex items-end justify-center overflow-y-auto bg-void/[0.92] sm:items-center"
+      className="mv-fade fixed inset-0 z-[90] flex items-end justify-center overflow-y-auto bg-[rgba(15,23,42,0.38)] sm:items-center"
       onClick={onClose}
     >
       <div
@@ -78,7 +83,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
         aria-modal="true"
         aria-labelledby="project-detail-title"
         onClick={(e) => e.stopPropagation()}
-        className="mv-reveal bevel relative my-6 w-full max-w-2xl border border-steel bg-carbon p-6 sm:p-8"
+        className="mv-reveal glass glass-strong relative my-6 w-full max-w-2xl rounded-lg p-6 sm:p-8"
       >
         <span aria-hidden className="pointer-events-none absolute left-0 top-0 h-full w-[2px] bg-surge" />
         <button
@@ -94,14 +99,29 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
           {project.badge && <Tag accent>{project.badge}</Tag>}
           <span className="font-mono text-[0.7rem] uppercase tracking-widest text-mist">{project.year}</span>
         </div>
-        <h3 id="project-detail-title" className="mt-3 font-display text-2xl font-black uppercase text-bone sm:text-3xl">
+        <h3 id="project-detail-title" className="mt-3 font-display text-2xl font-semibold uppercase text-bone sm:text-3xl">
           {project.title}
         </h3>
         <p className="mt-1 font-hud text-xs uppercase tracking-wide text-surge/80">{project.role}</p>
 
-        {/* media, pulled from the project's own links (Drive preview / thumbnail). */}
+        {/* media: a self-hosted clip, else a Drive preview, else a still. */}
         <HudFrame scanlines className="mt-5 aspect-video w-full overflow-hidden bevel-sm">
-          {embed && playing ? (
+          {clip && playing ? (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video
+              src={clip}
+              poster={image ?? undefined}
+              aria-label={`${project.title} gameplay clip`}
+              className="h-full w-full bg-void object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              controls
+            />
+          ) : clip ? (
+            <PosterButton image={image} title={project.title} onPlay={() => setPlaying(true)} />
+          ) : embed && playing ? (
             <iframe
               src={embed}
               title={`${project.title} preview`}
@@ -109,18 +129,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
               className="h-full w-full border-0"
             />
           ) : embed ? (
-            <button
-              onClick={() => setPlaying(true)}
-              aria-label={`Play ${project.title} preview`}
-              className="group relative block h-full w-full"
-            >
-              <Thumb src={image} alt={`${project.title} preview`} />
-              <span className="absolute inset-0 grid place-items-center bg-void/30 transition-colors group-hover:bg-void/10">
-                <span className="grid h-14 w-14 place-items-center border border-bone/40 bg-void/70 text-bone transition-colors group-hover:border-surge group-hover:text-surge bevel-sm">
-                  <Play className="ml-0.5 h-6 w-6" />
-                </span>
-              </span>
-            </button>
+            <PosterButton image={image} title={project.title} onPlay={() => setPlaying(true)} />
           ) : image ? (
             <Thumb src={image} alt={`${project.title} preview`} />
           ) : (
@@ -171,6 +180,20 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
         </div>
       </div>
     </div>
+  );
+}
+
+/** Poster still with a centered play affordance; shared by the clip and Drive-embed paths. */
+function PosterButton({ image, title, onPlay }: { image: string | null; title: string; onPlay: () => void }) {
+  return (
+    <button onClick={onPlay} aria-label={`Play ${title} preview`} className="group relative block h-full w-full">
+      <Thumb src={image} alt={`${title} preview`} />
+      <span className="absolute inset-0 grid place-items-center bg-void/30 transition-colors group-hover:bg-void/10">
+        <span className="grid h-14 w-14 place-items-center border border-bone/40 bg-void/70 text-bone transition-colors group-hover:border-surge group-hover:text-surge bevel-sm">
+          <Play className="ml-0.5 h-6 w-6" />
+        </span>
+      </span>
+    </button>
   );
 }
 

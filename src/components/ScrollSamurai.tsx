@@ -4,26 +4,15 @@ import { useEffect, useRef } from "react";
 import { ROG_OFFSETS, ROG_OFFSET_MEAN } from "@/data/rogOffsets";
 
 /**
- * Ronin centerpiece, a background-removed (alpha) figure anchored CENTER-BOTTOM
- * of the site, drawn crisp and clear. Desktop: a 100-frame transparent-WebP
- * sequence on a canvas, scrubbed by scroll (he turns + draws as you scroll the
- * first screen, reverses up) and gently fading back as you move into the content
- * so it never covers text. Phone: one faint static frame as a background figure.
- *
- * REPLACE THE CLIP: drop a new clip in and regenerate the matte sequence into
- * `public/samurai/f_000..NNN.webp` (ffmpeg crop+fps -> rembg per frame -> webp),
- * then set FRAMES below. Nothing else changes.
+ * ROG, the resident wraith. A 200-frame transparent-WebP sequence on a canvas,
+ * scrubbed smoothly by scroll. CALM by design (owner: no shake): no lean, no
+ * glitch, no pulses, just the eased frame scrub at a UNIFORM faint opacity so he
+ * reads as the same quiet ghost from the hero to the footer.
+ * prefers-reduced-motion: static poster frame. Phone: small tier, same scrub.
  */
 const FRAMES = 200;
-const HERO_IDX = 0; // hero resting pose (scroll 0), used for phone/static so it matches the live hero
-// Two resolution tiers: /rog-hi (1200px tall, for retina / hi-DPI desktop where the low-res set
-// looked upscaled) and /rog (880px, everyone else + phone). ?v=5 busts the browser/CDN cache
-// (v8 = RE-RENDERED at fixed manual exposure so the reaper is properly moody at the SOURCE
-// (histogram auto-exposure was over-brightening the dark scene), + a light clarity/sharpen pass).
+const HERO_IDX = 0;
 const frameSrc = (folder: string, i: number) => `/${folder}/f_${String(i).padStart(3, "0")}.webp?v=8`;
-// Horizontal centering is now BAKED INTO the frames (each cropped centred on its smoothed body
-// centroid at export), so ROG never slides even though his mace swings. These offsets are ~0 and
-// kept only as a stable hook (falls back to the set mean).
 const offsetForFrame = (frame: number) => ROG_OFFSETS[frame] ?? ROG_OFFSET_MEAN;
 
 export function ScrollSamurai() {
@@ -36,37 +25,37 @@ export function ScrollSamurai() {
     if (!canvas || !ctx || !wrap) return;
 
     let W = 0, H = 0, dpr = 1, lastGood: HTMLImageElement | null = null;
-    let dxFrac = offsetForFrame(HERO_IDX); // horizontal centering offset for the frame currently drawn
+    let dxFrac = offsetForFrame(HERO_IDX);
     const resize = () => {
       const r = canvas.getBoundingClientRect(); W = Math.max(1, r.width); H = Math.max(1, r.height);
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
+    let anchorRight = false;
     const paint = (im: HTMLImageElement | null) => {
       ctx.clearRect(0, 0, W, H);
       if (!im || !im.naturalWidth) return;
       lastGood = im;
       const iw = im.naturalWidth, ih = im.naturalHeight;
-      const scale = Math.min(W / iw, H / ih);
-      const dw = iw * scale, dh = ih * scale;
-      ctx.drawImage(im, (W - dw) / 2 + dxFrac * dw, H - dh, dw, dh); // body-centered (per-frame), bottom-anchored
+      const s = Math.min(W / iw, H / ih);
+      const dw = iw * s, dh = ih * s;
+      // Desktop: hug the RIGHT edge of the stage (owner: keep him far right);
+      // phone: centered. Frames are body-centred at export, so both are stable.
+      const x = anchorRight ? W - dw + dxFrac * dw : (W - dw) / 2 + dxFrac * dw;
+      ctx.drawImage(im, x, H - dh, dw, dh);
     };
 
     const q = new URLSearchParams(location.search);
     const reduceOrStill = window.matchMedia("(prefers-reduced-motion: reduce)").matches || q.has("still") || q.has("cine");
     const phone = window.matchMedia("(max-width: 1023.98px)").matches;
-    // Three tiers: phones get /rog-sm (small 540px frames but ALL of them, so the scrub is as smooth
-    // as desktop while staying light on data ~5MB); retina/hi-DPI desktops get /rog-hi (1200px,
-    // crisp); standard desktops get /rog (880px).
+    anchorRight = !phone;
     const hi = !phone && (window.devicePixelRatio || 1) >= 1.5;
     const folder = phone ? "rog-sm" : hi ? "rog-hi" : "rog";
-    // Edge-dissolve mask on DESKTOP only, re-masking the canvas every repaint is costly on phones.
     if (!phone) { const m = "radial-gradient(64% 70% at 50% 56%, #000 52%, transparent 92%)"; canvas.style.setProperty("mask-image", m); canvas.style.setProperty("-webkit-mask-image", m); }
 
     resize();
     window.addEventListener("resize", resize);
 
-    // Reduced-motion / still: one static frame, no sequence or scroll (a11y + screenshots).
     if (reduceOrStill) {
       const im = new Image(); im.decoding = "async"; im.src = frameSrc(folder, HERO_IDX);
       const drawStatic = () => { resize(); paint(im.complete && im.naturalWidth ? im : lastGood); };
@@ -74,34 +63,31 @@ export function ScrollSamurai() {
       return () => window.removeEventListener("resize", drawStatic);
     }
 
-    // Every frame on BOTH desktop and phone now (phone uses the small /rog-sm tier so all 200
-    // frames is only ~5MB) → the phone scrub is as smooth as desktop, no more decimation stepping.
-    // Phone just stays fainter. The loop sleeps when not scrubbing.
-    const STRIDE = 1;
     const idxs: number[] = [];
-    for (let i = 0; i < FRAMES; i += STRIDE) idxs.push(i);
-    if (idxs[idxs.length - 1] !== FRAMES - 1) idxs.push(FRAMES - 1);
+    for (let i = 0; i < FRAMES; i += 1) idxs.push(i);
     const N = idxs.length;
-    const heroOp = phone ? 0.6 : 0.9, deepOp = phone ? 0.3 : 0.4; // ~2x more visible (owner request); still fades to a constant-size ghost deeper
-    const ease = phone ? 0.22 : 0.12; // snappier on phone so the scrub tracks the scroll instead of trailing (fixes the "laggy" feel)
-    const lead = phone ? 9 : 0; // phone: run ROG ahead so his pointing pose lands BEFORE the About panel scrolls over him. Scaled to 9 now that phone plays all 200 frames (was 3 of ~67). PC stays 0.
+    // UNIFORM faint ghost (owner liked the pale look): same opacity everywhere.
+    const op = phone ? 0.35 : 0.5;
+    wrap.style.opacity = String(op);
+    const ease = phone ? 0.22 : 0.14;
+    const lead = phone ? 9 : 0;
 
     let target = 0, cur = 0, raf = 0, running = false, lastI = -1;
     const imgs: HTMLImageElement[] = idxs.map((i) => { const im = new Image(); im.decoding = "async"; im.src = frameSrc(folder, i); return im; });
     const draw = (idx: number) => {
       let i = Math.round(idx); i = Math.max(0, Math.min(N - 1, i));
-      if (i === lastI) return; // only repaint when the frame actually changes, kills redundant redraws (big win on phone)
+      if (i === lastI) return;
       lastI = i; dxFrac = offsetForFrame(idxs[i]);
       const im = imgs[i]; paint(im && im.complete && im.naturalWidth ? im : lastGood);
     };
-    const repaint = () => { lastI = -1; draw(cur); }; // force a redraw (frame streamed in, or canvas resized)
+    const repaint = () => { lastI = -1; draw(cur); };
     imgs.forEach((im) => { im.onload = () => { if (!running) repaint(); }; });
     window.addEventListener("resize", repaint);
 
     const tick = () => {
       cur += (target - cur) * ease;
       draw(cur);
-      if (document.hidden || Math.abs(target - cur) < 0.4) { running = false; return; } // settle → sleep
+      if (document.hidden || Math.abs(target - cur) < 0.4) { running = false; return; }
       raf = requestAnimationFrame(tick);
     };
     const kick = () => { if (!running && !document.hidden) { running = true; raf = requestAnimationFrame(tick); } };
@@ -109,11 +95,7 @@ export function ScrollSamurai() {
       const vh = window.innerHeight, y = window.scrollY;
       const max = document.documentElement.scrollHeight - vh;
       const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
-      // front-loaded over the WHOLE page: a clear turn while scrolling the hero, then keeps
-      // progressing (slowly) all the way to the bottom, never finishes/stops early.
       target = Math.min(N - 1, Math.sqrt(p) * (N - 1) + lead);
-      const fs = vh * 0.85, fe = vh * 1.5;
-      wrap.style.opacity = String(y <= fs ? heroOp : y >= fe ? deepOp : heroOp - ((y - fs) / (fe - fs)) * (heroOp - deepOp)); // submerged: fainter on phone, fades to a constant-size presence deeper
       kick();
     };
     const onVis = () => { if (!document.hidden) kick(); };
@@ -137,21 +119,12 @@ export function ScrollSamurai() {
       ref={wrapRef}
       data-solid
       aria-hidden
-      // Desktop is 82vh, but on SHORT viewports (1080p-class, browser inner height <= 1150px)
-      // the bottom-anchored figure rose over the hero thesis/CTAs, so cap him at 48vh there:
-      // the hero is vertically centred, so 48vh keeps him fully in the free bottom half.
-      // Taller screens (2K+) keep the full 82vh. Phone stays 66vh.
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto h-[82vh] w-full max-w-[940px] lg:[@media(max-height:1150px)]:h-[48vh] max-lg:h-[66vh] max-lg:opacity-60"
+      // Right-anchored on desktop (owner: further right = more visible next to the
+      // left content columns), centered on phone. Short desktop viewports cap height.
+      className="pointer-events-none fixed bottom-0 z-0 h-[82vh] w-full max-w-[940px] max-lg:inset-x-0 max-lg:mx-auto max-lg:h-[66vh] lg:left-auto lg:right-[1vw] lg:w-[46vw] lg:[@media(max-height:1150px)]:h-[62vh]"
     >
-      {/* spectral aura behind him, a cool, ethereal halo so the bone-white figure reads as an apparition */}
-      <div className="absolute inset-0" style={{ background: "radial-gradient(38% 36% at 50% 60%, rgb(var(--volt)/0.10), rgb(var(--ion)/0.07) 46%, transparent 70%)" }} />
-      {/* a glowing rift he rises from */}
-      <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: "radial-gradient(56% 64% at 50% 100%, rgb(var(--ion)/0.16), rgb(var(--volt)/0.08) 44%, transparent 72%)" }} />
-      {/* edges dissolve into the void so he's submerged in the scene, not a hard cutout */}
+      {/* no stage, no glow, no blade: the same clean faint ghost everywhere (owner) */}
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-      {/* layered mist so he's wreathed in atmosphere + dissolves into the void */}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 opacity-80 blur-2xl max-lg:blur-md" style={{ background: "radial-gradient(78% 100% at 50% 110%, rgb(var(--mist)/0.16), rgb(var(--ion)/0.06) 40%, transparent 70%)" }} />
-      <div className="absolute inset-x-0 bottom-0 h-24" style={{ background: "linear-gradient(180deg, transparent, rgb(var(--void)))" }} />
     </div>
   );
 }

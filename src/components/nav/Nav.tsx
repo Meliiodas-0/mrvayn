@@ -6,11 +6,11 @@ import { cn } from "@/lib/cn";
 import { profile } from "@/data/profile";
 
 const items = [
-  { id: "operator", label: "Operator" },
-  { id: "loadout", label: "Loadout" },
-  { id: "arsenal", label: "Arsenal" },
-  { id: "timeline", label: "Timeline" },
-  { id: "comms", label: "Comms" },
+  { id: "operator", label: "About" },
+  { id: "loadout", label: "Work" },
+  { id: "arsenal", label: "Skills" },
+  { id: "timeline", label: "Journey" },
+  { id: "comms", label: "Contact" },
 ];
 
 export function Nav() {
@@ -43,16 +43,15 @@ export function Nav() {
       <header
         data-solid
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
-          scrolled ? "border-b border-steel/70 bg-void/85 backdrop-blur-md" : "border-b border-transparent",
+          "fixed inset-x-0 top-0 z-50 border-b border-steel backdrop-blur-md transition-shadow duration-300",
+          scrolled && "shadow-[0_8px_30px_var(--ink-dim)]",
         )}
+        style={{ backgroundColor: "rgba(238, 241, 246, 0.78)" }}
       >
-        {/* Full-bleed HUD bar: logo anchored to the left edge, links to the right.
-            Right padding reserves room for the fixed theme-palette button (right-4, w-10). */}
-        <nav className="flex w-full items-center justify-between py-4 pl-5 pr-16 sm:pl-7 sm:pr-[4.5rem]" aria-label="Primary">
+        <nav className="flex w-full items-center justify-between py-4 pl-5 pr-5 sm:pl-7 sm:pr-7" aria-label="Primary">
           <a href="#hero" className="group flex items-center gap-2.5">
-            <span aria-hidden className="bevel-sm inline-block h-6 w-6 bg-surge transition-transform group-hover:scale-110" />
-            <span className="font-display text-lg font-black uppercase tracking-wide text-bone">MrVayn</span>
+            <span aria-hidden className="bevel-sm inline-block h-6 w-6 bg-ion transition-transform duration-200 ease-snap group-hover:scale-110" />
+            <span className="font-display text-lg font-semibold uppercase text-bone">MrVayn</span>
           </a>
 
           <div className="hidden items-center gap-7 md:flex">
@@ -61,19 +60,23 @@ export function Nav() {
                 key={item.id}
                 href={`#${item.id}`}
                 className={cn(
-                  "relative font-hud text-xs uppercase tracking-[0.18em] transition-colors",
-                  active === item.id ? "text-bone" : "text-mist hover:text-bone",
+                  "relative inline-flex items-center gap-2 font-mono text-xs uppercase transition-colors duration-200 ease-snap",
+                  active === item.id ? "text-bone" : "text-volt hover:text-bone",
                 )}
               >
+                {/* active section = red dot + mono label */}
+                <span
+                  aria-hidden
+                  className={cn("h-1.5 w-1.5 rounded-full bg-ion transition-opacity duration-200", active === item.id ? "opacity-100" : "opacity-0")}
+                />
                 {item.label}
-                <span className={cn("absolute -bottom-1.5 left-0 h-px bg-surge transition-all duration-300", active === item.id ? "w-full" : "w-0")} />
               </a>
             ))}
             <a
               href={profile.emailHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="bevel-sm border border-bone/25 px-4 py-2 font-hud text-xs uppercase tracking-[0.16em] text-bone transition-colors hover:border-surge/60 hover:text-surge"
+              className="bevel-sm border border-line2 px-4 py-2 font-mono text-xs uppercase text-bone transition-colors duration-200 ease-snap hover:border-surge"
             >
               Let&apos;s talk
             </a>

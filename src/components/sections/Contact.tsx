@@ -8,7 +8,7 @@ import { Reveal } from "@/components/motion/Reveal";
 
 export function Contact() {
   return (
-    <SectionShell id="comms" eyebrow="Comms" title="Get in touch">
+    <SectionShell id="comms" eyebrow="Contact" title="Get in touch" index="06">
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         {/* One confident CTA. The work above makes the case; this just opens the door. */}
         <Reveal>
@@ -18,7 +18,7 @@ export function Contact() {
                 <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-surge" />
                 {profile.availability}
               </p>
-              <h3 className="mt-5 max-w-md font-display text-2xl font-black uppercase leading-tight text-bone sm:text-3xl">
+              <h3 className="mt-5 max-w-md font-display text-2xl font-semibold uppercase leading-tight text-bone sm:text-3xl">
                 Building something worth shipping?
               </h3>
               <p className="mt-3 max-w-md font-sans leading-relaxed text-mist">
