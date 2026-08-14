@@ -97,7 +97,7 @@ export const projects: Project[] = [
     summary:
       "A multiplayer action RPG on Unreal Engine 5.8 and the Gameplay Ability System: UMG inventory, player-to-player trading, PvP zones, and a behavior-tracked “Awakening Diagnosis” that reads how you play to place you in one of 6 races. Backed by a dedicated Docker stack running 100 concurrent players per server instance.",
     tech: ["Unreal Engine 5.8", "C++", "GAS", "Dedicated Server", "Docker", "PostgreSQL", "Redis", "NATS", "JWT Auth"],
-    links: [],
+    links: [{ label: "Watch full video", href: "https://drive.google.com/file/d/1JZbLI4k2nWNDb9mieb6ihhG_NjEabZCy/view?usp=drive_link" }],
     badge: "PLAYABLE",
     featured: true,
     shipped: false,
@@ -118,7 +118,7 @@ export const projects: Project[] = [
     summary:
       "A real-time archviz sales tool built in Unreal Engine 5.8 and C++: it turns an architect's CAD model into a standalone, offline app, fly-through and first-person walk, clickable apartments with live pricing and availability, floor-by-floor section cuts, swappable facade finishes, and dynamic time-of-day.",
     tech: ["Unreal Engine 5.8", "C++", "Datasmith / FBX", "Lumen GI", "UMG", "Windows Build"],
-    links: [],
+    links: [{ label: "Watch full video", href: "https://drive.google.com/file/d/1bimzCoh5DpLQ7v1hIzspsM90RO6XA6IX/view?usp=drive_link" }],
     badge: "COMMERCIAL",
     featured: true,
     shipped: true,
