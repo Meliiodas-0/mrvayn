@@ -21,9 +21,8 @@ export function Loadout({ featured, others }: { featured: Project[]; others: Pro
           const lastOdd = i === featured.length - 1 && featured.length % 2 === 1;
           const span = lastOdd ? "lg:col-span-12" : i % 2 === 0 ? "lg:col-span-7" : "lg:col-span-5";
           return (
-            <Reveal key={p.id} delay={i * 0.06} fx={i % 2 === 0 ? "deal-l" : "deal-r"} className={span}>
-              {/* tilt-card: FxLayer drives a +-4deg cursor tilt on featured tiles */}
-              <div className="tilt-card h-full">
+            <Reveal key={p.id} delay={i * 0.06} fx="up" className={span}>
+              <div className="h-full">
                 <ProjectTile project={p} featured onSelect={() => setSelected(p)} />
               </div>
             </Reveal>
@@ -38,7 +37,7 @@ export function Loadout({ featured, others }: { featured: Project[]; others: Pro
 
       <div className="dim-grid grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
         {others.map((p, i) => (
-          <Reveal fx="flip" key={p.id} delay={(i % 4) * 0.07}>
+          <Reveal fx="up" key={p.id} delay={(i % 4) * 0.07}>
             {/* Faded showreel still behind each tile (projects without a frame just stay flat). */}
             <ProjectTile project={p} bg={reelFrames.find((f) => f.id === p.id)?.img ?? null} onSelect={() => setSelected(p)} />
           </Reveal>

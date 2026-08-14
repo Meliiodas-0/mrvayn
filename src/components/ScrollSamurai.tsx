@@ -66,8 +66,10 @@ export function ScrollSamurai() {
     const idxs: number[] = [];
     for (let i = 0; i < FRAMES; i += 1) idxs.push(i);
     const N = idxs.length;
-    // UNIFORM faint ghost (owner liked the pale look): same opacity everywhere.
-    const op = phone ? 0.35 : 0.5;
+    // UNIFORM ink presence: same opacity everywhere. Higher on desktop so the
+    // darkened wraith (canvas filter below) reads as a real anchor on the paper,
+    // fainter on phone where he sits behind centered content.
+    const op = phone ? 0.4 : 0.7;
     wrap.style.opacity = String(op);
     const ease = phone ? 0.22 : 0.14;
     const lead = phone ? 9 : 0;
@@ -123,8 +125,14 @@ export function ScrollSamurai() {
       // left content columns), centered on phone. Short desktop viewports cap height.
       className="pointer-events-none fixed bottom-0 z-0 h-[82vh] w-full max-w-[940px] max-lg:inset-x-0 max-lg:mx-auto max-lg:h-[66vh] lg:left-auto lg:right-[1vw] lg:w-[46vw] lg:[@media(max-height:1150px)]:h-[62vh]"
     >
-      {/* no stage, no glow, no blade: the same clean faint ghost everywhere (owner) */}
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      {/* Ink-on-paper treatment: the render was lit for a black scene (bone-white),
+          so on the light theme we grayscale + darken it into a solid dark wraith that
+          reads as an ink illustration instead of a washed-out ghost. */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 h-full w-full"
+        style={{ filter: "grayscale(1) brightness(0.5) contrast(1.4)" }}
+      />
     </div>
   );
 }

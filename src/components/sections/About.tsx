@@ -8,7 +8,7 @@ export function About() {
     <SectionShell id="operator" eyebrow="About" title="About" index="01" alt>
       {/* v3 asymmetry: text cols 1-6, disciplines cols 8-12 */}
       <div className="grid gap-6 lg:grid-cols-12">
-        <Reveal fx="left" className="lg:col-span-7">
+        <Reveal fx="up" className="lg:col-span-7">
           <Panel edge className="relative h-full overflow-hidden p-6 sm:p-8">
             {/* ROG's scan beam sweeps the operator file once as it reveals */}
             <span aria-hidden className="scan-beam pointer-events-none absolute inset-y-0 left-0 w-[2px] bg-surge/70" />
@@ -26,7 +26,7 @@ export function About() {
           </Panel>
         </Reveal>
 
-        <Reveal fx="right" delay={0.12} className="lg:col-span-5 lg:col-start-8">
+        <Reveal fx="up" delay={0.12} className="lg:col-span-5 lg:col-start-8">
           <Panel className="h-full p-6 sm:p-8">
             <p className="font-hud text-xs uppercase tracking-[0.25em] text-mist">Core disciplines</p>
             <ul className="mt-6 space-y-px">

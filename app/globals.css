@@ -307,6 +307,9 @@ html[data-modal] .mv-ghost-c { animation-play-state: paused; }
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Never scroll sideways: transforms/marquees can push past the viewport edge;
+       clip (not hidden, so fixed/sticky still work) contains them. */
+    overflow-x: clip;
     /* Themed scrollbar (Firefox), matches the HUD chrome. */
     scrollbar-color: rgb(var(--steel)) rgb(var(--void));
   }
