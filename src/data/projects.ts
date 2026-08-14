@@ -101,8 +101,8 @@ export const projects: Project[] = [
     badge: "PLAYABLE",
     featured: true,
     shipped: false,
-    media: "/projects/saox.webp", // hero still: ability-cast combat beat (own gameplay capture)
-    clip: "/projects/saox.mp4", // ~9s combat exchange ending on the ability burst
+    media: "/projects/saox-hero.webp", // hero still: staff stance in the town hub, arches + floating rocks (owner-picked shot)
+    clip: "/projects/saox-town.mp4", // ~10s continuous townhall walk: village road, plaza, arch colonnade (no dungeon)
     problem:
       "Action-RPG combat at MMO scale is unforgiving: abilities, trading, PvP, and persistence all have to stay authoritative and in sync with many players sharing one world.",
     approach:
@@ -123,7 +123,7 @@ export const projects: Project[] = [
     featured: true,
     shipped: true,
     media: "/projects/magviz.webp", // hero still: dusk aerial with the live tool UI (own capture)
-    clip: "/projects/magviz.mp4", // ~9s aerial with the live time-of-day cycle
+    clip: "/projects/magviz-sections.mp4", // ~11s: green unit/section blocks, floor-isolation cut, night-to-dawn weather sweep
     problem:
       "Selling an unbuilt development off static renders and a PDF price list is flat, buyers can't explore the building, see what's still available, or picture it at a different time of day.",
     approach:
