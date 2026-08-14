@@ -25,6 +25,9 @@ export function SectionShell({ id, eyebrow, title, index, alt = false, children,
   // Slightly translucent so ROG's fixed canvas ghosts through every section
   // (owner: he should stay visible beyond the hero), still ~86% solid for text.
   const bg = alt ? "rgb(var(--bg-1) / 0.86)" : "rgb(var(--void) / 0.86)";
+  // Labels straddling the top rule need a SOLID ground: at 0.86 whatever sits
+  // behind the boundary (e.g. the hero proof ticker) shows through the text.
+  const labelBg = alt ? "rgb(var(--bg-1))" : "rgb(var(--void))";
   return (
     <section
       id={id}
@@ -33,10 +36,10 @@ export function SectionShell({ id, eyebrow, title, index, alt = false, children,
     >
       {/* mono labels sitting ON the top rule */}
       <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto flex w-[min(1440px,100%-clamp(32px,6vw,128px))] -translate-y-1/2 items-center justify-between">
-        <span className="px-2 font-mono text-[0.8125rem] uppercase text-volt" style={{ backgroundColor: bg }}>
+        <span className="px-2 font-mono text-[0.8125rem] uppercase text-volt" style={{ backgroundColor: labelBg }}>
           {index ? `${index} / ${eyebrow}` : eyebrow}
         </span>
-        <span className="hidden px-2 font-mono text-[0.8125rem] uppercase text-volt sm:block" style={{ backgroundColor: bg }}>
+        <span className="hidden px-2 font-mono text-[0.8125rem] uppercase text-volt sm:block" style={{ backgroundColor: labelBg }}>
           <ScrollPercent />
         </span>
       </div>

@@ -2,7 +2,7 @@ import { BootSequence } from "@/components/BootSequence";
 import { StickCursor } from "@/components/StickCursor";
 import { FxLayer } from "@/components/fx/FxLayer";
 import { SmoothScroll } from "@/components/fx/SmoothScroll";
-import { GsapReveals } from "@/components/fx/GsapReveals";
+import { ScrollFx } from "@/components/fx/ScrollFx";
 import { LiveStatus } from "@/components/fx/LiveStatus";
 import { CursorTrail } from "@/components/fx/CursorTrail";
 import { ScrollProgress } from "@/components/ScrollProgress";
@@ -33,7 +33,7 @@ export default function Home() {
       <StickCursor />
       <FxLayer />
       <SmoothScroll />
-      <GsapReveals />
+      <ScrollFx />
       <CursorTrail />
       <LiveStatus />
       <ScrollSamurai />

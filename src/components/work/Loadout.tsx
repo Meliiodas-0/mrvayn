@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { Project } from "@/data/projects";
-import { reelFrames } from "@/data/showreel";
 import { ProjectTile } from "@/components/ui/ProjectTile";
 import { ProjectDetail } from "@/components/work/ProjectDetail";
 import { Reveal } from "@/components/motion/Reveal";
@@ -31,15 +30,18 @@ export function Loadout({ featured, others }: { featured: Project[]; others: Pro
       </div>
 
       <div className="my-12 flex items-center gap-5 border-t border-steel pt-0">
-        {/* concrete section ground (matches SectionShell) so the border rule is masked behind the label, not drawn through it */}
-        <span className="-translate-y-1/2 pr-2 font-mono text-[0.8125rem] uppercase text-volt" style={{ backgroundColor: "rgb(var(--void) / 0.86)" }}>More builds</span>
+        {/* solid section ground (matches SectionShell labels) so the border rule is masked behind the label, not drawn through it */}
+        <span className="-translate-y-1/2 pr-2 font-mono text-[0.8125rem] uppercase text-volt" style={{ backgroundColor: "rgb(var(--void))" }}>More builds</span>
       </div>
 
       <div className="dim-grid grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
         {others.map((p, i) => (
           <Reveal fx="up" key={p.id} delay={(i % 4) * 0.07}>
-            {/* Faded showreel still behind each tile (projects without a frame just stay flat). */}
-            <ProjectTile project={p} bg={reelFrames.find((f) => f.id === p.id)?.img ?? null} onSelect={() => setSelected(p)} />
+            {/* Clean glass tiles: the faded screenshot backgrounds made titles
+                unreadable on the light theme (dark game frames + HUD text bleeding
+                through), so compact tiles are text-only; real media lives in the
+                detail panel and the showreel. */}
+            <ProjectTile project={p} onSelect={() => setSelected(p)} />
           </Reveal>
         ))}
       </div>

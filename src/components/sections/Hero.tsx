@@ -15,7 +15,7 @@ const ROLES = [profile.role, "SAO-X · MMORPG Architect", "CTO at Magadha Studio
 // Server component; content is always in the SSR HTML (iOS-safe reveals).
 export function Hero() {
   return (
-    <section id="hero" className="relative flex min-h-screen flex-col justify-center overflow-hidden pb-20 pt-28">
+    <section id="hero" className="relative flex min-h-screen flex-col justify-center overflow-hidden pb-32 pt-28">
       {/* VengenceUI AnimatedRays: soft aurora stripes behind the composition */}
       <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.32]">
         <AnimatedRays className="h-full w-full" />
@@ -97,10 +97,11 @@ export function Hero() {
         </div>
       </div>
 
-      {/* scroll hint on the bottom rule */}
+      {/* scroll hint: sits in its own clear band ABOVE the proof ticker (the strip
+          is ~42px tall, so bottom-16 keeps the two from ever stacking) */}
       <a
         href="#operator"
-        className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 font-mono text-[0.8125rem] uppercase text-volt transition-colors duration-200 ease-snap hover:text-surge"
+        className="absolute bottom-16 left-1/2 z-10 -translate-x-1/2 font-mono text-[0.8125rem] uppercase text-volt transition-colors duration-200 ease-snap hover:text-surge"
       >
         Scroll ↓
       </a>
