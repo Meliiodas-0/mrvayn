@@ -33,9 +33,12 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
     project.media ||
     reelFrames.find((f) => f.id === project.id)?.img ||
     (primaryHref ? driveThumb(primaryHref, 1280) : null);
-  // The Drive iframe is a whole video player; loading it the instant the panel opens
-  // janks the entrance. Show the poster first and only mount the player on demand.
-  const [playing, setPlaying] = useState(false);
+  // A LOCAL clip is light, so it autoplays (muted) the moment the panel opens: the
+  // in-site demo must be unmissable, not hidden behind a poster tap. Reduced-motion
+  // users keep the poster. The Drive iframe stays deferred (it janks the entrance).
+  const [playing, setPlaying] = useState(
+    () => !!project.clip && !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
 
   useEffect(() => {
     const prevFocus = document.activeElement as HTMLElement | null;
@@ -77,6 +80,16 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
       className="mv-fade fixed inset-0 z-[90] flex items-end justify-center overflow-y-auto bg-[rgba(15,23,42,0.38)] sm:items-center"
       onClick={onClose}
     >
+      {/* Phone close, pinned to the VIEWPORT. It must be a child of the overlay, not
+          the panel: the panel's backdrop-filter creates a containing block that turns
+          position:fixed into panel-relative, which scrolls away = trapped. */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        aria-label="Close"
+        className="fixed right-3 top-3 z-10 grid h-10 w-10 place-items-center border border-steel bg-carbon text-mist bevel-sm sm:hidden"
+      >
+        <X className="h-5 w-5" />
+      </button>
       <div
         ref={panelRef}
         role="dialog"
@@ -86,11 +99,14 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
         className="mv-reveal glass glass-strong relative my-6 w-full max-w-2xl rounded-lg p-6 sm:p-8"
       >
         <span aria-hidden className="pointer-events-none absolute left-0 top-0 h-full w-[2px] bg-surge" />
+        {/* Desktop close (in-panel). On phone this is hidden: the panel's glass
+            backdrop-filter makes it the containing block, so a fixed button INSIDE
+            the panel would still scroll away; the phone X lives on the overlay. */}
         <button
           ref={closeRef}
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 grid h-8 w-8 place-items-center border border-steel text-mist transition-colors hover:border-surge/60 hover:text-bone bevel-sm"
+          className="absolute right-4 top-4 hidden h-8 w-8 place-items-center border border-steel text-mist transition-colors hover:border-surge/60 hover:text-bone bevel-sm sm:grid"
         >
           <X className="h-4 w-4" />
         </button>
@@ -178,6 +194,14 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
             ))
           )}
         </div>
+
+        {/* Phone-only way back at the natural end of reading (the pinned X covers the top). */}
+        <button
+          onClick={onClose}
+          className="mt-4 w-full border border-steel px-4 py-3 font-hud text-xs uppercase tracking-wide text-mist transition-colors hover:border-surge/60 hover:text-bone bevel-sm sm:hidden"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
