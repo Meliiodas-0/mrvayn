@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ArrowUpRight, Lock, Play } from "lucide-react";
 import type { Project } from "@/data/projects";
 import { reelFrames } from "@/data/showreel";
@@ -73,7 +74,9 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
 
   // Pure-CSS entrance (mv-fade / mv-reveal), framer-motion doesn't apply on iOS
   // WebKit and could leave the dialog invisible; these only animate TOWARD visible.
-  return (
+  // PORTALED to <body>: inside <main> (a z-10 stacking context) the whole dialog,
+  // z-90 included, stacked BELOW the z-50 nav, which swallowed the pinned phone X.
+  return createPortal(
     <div
       // Plain dark overlay, NOT backdrop-blur: blurring the whole viewport re-renders every
       // frame while the canvases animate behind it, which is what made the panel lag.
@@ -195,15 +198,18 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
           )}
         </div>
 
-        {/* Phone-only way back at the natural end of reading (the pinned X covers the top). */}
+        {/* Phone-only way back at the natural end of reading (the pinned X covers the top).
+            X icon + a solid boundary so it reads as the close control at a glance. */}
         <button
           onClick={onClose}
-          className="mt-4 w-full border border-steel px-4 py-3 font-hud text-xs uppercase tracking-wide text-mist transition-colors hover:border-surge/60 hover:text-bone bevel-sm sm:hidden"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 border-2 border-line2 bg-white/50 px-4 py-3 font-hud text-xs uppercase tracking-wide text-bone transition-colors hover:border-surge/60 bevel-sm sm:hidden"
         >
+          <X className="h-4 w-4" />
           Close
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
