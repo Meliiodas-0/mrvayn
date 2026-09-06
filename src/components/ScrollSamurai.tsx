@@ -12,7 +12,7 @@ import { ROG_OFFSETS, ROG_OFFSET_MEAN } from "@/data/rogOffsets";
  */
 const FRAMES = 200;
 const HERO_IDX = 0;
-const frameSrc = (folder: string, i: number) => `/${folder}/f_${String(i).padStart(3, "0")}.webp?v=8`;
+const frameSrc = (folder: string, i: number) => `/${folder}/f_${String(i).padStart(3, "0")}.webp?v=9`;
 const offsetForFrame = (frame: number) => ROG_OFFSETS[frame] ?? ROG_OFFSET_MEAN;
 
 export function ScrollSamurai() {
