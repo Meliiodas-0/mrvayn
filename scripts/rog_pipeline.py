@@ -29,7 +29,11 @@ SRC = r"D:\claude max\mrvayn\SevRender3"
 OUT = r"D:\claude max\.rogwork\out"
 RAW_N, N_OUT = 720, 200
 IDX = [round(i * (RAW_N - 1) / (N_OUT - 1)) for i in range(N_OUT)]
-TIERS = {"rog-hi": (1200, 84, 1.0, 55), "rog": (880, 82, 0.8, 55), "rog-sm": (540, 80, 0.6, 45)}
+# (height, webp quality, edge unsharp radius, edge unsharp percent, ink brightness, ink contrast)
+# The ink treatment is BAKED here (was a CSS canvas filter, re-run on every repaint):
+# desktop tiers = grayscale, brightness 0.5, contrast 1.4; the phone tier is lighter
+# (0.72 / 1.2) because he sits fainter behind centred content there.
+TIERS = {"rog-hi": (1200, 84, 1.0, 55, 0.5, 1.4), "rog": (880, 82, 0.8, 55, 0.5, 1.4), "rog-sm": (540, 80, 0.6, 45, 0.72, 1.2)}
 PAD_X, PAD_TOP, PAD_BOT = 28, 34, 22
 
 def log(*a):
@@ -110,6 +114,13 @@ def grade(rgb, alpha):
     im = im.filter(ImageFilter.UnsharpMask(radius=5, percent=35, threshold=2))
     return np.array(im)
 
+def ink(rgb, brightness, contrast):
+    """Reproduce CSS `grayscale(1) brightness(b) contrast(c)` on straight-alpha sRGB."""
+    L = luma(rgb.astype(np.float32)) / 255.0
+    v = np.clip((L * brightness - 0.5) * contrast + 0.5, 0.0, 1.0)
+    v8 = (v * 255.0 + 0.5).astype(np.uint8)
+    return np.dstack([v8, v8, v8])
+
 def main():
     for t in TIERS: os.makedirs(os.path.join(OUT, t), exist_ok=True)
     rows = stats_pass()
@@ -132,10 +143,11 @@ def main():
         crop[:, px0:px0 + (sx1 - sx0)] = rgb[Y0:Y1, sx0:sx1]; ca[:, px0:px0 + (sx1 - sx0)] = a[Y0:Y1, sx0:sx1]
         g = grade(crop, ca)
         rgba = Image.fromarray(np.dstack([g, (ca * 255).astype(np.uint8)]), "RGBA")
-        for tier, (h, q, er, ep) in TIERS.items():
+        for tier, (h, q, er, ep, ib, ic) in TIERS.items():
             w = int(round(2 * HW * h / (Y1 - Y0)))
             im = rgba.resize((w, h), Image.LANCZOS)
             rgb_t = im.convert("RGB").filter(ImageFilter.UnsharpMask(radius=er, percent=ep, threshold=3))
+            rgb_t = Image.fromarray(ink(np.array(rgb_t), ib, ic))
             im = Image.merge("RGBA", (*rgb_t.split(), im.split()[3]))
             save_retry(im, os.path.join(OUT, tier, f"f_{k:03d}.webp"), format="WEBP", quality=q, method=4)
         if k % 20 == 0: log(f"  {k}/{N_OUT} done (raw {i})")

@@ -23,7 +23,9 @@ export interface Project {
   media?: string;
   /** Optional local video clip (under /public), plays in the detail panel. */
   clip?: string;
-  /** Case study (shown in the detail panel). TODO(MrVayn): real copy. */
+  /** Older prototypes collapse under "Earlier builds" in the Work grid. */
+  archive?: boolean;
+  /** Case study (shown in the detail panel). */
   problem?: string;
   approach?: string;
   result?: string;
@@ -39,12 +41,12 @@ export const projects: Project[] = [
       "A studio title built on a reusable, data-driven gameplay framework for rapid iteration and scale. Showcased at IGDC 2025; demo in progress.",
     tech: ["Unreal Engine 5", "Gameplay Framework", "Multiplayer", "Niagara VFX"],
     links: [{ label: "Studio", href: "https://magadhastudios.com/category" }],
-    badge: "IGDC 2025",
+    badge: "IN DEV",
     featured: true,
     shipped: false,
     media: "/projects/antarya.webp", // owner's in-engine screenshot (shadow-lifted + sharpened)
     problem:
-      "Small teams iterate slowly when gameplay is hard-coded, every new mechanic risks rewriting core systems.",
+      "Small teams iterate slowly when gameplay is hard-coded: every new mechanic risks rewriting core systems.",
     approach:
       "As CTO I built a reusable, data-driven gameplay framework in Unreal Engine 5: modular systems, designer-tunable data assets, and a multiplayer-ready architecture, so features slot in without touching the core.",
     result:
@@ -56,39 +58,20 @@ export const projects: Project[] = [
     role: "Creator, autonomous AI tooling",
     year: "2026",
     summary:
-      "Autonomous AI tooling for Unreal Engine: it auto-detects the connected MCP servers and routes any UE task to the best available tool, C++, Blueprints, Niagara, materials, Control Rig, animation, PCG, lighting, UMG, Sequencer, GAS, physics, multiplayer, profiling, packaging, even Blender.",
+      "Autonomous AI tooling for Unreal Engine: it auto-detects the connected MCP servers and routes any UE task to the best available tool: C++, Blueprints, Niagara, materials, Control Rig, animation, PCG, lighting, UMG, Sequencer, GAS, physics, multiplayer, profiling, packaging, even Blender.",
     tech: ["AI Agents", "MCP", "TypeScript", "Python", "Unreal Engine 5.8 / 5.6", "Blender"],
     links: [],
     badge: "IN DEV",
     media: "/projects/ue-mcp.webp", // owner's screenshot of the branded app
     problem:
-      "No single MCP server covers all of Unreal, and picking the right one per task (and per engine version) by hand is slow and error-prone, one wrong tool call can corrupt a live editor session.",
+      "No single MCP server covers all of Unreal, and picking the right one per task (and per engine version) by hand is slow and error-prone. One wrong tool call can corrupt a live editor session.",
     approach:
       "A Claude Code skill that auto-detects the connected MCP servers and routes each request to the best tool, version-aware across UE 5.8 and 5.6, with fallback ladders when a server is down and anti-hallucination, production-safety rules on top.",
     result:
       "One command surface over the whole engine: 70+ tools and 23 workflow recipes, turning hours of editor busywork into minutes and driving real day-to-day work.",
   },
-  {
-    id: "couragely",
-    title: "Couragely",
-    role: "Solo build, Roblox horror",
-    year: "2025",
-    summary:
-      "A Roblox horror game built in 7 days. Within 2 weeks: 12.2K visits, 601 favorites, 638,391 impressions, 9,432 plays.",
-    tech: ["Roblox", "Luau", "Horror", "Live Ops"],
-    links: [{ label: "Play on Roblox", href: "https://www.roblox.com/games/137847988705947/Couragely" }],
-    badge: "LIVE",
-    shipped: true,
-    media: "https://tr.rbxcdn.com/180DAY-8c1ca43249f81b505fa0eb47531f04ee/500/280/Image/Jpeg/noFilter",
-    problem:
-      "Could a sticky, shareable horror loop be built and shipped in a week, and actually find an audience?",
-    approach:
-      "A solo Roblox/Luau build: a tight scare loop, fast onboarding, and live-ops tuning for retention, shipped in 7 days.",
-    result:
-      "12.2K visits · 601 favorites · 638,391 impressions · 9,432 plays in the first two weeks.",
-  },
   { id: "ai-therapist", title: "Virtual AI Therapist", role: "Developer", year: "2023", summary: "An AI-driven conversational prototype that handles real-time dialogue and reads sentiment.", tech: ["AI", "LangChain", "RAG", "Prototype"], links: [{ label: "View", href: "https://drive.google.com/file/d/1WV2xYvS9aCd0mrpUbshdrsm8rcOFGNf8/view?usp=drive_link" }] },
-  { id: "unreal-horror", title: "Unreal Horror Game", role: "Developer", year: "2023", summary: "An atmospheric horror prototype in Unreal Engine 5.", tech: ["Unreal Engine 5", "Horror"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1X1QuGVAsIcP6mcX-Q5LFw_Sr0XxBt8Xb/view?usp=sharing" }] },
+  { id: "unreal-horror", title: "Unreal Horror Game", role: "Developer", year: "2023", summary: "An atmospheric horror prototype in Unreal Engine 5.", tech: ["Unreal Engine 5", "Horror"], archive: true, links: [{ label: "Watch", href: "https://drive.google.com/file/d/1X1QuGVAsIcP6mcX-Q5LFw_Sr0XxBt8Xb/view?usp=sharing" }] },
   {
     id: "multiplayer-tba",
     title: "SAO-X · Skill Art Online",
@@ -119,32 +102,31 @@ export const projects: Project[] = [
       "A real-time archviz sales tool built in Unreal Engine 5.8 and C++: it turns an architect's CAD model into a standalone, offline app, fly-through and first-person walk, clickable apartments with live pricing and availability, floor-by-floor section cuts, swappable facade finishes, and dynamic time-of-day.",
     tech: ["Unreal Engine 5.8", "C++", "Datasmith / FBX", "Lumen GI", "UMG", "Windows Build"],
     links: [{ label: "Watch full video", href: "https://drive.google.com/file/d/1bimzCoh5DpLQ7v1hIzspsM90RO6XA6IX/view?usp=drive_link" }],
-    badge: "COMMERCIAL",
+    badge: "SHIPPED",
     featured: true,
     shipped: true,
     media: "/projects/magviz.webp", // hero still: dusk aerial with the live tool UI (own capture)
     clip: "/projects/magviz-sections.mp4", // ~11s: green unit/section blocks, floor-isolation cut, night-to-dawn weather sweep
     problem:
-      "Selling an unbuilt development off static renders and a PDF price list is flat, buyers can't explore the building, see what's still available, or picture it at a different time of day.",
+      "Selling an unbuilt development off static renders and a PDF price list is flat: buyers can't explore the building, see what's still available, or picture it at a different time of day.",
     approach:
       "A real-time UE 5.8 + C++ app: Datasmith/FBX ingest of the architect's model, dynamic Lumen GI, and a UMG layer for fly-through/walk, clickable per-unit pricing and availability, section cuts, finish swaps, and time-of-day, packaged as a standalone Windows build that runs offline.",
     result:
       "An interactive sales tool a developer can hand a buyer on a laptop with no internet, sold commercially through Vayn Studios.",
   },
-  { id: "sasta-minecraft", title: "Sasta Minecraft", role: "Developer", year: "2023", summary: "A voxel sandbox experiment.", tech: ["Unreal Engine 5", "Systems"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1BkugwIClcTx4aLtK-34aaelw40YbYxDk/view?usp=drive_link" }] },
-  { id: "env-design-2", title: "Environment Design 2.0", role: "Environment Artist", year: "2023", summary: "Real-time environment art in UE5.", tech: ["Unreal Engine 5", "Environment"], links: [{ label: "View", href: "https://drive.google.com/file/d/1hwlbVTwMOzlgakO_T6ooHetDxh7mE4JC/view?usp=drive_link" }] },
-  { id: "env-design", title: "Environment Design", role: "Environment Artist", year: "2023", summary: "Immersive environment design under tight deadlines.", tech: ["Unreal Engine 5", "Environment"], links: [{ label: "View", href: "https://drive.google.com/file/d/1Io3zeGNmbGLYUTxSnldVEFKCwFcjmO5p/view?usp=drive_link" }] },
-  { id: "techademy", title: "Techademy", role: "Hackathon", year: "2023", summary: "A hackathon build.", tech: ["Game Jam", "Rapid Prototype"], links: [{ label: "View", href: "https://drive.google.com/file/d/1acw_QwxZmLBwmQIKrSJf6_nW2ozH77vk/view?usp=sharing" }] },
-  { id: "first-target-shooting", title: "First Target Shooting Game", role: "Developer", year: "2022", summary: "An early target/aim shooting prototype.", tech: ["Unreal Engine 5", "Gameplay"], links: [{ label: "Watch", href: "https://drive.google.com/file/d/1de3noEKBFLNmfWG58Uw-CHItLTLSuL4S/view?usp=drive_link" }] },
-  { id: "cgi-teaser", title: "CGI Animated Teaser", role: "VFX / CGI", year: "2023", summary: "A cinematic CGI teaser produced in UE5.", tech: ["UE5 Cinematics", "Sequencer", "VFX"], links: [{ label: "View", href: "https://drive.google.com/drive/folders/1D7sYdJ2a0RIfLjLvWnXD1F4m0ldMqFJW?usp=drive_link" }] },
-  { id: "glazer-site", title: "Glazer Games Website", role: "Web Developer", year: "2023", summary: "Production website for Glazer Games.", tech: ["Web", "Frontend"], links: [{ label: "Visit", href: "https://www.glazer.games" }], media: "/projects/glazer-site.webp" },
+  { id: "sasta-minecraft", title: "Sasta Minecraft", role: "Developer", year: "2023", summary: "A voxel sandbox experiment.", tech: ["Unreal Engine 5", "Systems"], archive: true, links: [{ label: "Watch", href: "https://drive.google.com/file/d/1BkugwIClcTx4aLtK-34aaelw40YbYxDk/view?usp=drive_link" }] },
+  { id: "env-design-2", title: "Environment Design", role: "Environment Artist", year: "2023", summary: "Real-time UE5 environment art: two pieces built under tight deadlines.", tech: ["Unreal Engine 5", "Environment"], archive: true, links: [{ label: "View 2.0", href: "https://drive.google.com/file/d/1hwlbVTwMOzlgakO_T6ooHetDxh7mE4JC/view?usp=drive_link" }, { label: "View 1.0", href: "https://drive.google.com/file/d/1Io3zeGNmbGLYUTxSnldVEFKCwFcjmO5p/view?usp=drive_link" }] },
+  { id: "techademy", title: "Techademy", role: "Hackathon", year: "2023", summary: "A hackathon build.", tech: ["Game Jam", "Rapid Prototype"], archive: true, links: [{ label: "View", href: "https://drive.google.com/file/d/1acw_QwxZmLBwmQIKrSJf6_nW2ozH77vk/view?usp=sharing" }] },
+  { id: "first-target-shooting", title: "First Target Shooting Game", role: "Developer", year: "2022", summary: "An early target/aim shooting prototype.", tech: ["Unreal Engine 5", "Gameplay"], archive: true, links: [{ label: "Watch", href: "https://drive.google.com/file/d/1de3noEKBFLNmfWG58Uw-CHItLTLSuL4S/view?usp=drive_link" }] },
+  { id: "cgi-teaser", title: "CGI Animated Teaser", role: "VFX / CGI", year: "2023", summary: "A cinematic CGI teaser produced in UE5.", tech: ["UE5 Cinematics", "Sequencer", "VFX"], archive: true, links: [{ label: "View", href: "https://drive.google.com/drive/folders/1D7sYdJ2a0RIfLjLvWnXD1F4m0ldMqFJW?usp=drive_link" }] },
+  { id: "glazer-site", title: "Glazer Games Website", role: "Web Developer", year: "2023", summary: "Production website for Glazer Games.", tech: ["Web", "Frontend"], archive: true, links: [{ label: "Visit", href: "https://www.glazer.games" }], media: "/projects/glazer-site.webp" },
   {
     id: "grannyspot",
     title: "Grannyspot",
     role: "Full-stack, Solo build",
     year: "2025",
     summary:
-      "Live e-commerce store for a handmade-pickle brand, product catalog, cart, user auth, Razorpay checkout, and an admin panel secured by server-side RBAC.",
+      "Live e-commerce store for a handmade-pickle brand: product catalog, cart, user auth, Razorpay checkout, and an admin panel secured by server-side RBAC.",
     tech: ["Next.js 14", "TypeScript", "Tailwind CSS", "Prisma", "Supabase", "PostgreSQL", "Razorpay"],
     links: [{ label: "Visit", href: "https://grannyspot.com" }],
     badge: "LIVE",
@@ -152,11 +134,30 @@ export const projects: Project[] = [
     media: "/projects/grannyspot.webp", // product card built from the store's own thecha shot
     // TODO(MrVayn): confirm grannyspot.com is publicly live before sharing widely.
     problem:
-      "A handmade-pickle brand needed a real storefront, catalog, secure checkout, and an admin panel, not a template.",
+      "A handmade-pickle brand needed a real storefront (catalog, secure checkout, and an admin panel), not a template.",
     approach:
       "A solo full-stack build: Next.js 14 + TypeScript + Tailwind, Prisma over Supabase (Postgres + Auth), Razorpay checkout, and server-side role-based access control for the admin panel; a responsive, WCAG-AA-conscious design system deployed on Vercel.",
     result:
       "A live store with catalog, cart, user auth, payments, and a secured admin panel.",
+  },
+  {
+    id: "couragely",
+    title: "Couragely",
+    role: "Solo build, Roblox horror",
+    year: "2025",
+    summary:
+      "A Roblox horror game built in 7 days. Within 2 weeks: 12.2K visits, 601 favorites, 638,391 impressions, 9,432 plays.",
+    tech: ["Roblox", "Luau", "Horror", "Live Ops"],
+    links: [{ label: "Play on Roblox", href: "https://www.roblox.com/games/137847988705947/Couragely" }],
+    badge: "LIVE",
+    shipped: true,
+    media: "https://tr.rbxcdn.com/180DAY-8c1ca43249f81b505fa0eb47531f04ee/500/280/Image/Jpeg/noFilter",
+    problem:
+      "Could a sticky, shareable horror loop be built and shipped in a week, and actually find an audience?",
+    approach:
+      "A solo Roblox/Luau build: a tight scare loop, fast onboarding, and live-ops tuning for retention, shipped in 7 days.",
+    result:
+      "12.2K visits · 601 favorites · 638,391 impressions · 9,432 plays in the first two weeks.",
   },
 ];
 

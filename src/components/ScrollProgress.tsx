@@ -30,7 +30,7 @@ export function ScrollProgress() {
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[2px] origin-left"
+      className="pointer-events-none fixed inset-x-0 top-0 z-chrome h-[2px] origin-left"
       style={{
         transform: "scaleX(0)",
         background: "rgb(var(--ion))",

@@ -1,45 +1,35 @@
----
-name: frontend-design
-description: Use when building or restyling any UI in this project — deciding palette, typography, layout, motion, and VFX, or reviewing visual quality. Enforces a distinctive, intentional (non-templated) aesthetic and a quality floor: responsive, reduced-motion, accessible. Read alongside docs/DESIGN_SYSTEM.md.
----
-
 # Frontend Design (project method)
 
-Act as the design lead at a studio known for giving every client an identity that can't be mistaken
-for anyone else's. Make deliberate, opinionated choices specific to THIS brief — a AAA-caliber
-game-dev portfolio in an NFS Unbound × Valorant direction. Take one real, justified aesthetic risk.
-The project's tokens live in `docs/DESIGN_SYSTEM.md`; derive every color/type decision from there.
+Act as the design lead for a portfolio that must read as top-tier and unmistakable. The
+shipped system is documented in `docs/DESIGN_SYSTEM.md`; derive every colour, type and
+spacing decision from it. Take one justified aesthetic risk per change, never ten.
+
+## The direction
+Light paper (off-white page), greyish glass containers, ink text, ONE red signal. Two
+signatures carry the identity: ROG, the ink wraith scrubbed by scroll on the right, and the
+stickman cursor game with its boot cinematic. Everything else is a quiet instrument panel:
+mono meta labels on hairline rules, Space Grotesk display type, Inter body.
 
 ## Principles
-- **Ground it in the subject.** The world of game UIs, VFX, and "game feel" is where distinctive
-  choices come from. Build with MrVayn's real content (projects, shipped titles), not lorem.
-- **The hero is a thesis.** Open with the most characteristic thing — here, a live, juicy, optional
-  mini-game + a confident hero word. Avoid the template hero (big number + small label + gradient).
-- **Typography carries personality.** Use the pairing in `DESIGN_SYSTEM.md` (Archivo Expanded/Black +
-  Chakra Petch + Inter + JetBrains Mono). Make type a memorable part of the design, not a neutral
-  delivery vehicle.
-- **Structure is information.** Numbering, eyebrows, and dividers must encode something true. Use
-  numbered markers (01 / 02) only where order is real (e.g. a timeline) — never as decoration.
-- **Motion is deliberate.** One orchestrated moment (the boot sequence; scroll reveals) beats
-  scattered effects. Too much animation reads as AI-generated. Respect reduced-motion.
-- **Match complexity to vision.** This is a kinetic, maximal-leaning direction, so execute the VFX
-  elaborately — but keep everything around the signature quiet and precise.
+- **Ground it in the subject.** Game feel, engine work, shipped products. Build with
+  MrVayn's real content (`src/data/*.ts`), never lorem, never invented numbers.
+- **The hero is a thesis.** Identity pill, wordmark with its red slab, one paragraph, two
+  actions, three facts. No cycling titles, no trust strips, no second logo.
+- **Typography carries personality.** Space Grotesk 600 tight for display, Inter for body,
+  JetBrains Mono for ALL meta at one tracking (owned by `.font-mono` in globals.css).
+- **Structure is information.** Section numbers come from `src/data/sections.ts` and mean
+  DOM order; list numbers only where order is real (the Journey).
+- **Motion is deliberate.** One orchestrated moment (boot handoff into the hero), IO
+  reveals that stagger by co-arrival, transform-only scroll depth. Markup ships visible.
+- **Restraint.** Red is for fills and signals; glass is for containers; hairlines are
+  steel. Before "leaving the house", remove one accessory.
 
-## Process: plan → critique → build → critique
-Plan first (in your head / a scratch note): a compact token check (color, type, layout, signature)
-against `DESIGN_SYSTEM.md`. Then critique it — if any part reads like a generic AI default
-(cream + serif + terracotta; near-black + a single acid accent; broadsheet hairlines) rather than a
-choice for THIS brief, revise it and say what changed and why. Only then write code, following the
-plan exactly. Watch CSS specificity (type-based vs element-based selectors fighting over
-padding/margins between sections).
-
-## Restraint & self-critique
-Spend boldness in one place: the kinetic VFX + the angular bevel are the signature; keep the rest
-disciplined. Build to a quality floor without announcing it — responsive to mobile, visible keyboard
-focus, reduced-motion respected. Take screenshots and critique as you build (a picture is worth 1000
-tokens). Before "leaving the house," remove one accessory.
+## Process
+Plan (token check against `docs/DESIGN_SYSTEM.md`), critique (does any part read as a
+generic template?), build, then capture phone / 1080p / 2K and critique the captures.
+Watch CSS layer order: `.glass` is an unlayered rule and beats Tailwind border/shadow
+utilities on the same element.
 
 ## Writing
-Words are design material. Active voice; a control says what it does ("View work", "Play"). Keep
-names consistent across a flow. Errors explain + fix in the interface's voice; empty states invite
-action. Plain over clever; specific over vague.
+Active voice; a control says what it does ("View work", "Email me"). Plain over clever.
+No em dashes.

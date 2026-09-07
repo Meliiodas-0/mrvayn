@@ -14,7 +14,7 @@ export interface ReelFrame {
 // /public/showreel/*.webp (viewport-cropped past the OBS/editor chrome + shadow-lifted;
 // see scratchpad extractors). Includes the flagship SAO-X (multiplayer-tba) and MagViz;
 // excludes Grannyspot and Glazer Games. Ordered to alternate dark/bright for rhythm.
-const REEL: { id: string; tag: string }[] = [
+const REEL: { id: string; tag: string; project?: string }[] = [
   { id: "antarya", tag: "Unreal Engine 5" },
   { id: "multiplayer-tba", tag: "UE5 · MMORPG" },
   { id: "magviz", tag: "UE5 · Archviz" },
@@ -24,20 +24,20 @@ const REEL: { id: string; tag: string }[] = [
   { id: "ai-therapist", tag: "AI Prototype" },
   { id: "couragely", tag: "Roblox · Horror" },
   { id: "first-target-shooting", tag: "UE5 · Gameplay" },
-  { id: "env-design", tag: "Environment Art" },
+  { id: "env-design", tag: "Environment Art", project: "env-design-2" },
   { id: "techademy", tag: "Game Jam" },
   { id: "sasta-minecraft", tag: "Voxel Sandbox" },
 ];
 
-export const reelFrames: ReelFrame[] = REEL.map(({ id, tag }) => {
-  const p = projects.find((x) => x.id === id);
+export const reelFrames: ReelFrame[] = REEL.map(({ id, tag, project }) => {
+  const p = projects.find((x) => x.id === (project ?? id));
   if (!p) throw new Error(`showreel: unknown project id "${id}"`);
   return {
     id,
     title: p.title,
     tag,
     year: p.year,
-    href: p.links[0]?.href ?? "#loadout",
+    href: p.links[0]?.href ?? "#work",
     img: `/showreel/${id}.webp`,
   };
 });

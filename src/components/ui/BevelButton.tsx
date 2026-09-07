@@ -5,8 +5,8 @@ import { cn } from "@/lib/cn";
 
 type Variant = "primary" | "ghost";
 
-/** Magnetic pull (Skiper/Vengeance mouse-effect pattern): the button drifts up to
- *  6px toward the cursor and snaps back on leave. Pure transforms, reduced-motion safe. */
+/** Magnetic pull: the button drifts up to 6px toward the cursor and snaps back on
+ *  leave. Pure transforms, reduced-motion safe. */
 function useMagnet() {
   const ref = useRef<HTMLElement | null>(null);
   const onMove = (e: React.PointerEvent) => {
@@ -34,24 +34,17 @@ type AnchorProps = BaseProps &
 
 type BevelButtonProps = ButtonProps | AnchorProps;
 
-// v3 buttons: mono 13px uppercase, radius 0 with ONE 45-degree notch (bevel-sm).
-// Primary: solid --red, white, hover #FF2140 + 1px lift. Secondary: line-2 hairline.
+// The one button: mono 13px uppercase, 4px radius. Primary = solid --ion, white text,
+// ion-hover fill + 1px lift; ghost = line-2 hairline on a light pane (near-solid on
+// phones so ROG never reads through it). Keyboard focus keeps the global ring; the
+// solid fill switches it to ink.
 const base =
-  "group relative inline-flex items-center justify-center gap-2 overflow-hidden bevel-sm px-6 py-3 font-hud text-[13px] uppercase transition-[background-color,border-color,color,transform] duration-200 ease-snap focus-visible:outline-none";
+  "group relative inline-flex items-center justify-center gap-2 rounded px-6 py-3 font-mono text-meta uppercase transition-[background-color,border-color,color,transform] duration-200 ease-snap";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-ion text-white hover:bg-[#FF2140] hover:-translate-y-px",
-  ghost: "border border-line2 bg-white/45 text-bone hover:border-surge",
+  primary: "bg-ion text-white hover:bg-ionHover hover:-translate-y-px focus-visible:outline-bone",
+  ghost: "border border-line2 bg-void/90 text-bone hover:border-surge lg:bg-white/45",
 };
-
-/** Hover decoration: corner brackets snap in + an accent fill sweep (CSS only). */
-function Decoration({ variant }: { variant: Variant }) {
-  return (
-    <>
-      {variant === "ghost" && <span aria-hidden className="hidden" />}
-    </>
-  );
-}
 
 export function BevelButton(props: BevelButtonProps) {
   const { variant = "primary", className, children } = props;
@@ -73,7 +66,6 @@ export function BevelButton(props: BevelButtonProps) {
         {...magnetProps}
         {...rest}
       >
-        <Decoration variant={variant} />
         <span className="relative z-10 inline-flex items-center gap-2">{children}</span>
       </a>
     );
@@ -87,7 +79,6 @@ export function BevelButton(props: BevelButtonProps) {
       {...magnetProps}
       {...rest}
     >
-      <Decoration variant={variant} />
       <span className="relative z-10 inline-flex items-center gap-2">{children}</span>
     </button>
   );

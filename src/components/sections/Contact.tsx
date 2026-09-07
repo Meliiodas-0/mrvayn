@@ -1,46 +1,58 @@
-import { Mail, ArrowUpRight } from "lucide-react";
+import { Mail, ArrowUpRight, FileText } from "lucide-react";
 import { profile } from "@/data/profile";
 import { socials, collaborations } from "@/data/socials";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { Panel } from "@/components/ui/Panel";
 import { BevelButton } from "@/components/ui/BevelButton";
+import { CopyHandle } from "@/components/ui/CopyHandle";
 import { Reveal } from "@/components/motion/Reveal";
 
 export function Contact() {
   return (
-    <SectionShell id="comms" eyebrow="Contact" title="Get in touch" index="06">
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        {/* One confident CTA. The work above makes the case; this just opens the door. */}
-        <Reveal>
-          <Panel edge className="flex h-full flex-col justify-between gap-8 p-7 sm:p-9">
-            <div>
-              <p className="flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-widest text-mist">
-                <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-surge" />
-                {profile.availability}
-              </p>
-              <h3 className="mt-5 max-w-md font-display text-2xl font-semibold uppercase leading-tight text-bone sm:text-3xl">
-                Building something worth shipping?
-              </h3>
-              <p className="mt-3 max-w-md font-sans leading-relaxed text-mist">
-                Email is the fastest channel. UE5 work, product builds, or just talking shop
-                about Antarya and the MMORPG, my inbox is open.
-              </p>
-            </div>
-            <div>
+    <SectionShell id="contact" title="Contact">
+      <div className="grid gap-6 lg:grid-cols-12">
+        {/* One confident door. The work above makes the case; this just opens it. */}
+        <Reveal fx="left" className="lg:col-span-7">
+          <Panel edge className="flex h-full flex-col p-7 sm:p-9">
+            <p className="flex items-start gap-2 font-mono text-xs uppercase text-mist">
+              <span aria-hidden className="mt-[0.35rem] inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-surge" />
+              {profile.availability}
+            </p>
+            <h3 className="mt-5 max-w-md font-display text-2xl font-semibold uppercase leading-tight text-bone sm:text-3xl">
+              Building something worth shipping?
+            </h3>
+            <p className="mt-3 max-w-md font-sans leading-relaxed text-mist">
+              Email is the fastest channel. UE5 work, product builds, or just talking shop
+              about Antarya and the MMORPG: my inbox is open.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <BevelButton href={profile.emailHref} variant="primary">
                 <Mail className="h-4 w-4" />
                 Email me
               </BevelButton>
+              {profile.resumeHref && (
+                <BevelButton href={profile.resumeHref} variant="ghost" target="_blank" rel="noopener">
+                  <FileText className="h-4 w-4" />
+                  Download CV
+                </BevelButton>
+              )}
             </div>
+            {/* the address itself, readable and copyable without a mail client */}
+            <a
+              href={`mailto:${profile.email}`}
+              className="mt-10 block border-t border-steel/50 pt-5 font-mono text-meta text-volt transition-colors hover:text-surge lg:mt-auto"
+            >
+              {profile.email}
+            </a>
           </Panel>
         </Reveal>
 
-        {/* Socials + collaborations */}
-        <div className="grid gap-6">
-          <Reveal delay={0.08}>
+        {/* Channels + collaborations */}
+        <div className="grid content-start gap-6 lg:col-span-5">
+          <Reveal fx="right">
             <Panel className="p-6">
-              <h4 className="font-hud text-xs uppercase tracking-[0.22em] text-surge">Channels</h4>
-              <ul className="mt-4 grid grid-cols-2 gap-3">
+              <h4 className="font-mono text-xs uppercase text-surge">Channels</h4>
+              <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {socials.map((s) => (
                   <li key={s.name}>
                     {s.href ? (
@@ -48,26 +60,23 @@ export function Contact() {
                         href={s.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex items-center justify-between border border-steel px-3 py-2.5 transition-colors hover:border-surge/50 bevel-sm"
+                        className="group flex min-w-0 items-center justify-between gap-3 rounded border border-steel bg-white/40 px-3 py-2.5 transition-colors hover:border-surge/50"
                       >
-                        <span className="font-hud text-xs uppercase tracking-wide text-bone">{s.name}</span>
-                        <ArrowUpRight className="h-3.5 w-3.5 text-mist transition-colors group-hover:text-surge" />
+                        <span className="font-mono text-xs uppercase text-bone">{s.name}</span>
+                        <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-mist transition-colors group-hover:text-surge" />
                       </a>
-                    ) : (
-                      <div className="flex items-center justify-between border border-steel px-3 py-2.5 bevel-sm">
-                        <span className="font-hud text-xs uppercase tracking-wide text-bone">{s.name}</span>
-                        <span className="font-mono text-[0.7rem] text-surge">{s.handle}</span>
-                      </div>
-                    )}
+                    ) : s.handle ? (
+                      <CopyHandle label={s.name} handle={s.handle} />
+                    ) : null}
                   </li>
                 ))}
               </ul>
             </Panel>
           </Reveal>
 
-          <Reveal delay={0.14}>
+          <Reveal fx="right">
             <Panel className="p-6">
-              <h4 className="font-hud text-xs uppercase tracking-[0.22em] text-surge">Selected collaborations</h4>
+              <h4 className="font-mono text-xs uppercase text-surge">Selected collaborations</h4>
               <ul className="mt-3 space-y-1.5">
                 {collaborations.map((c) => (
                   <li key={c.href}>

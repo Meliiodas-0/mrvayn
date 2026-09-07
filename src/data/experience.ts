@@ -14,7 +14,7 @@ export const experience: TimelineEntry[] = [
     title: "CTO",
     org: "Magadha Studios",
     summary:
-      "Leading core tech and the production pipeline, a reusable, data-driven gameplay framework for rapid iteration and scale. Showcased Antarya at IGDC 2025.",
+      "Leading core tech and the production pipeline. Built a reusable, data-driven gameplay framework for rapid iteration and scale; showcased Antarya at IGDC 2025.",
     kind: "work",
   },
   {
@@ -54,7 +54,7 @@ export const experience: TimelineEntry[] = [
     title: "Esports Leadership",
     org: "TeamIND · Godlike · 7Seas · TeamXO · Entity",
     summary:
-      "Leadership and management across top orgs, a deep, practical understanding of audience, community, and retention.",
+      "Leadership and management across top orgs. That is where my practical understanding of audience, community, and retention comes from.",
     kind: "milestone",
   },
 ];
@@ -66,7 +66,7 @@ export const education = {
   year: "2021-2025",
 };
 
-// Certifications (from résumé).
+// Certifications (from the resume).
 export interface Certification {
   name: string;
   issuer: string;

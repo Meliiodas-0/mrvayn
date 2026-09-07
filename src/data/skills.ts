@@ -1,4 +1,4 @@
-// Arsenal, grouped tech (a grid, not progress bars).
+// Skills, grouped tech (a grid, not progress bars).
 // Full union of the SDE + Game Dev resumes (latest: "new sde", Aug 2026).
 // Additive only: never drop a skill, only extend.
 
@@ -100,7 +100,6 @@ export const skillGroups: SkillGroup[] = [
   {
     label: "Engines & Tools",
     items: [
-      "Roblox Studio",
       "Git",
       "Vitest",
       "Blender",
@@ -108,6 +107,7 @@ export const skillGroups: SkillGroup[] = [
       "Adobe Premiere Pro",
       "Adobe Photoshop",
       "FL Studio",
+      "Roblox Studio",
     ],
   },
 ];

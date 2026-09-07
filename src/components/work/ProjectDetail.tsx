@@ -6,22 +6,24 @@ import { X, ArrowUpRight, Lock, Play } from "lucide-react";
 import type { Project } from "@/data/projects";
 import { reelFrames } from "@/data/showreel";
 import { driveEmbed, driveThumb } from "@/lib/drive";
+import { lenisRef } from "@/components/fx/SmoothScroll";
 import { Tag } from "@/components/ui/Tag";
-import { HudFrame } from "@/components/ui/HudFrame";
 import { Thumb } from "@/components/ui/Thumb";
+import { BevelButton } from "@/components/ui/BevelButton";
 
-/** Agent-detail panel (BRIEF §3): Problem -> Approach -> Result + media + links.
- *  Renders only while a project is selected (unmounts on close, robust, no
- *  exit-presence edge cases). Accessible: Esc/backdrop close, focus trap,
- *  scroll lock, restored focus. */
+/** Project detail dialog: Problem -> Approach -> Result + media + links.
+ *  Renders only while a project is selected (unmounts on close). Accessible:
+ *  Esc/backdrop close, focus trap, page inert behind it, scroll lock, restored focus. */
 export function ProjectDetail({ project, onClose }: { project: Project | null; onClose: () => void }) {
   if (!project) return null;
   return <DetailPanel project={project} onClose={onClose} />;
 }
 
+const FOCUSABLE = 'a[href],button:not([disabled]),video,iframe,[tabindex]:not([tabindex="-1"])';
+
 function DetailPanel({ project, onClose }: { project: Project; onClose: () => void }) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   const primaryHref = project.links[0]?.href;
   // A self-hosted clip (under /public) wins over any Drive embed; it plays inline
@@ -34,62 +36,77 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
     project.media ||
     reelFrames.find((f) => f.id === project.id)?.img ||
     (primaryHref ? driveThumb(primaryHref, 1280) : null);
-  // A LOCAL clip is light, so it autoplays (muted) the moment the panel opens: the
-  // in-site demo must be unmissable, not hidden behind a poster tap. Reduced-motion
-  // users keep the poster. The Drive iframe stays deferred (it janks the entrance).
+  // A LOCAL clip is light, so it autoplays (muted) the moment the panel opens.
+  // Reduced-motion users keep the poster. The Drive iframe stays deferred.
   const [playing, setPlaying] = useState(
     () => !!project.clip && !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
+
+  // Freeze Lenis while the dialog is open (mount-only, so re-renders never churn it);
+  // the overlay carries data-lenis-prevent so wheel scrolls the dialog natively.
+  useEffect(() => {
+    lenisRef.current?.stop();
+    return () => { lenisRef.current?.start(); };
+  }, []);
 
   useEffect(() => {
     const prevFocus = document.activeElement as HTMLElement | null;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    // Let CSS pause the marquees/ghost drifts hidden behind the panel (globals.css).
+    // Let CSS pause the marquees hidden behind the panel (globals.css).
     document.documentElement.setAttribute("data-modal", "1");
-    closeRef.current?.focus();
+    // The page behind the dialog is inert (the portal lives on body, so it stays live).
+    const shielded = Array.from(document.querySelectorAll<HTMLElement>("#content, header, footer"));
+    shielded.forEach((el) => el.setAttribute("inert", ""));
+    // Only the controls that are actually displayed at this breakpoint (the pinned
+    // phone X vs the in-panel desktop X); getClientRects, not offsetParent, because
+    // the pinned X is position:fixed.
+    const focusables = () =>
+      Array.from(overlayRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter((el) => el.getClientRects().length > 0);
+    (focusables()[0] ?? panelRef.current)?.focus();
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") { e.stopPropagation(); onClose(); return; }
-      if (e.key === "Tab" && panelRef.current) {
-        const f = panelRef.current.querySelectorAll<HTMLElement>(
-          // include video/iframe: a playing clip (no trailing link for SAO-X/MagViz)
-          // is otherwise a focusable tab-stop outside the trap, letting Tab escape.
-          'a[href],button:not([disabled]),video,iframe,[tabindex]:not([tabindex="-1"])',
-        );
-        if (!f.length) return;
-        const first = f[0], last = f[f.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
+      if (e.key !== "Tab") return;
+      const f = focusables();
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      const a = document.activeElement as HTMLElement | null;
+      if (!a || !overlayRef.current?.contains(a)) { e.preventDefault(); (e.shiftKey ? last : first).focus(); return; }
+      if (e.shiftKey && a === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); }
     };
     document.addEventListener("keydown", onKey, true);
     return () => {
       document.removeEventListener("keydown", onKey, true);
       document.body.style.overflow = prevOverflow;
       document.documentElement.removeAttribute("data-modal");
+      shielded.forEach((el) => el.removeAttribute("inert"));
       prevFocus?.focus?.();
     };
   }, [onClose]);
 
-  // Pure-CSS entrance (mv-fade / mv-reveal), framer-motion doesn't apply on iOS
-  // WebKit and could leave the dialog invisible; these only animate TOWARD visible.
-  // PORTALED to <body>: inside <main> (a z-10 stacking context) the whole dialog,
-  // z-90 included, stacked BELOW the z-50 nav, which swallowed the pinned phone X.
+  // Pure-CSS entrance (mv-fade / mv-reveal): only ever animates TOWARD visible.
+  // PORTALED to <body>: inside <main> (a z-10 stacking context) the whole dialog
+  // stacked BELOW the nav, which swallowed the pinned phone X.
   return createPortal(
     <div
-      // Plain dark overlay, NOT backdrop-blur: blurring the whole viewport re-renders every
+      ref={overlayRef}
+      data-lenis-prevent
+      // Plain ink scrim, NOT backdrop-blur: blurring the whole viewport re-renders every
       // frame while the canvases animate behind it, which is what made the panel lag.
-      className="mv-fade fixed inset-0 z-[90] flex items-end justify-center overflow-y-auto bg-[rgba(15,23,42,0.38)] sm:items-center"
+      // Auto margins on the panel: centred when it fits, top-aligned and fully
+      // scrollable when it is taller than the viewport.
+      className="mv-fade fixed inset-0 z-overlay flex overflow-y-auto bg-bone/50 sm:p-6"
       onClick={onClose}
     >
       {/* Phone close, pinned to the VIEWPORT. It must be a child of the overlay, not
-          the panel: the panel's backdrop-filter creates a containing block that turns
-          position:fixed into panel-relative, which scrolls away = trapped. */}
+          the panel: the panel's entrance transform is a containing block for
+          position:fixed, so an in-panel X would jump during the reveal. */}
       <button
         onClick={(e) => { e.stopPropagation(); onClose(); }}
         aria-label="Close"
-        className="fixed right-3 top-3 z-10 grid h-10 w-10 place-items-center border border-steel bg-carbon text-mist bevel-sm sm:hidden"
+        className="fixed right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded border border-steel bg-carbon text-mist sm:hidden"
       >
         <X className="h-5 w-5" />
       </button>
@@ -98,33 +115,35 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
         role="dialog"
         aria-modal="true"
         aria-labelledby="project-detail-title"
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="mv-reveal glass glass-strong relative my-6 w-full max-w-2xl rounded-lg p-6 sm:p-8"
+        className="mv-reveal glass-solid relative mt-auto w-full max-w-2xl rounded-lg p-6 outline-none max-sm:rounded-b-none max-sm:rounded-t-xl sm:m-auto sm:p-8"
       >
         <span aria-hidden className="pointer-events-none absolute left-0 top-0 h-full w-[2px] bg-surge" />
-        {/* Desktop close (in-panel). On phone this is hidden: the panel's glass
-            backdrop-filter makes it the containing block, so a fixed button INSIDE
-            the panel would still scroll away; the phone X lives on the overlay. */}
+        {/* Desktop close (in-panel); hidden on phone, where the pinned X on the overlay is the close. */}
         <button
-          ref={closeRef}
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 hidden h-8 w-8 place-items-center border border-steel text-mist transition-colors hover:border-surge/60 hover:text-bone bevel-sm sm:grid"
+          className="absolute right-4 top-4 hidden h-8 w-8 place-items-center rounded border border-steel text-mist transition-colors hover:border-surge/60 hover:text-bone sm:grid"
         >
           <X className="h-4 w-4" />
         </button>
 
         <div className="flex flex-wrap items-center gap-2 pr-10">
-          {project.badge && <Tag accent>{project.badge}</Tag>}
-          <span className="font-mono text-[0.7rem] uppercase tracking-widest text-mist">{project.year}</span>
+          {project.badge && (
+            <Tag accent={!!project.shipped} className={project.shipped ? undefined : "text-mist"}>
+              {project.badge}
+            </Tag>
+          )}
+          <span className="font-mono text-xs uppercase text-mist">{project.year}</span>
         </div>
         <h3 id="project-detail-title" className="mt-3 font-display text-2xl font-semibold uppercase text-bone sm:text-3xl">
           {project.title}
         </h3>
-        <p className="mt-1 font-hud text-xs uppercase tracking-wide text-surge/80">{project.role}</p>
+        <p className="mt-1 font-mono text-xs uppercase text-surge">{project.role}</p>
 
-        {/* media: a self-hosted clip, else a Drive preview, else a still. */}
-        <HudFrame scanlines className="mt-5 aspect-video w-full overflow-hidden bevel-sm">
+        {/* media: a self-hosted clip, else a Drive preview, else a still; framed like the tile */}
+        <div className="relative mt-5 aspect-video w-full overflow-hidden rounded border border-steel">
           {clip && playing ? (
             // eslint-disable-next-line jsx-a11y/media-has-caption
             <video
@@ -152,14 +171,11 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
           ) : image ? (
             <Thumb src={image} alt={`${project.title} preview`} />
           ) : (
-            <div
-              className="grid h-full w-full place-items-center"
-              style={{ background: "linear-gradient(120deg, rgb(var(--surge)/0.18), rgb(var(--ion)/0.14) 50%, rgb(var(--volt)/0.12))" }}
-            >
-              <span className="font-mono text-[0.7rem] uppercase tracking-widest text-bone/70">Open the link below</span>
+            <div className="media-fallback grid h-full w-full place-items-center">
+              <span className="font-mono text-xs uppercase text-bone/70">Open the link below</span>
             </div>
           )}
-        </HudFrame>
+        </div>
 
         <p className="mt-5 font-sans leading-relaxed text-mist">{project.summary}</p>
 
@@ -179,30 +195,23 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
 
         <div className="mt-6 flex flex-wrap gap-3">
           {project.locked ? (
-            <span className="inline-flex items-center gap-2 border border-steel px-4 py-2.5 font-hud text-xs uppercase tracking-wide text-mist bevel-sm">
+            <span className="inline-flex items-center gap-2 rounded border border-steel px-4 py-2.5 font-mono text-xs uppercase text-mist">
               <Lock className="h-3.5 w-3.5" /> Private, to be announced
             </span>
           ) : (
             project.links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 bg-surge px-4 py-2.5 font-hud text-xs uppercase tracking-wide text-void bevel-sm"
-              >
+              <BevelButton key={l.href} href={l.href} variant="primary" target="_blank" rel="noopener noreferrer">
                 {l.label}
                 <ArrowUpRight className="h-3.5 w-3.5" />
-              </a>
+              </BevelButton>
             ))
           )}
         </div>
 
-        {/* Phone-only way back at the natural end of reading (the pinned X covers the top).
-            X icon + a solid boundary so it reads as the close control at a glance. */}
+        {/* Phone-only way back at the natural end of reading (the pinned X covers the top). */}
         <button
           onClick={onClose}
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 border-2 border-line2 bg-white/50 px-4 py-3 font-hud text-xs uppercase tracking-wide text-bone transition-colors hover:border-surge/60 bevel-sm sm:hidden"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded border-2 border-line2 bg-white/50 px-4 py-3 font-mono text-xs uppercase text-bone transition-colors hover:border-surge/60 sm:hidden"
         >
           <X className="h-4 w-4" />
           Close
@@ -218,8 +227,8 @@ function PosterButton({ image, title, onPlay }: { image: string | null; title: s
   return (
     <button onClick={onPlay} aria-label={`Play ${title} preview`} className="group relative block h-full w-full">
       <Thumb src={image} alt={`${title} preview`} />
-      <span className="absolute inset-0 grid place-items-center bg-void/30 transition-colors group-hover:bg-void/10">
-        <span className="grid h-14 w-14 place-items-center border border-bone/40 bg-void/70 text-bone transition-colors group-hover:border-surge group-hover:text-surge bevel-sm">
+      <span className="absolute inset-0 grid place-items-center bg-bone/20 transition-colors group-hover:bg-bone/10">
+        <span className="grid h-14 w-14 place-items-center rounded border border-white/60 bg-bone/70 text-white transition-colors group-hover:border-surge group-hover:text-surge">
           <Play className="ml-0.5 h-6 w-6" />
         </span>
       </span>
@@ -228,13 +237,10 @@ function PosterButton({ image, title, onPlay }: { image: string | null; title: s
 }
 
 function CaseRow({ label, value }: { label: string; value: string }) {
-  const placeholder = value.startsWith("PLACEHOLDER");
   return (
     <div className="border-l border-steel pl-4">
-      <dt className="font-hud text-[0.7rem] uppercase tracking-[0.22em] text-surge">{label}</dt>
-      <dd className={"mt-1 font-sans text-sm leading-relaxed " + (placeholder ? "text-mist/50 italic" : "text-mist")}>
-        {value}
-      </dd>
+      <dt className="font-mono text-xs uppercase text-surge">{label}</dt>
+      <dd className="mt-1 font-sans text-sm leading-relaxed text-mist">{value}</dd>
     </div>
   );
 }

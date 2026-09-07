@@ -11,13 +11,19 @@
       ]
     },
     {
-      "source": "/rog/(.*)",
+      "source": "/:tier(rog|rog-hi|rog-sm)/:path*",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/projects/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
       ]
     },
     {
-      "source": "/projects/(.*)",
+      "source": "/showreel/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
       ]

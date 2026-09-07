@@ -6,19 +6,20 @@ import { Panel } from "@/components/ui/Panel";
 import { Tag } from "@/components/ui/Tag";
 import { Thumb } from "@/components/ui/Thumb";
 
-/** Agent-select style project tile (DESIGN_SYSTEM §4 / BRIEF §3). */
+/** Project tile: featured (media + summary) or compact (text only). Every tile opens
+ *  the shared detail panel. */
 export function ProjectTile({
   project,
   featured = false,
+  wide = false,
   onSelect,
-  bg = null,
 }: {
   project: Project;
   featured?: boolean;
+  /** Full-row featured tile: media 7/12 left, copy 5/12 right at lg; stacked below lg. */
+  wide?: boolean;
   /** When set, the tile opens the detail panel instead of linking out. */
   onSelect?: () => void;
-  /** Faded background still for compact tiles (featured tiles show real media instead). */
-  bg?: string | null;
 }) {
   const primaryLink = project.links[0];
 
@@ -30,63 +31,58 @@ export function ProjectTile({
         "group flex h-full flex-col overflow-hidden",
         featured ? "p-6 sm:p-8" : "p-5",
         project.locked && "opacity-60",
+        wide && "lg:grid lg:grid-cols-12 lg:items-center lg:gap-8",
       )}
     >
-      {/* Faded project still behind compact tiles; the gradient keeps the text readable. */}
-      {!featured && bg && (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={bg}
-            alt=""
-            aria-hidden
-            loading="lazy"
-            className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.14] saturate-[0.8] transition-opacity duration-300 group-hover:opacity-[0.26]"
-          />
-          <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-carbon/90 via-carbon/45 to-carbon/15" />
-        </>
-      )}
       {featured && (
-        <div className="wipe-in relative mb-5 aspect-video w-full overflow-hidden rounded border border-steel">
-          <Thumb src={projectThumb(project.media, project.links)} alt={`${project.title} preview`} className="transition-transform duration-500 ease-out3 group-hover:scale-[1.03]" />
-          <span aria-hidden className="scanlines pointer-events-none absolute inset-0" />
+        <div className={cn("wipe-in relative mb-5 aspect-video w-full overflow-hidden rounded border border-steel", wide && "lg:col-span-7 lg:mb-0")}>
+          {/* overscan wrapper so the scroll-depth parallax never shows the box edge */}
+          <div data-depth="media" className="absolute inset-x-0 -top-[7%] h-[114%] will-change-transform">
+            <Thumb src={projectThumb(project.media, project.links)} alt={`${project.title} preview`} className="transition-transform duration-500 ease-out3 group-hover:scale-[1.03]" />
+          </div>
         </div>
       )}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          {project.badge && <Tag accent>{project.badge}</Tag>}
-          <span className="font-mono text-[0.7rem] uppercase tracking-widest text-mist">{project.year}</span>
+      <div className={cn("flex flex-1 flex-col", wide && "lg:col-span-5")}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {project.badge && (
+              <Tag accent={!!project.shipped} className={project.shipped ? undefined : "text-mist"}>
+                {project.badge}
+              </Tag>
+            )}
+            <span className="font-mono text-xs uppercase text-mist">{project.year}</span>
+          </div>
+          {project.locked ? (
+            <Lock className="h-4 w-4 text-mist" />
+          ) : (
+            <ArrowUpRight className="h-5 w-5 text-mist transition-colors group-hover:text-surge" />
+          )}
         </div>
-        {project.locked ? (
-          <Lock className="h-4 w-4 text-mist" />
-        ) : (
-          <ArrowUpRight className="h-5 w-5 text-mist transition-colors group-hover:text-surge" />
-        )}
-      </div>
 
-      <h3
-        className={cn(
-          "mt-4 font-display font-semibold uppercase leading-none text-bone transition-colors group-hover:text-surge",
-          featured ? "text-2xl sm:text-3xl" : "text-lg",
-        )}
-      >
-        {project.title}
-      </h3>
-      <p className="mt-1.5 font-hud text-xs uppercase tracking-wide text-surge/80">{project.role}</p>
+        <h3
+          className={cn(
+            "mt-4 font-display font-semibold uppercase leading-none text-bone transition-colors group-hover:text-surge",
+            featured ? "text-2xl sm:text-3xl" : "text-lg",
+          )}
+        >
+          {project.title}
+        </h3>
+        <p className="mt-1.5 font-mono text-xs uppercase text-surge">{project.role}</p>
 
-      {featured && <p className="mt-4 max-w-prose font-sans text-sm leading-relaxed text-mist">{project.summary}</p>}
+        {featured && <p className="mt-4 max-w-prose font-sans text-sm leading-relaxed text-mist">{project.summary}</p>}
 
-      <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
-        {project.tech.slice(0, featured ? 6 : 3).map((t) => (
-          <Tag key={t}>{t}</Tag>
-        ))}
+        <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
+          {project.tech.slice(0, featured ? 6 : 3).map((t) => (
+            <Tag key={t}>{t}</Tag>
+          ))}
+        </div>
       </div>
     </Panel>
   );
 
   if (onSelect) {
     return (
-      <button onClick={onSelect} className="block h-full w-full text-left" aria-label={`${project.title}, view details`}>
+      <button onClick={onSelect} className="block h-full w-full rounded-lg text-left" aria-label={`${project.title}, view details`}>
         {inner}
       </button>
     );

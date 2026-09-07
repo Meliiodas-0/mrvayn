@@ -1,51 +1,40 @@
-# CLAUDE.md — mrvayn.live portfolio rebuild
+# CLAUDE.md, mrvayn.live
 
-Auto-loaded every session. Kept lean on purpose — detailed specs live in `/docs`.
+Auto-loaded every session. Kept lean on purpose; the shipped design system lives in
+`docs/DESIGN_SYSTEM.md`, superseded specs in `docs/archive/`.
 
-## What we're building
-A from-scratch rebuild of **mrvayn.live**: a single-page game-developer portfolio for
-**MrVayn — Founder & Game Developer** (Unreal Engine 5, Niagara VFX, multiplayer/netcode,
-gameplay systems, shipped titles). It must read as AAA-caliber and authoritative.
+## What this is
+The production portfolio of **MrVayn** (Aayush): Unreal Engine 5 + full-stack developer,
+CTO at Magadha Studios. Single page, Next.js 14 App Router, TypeScript, Tailwind, deployed
+on Vercel from `main` (live at mrvayn.live, apex redirects to www).
 
-**Signature idea: the portfolio _is_ a playable build.** A premium, tactical game-client UI
-(Valorant-style authority) wrapped in expressive kinetic VFX (NFS Unbound energy), with a
-lightweight, **optional, non-blocking** mini-game in the hero. Reading the site must NEVER
-require playing.
+Identity order everywhere: UE5 + software developer first, Roblox last. Never ask visitors
+to hire or fund; credentials are stated as facts. No invented numbers.
 
-## Read before building (and whenever relevant)
-- `docs/BRIEF.md` — vision, audience, sections/IA, content inventory, build phases, open questions
-- `docs/DESIGN_SYSTEM.md` — color/type/space tokens, components, VFX catalog, motion, a11y, voice
-- `docs/GAME_SPEC.md` — the hero mini-game (OVERDRIVE) + alternative (REFLEX RANGE) + tech & integration
-- `.claude/skills/frontend-design/` — design method (loads on demand). Run `/skills` to confirm it loaded.
+## The two signatures
+- **ROG**, the resident ink wraith (`src/components/ScrollSamurai.tsx`): a 200-frame
+  transparent WebP sequence on a fixed canvas, scrubbed by scroll, far right on desktop,
+  uniform faint opacity, calm (no shake). Frames are exported by
+  `scripts/rog_pipeline.py` from the owner's Unreal render (gitignored `SevRender3/`).
+- **The stickman cursor game** (`src/components/StickCursor.tsx`, desktop only) plus the
+  boot cinematic (`src/components/BootSequence.tsx`). Tune, never delete.
 
-## First steps (do not skip)
-1. Inspect the existing repo (package.json, framework, build, deploy config) **and** the live site.
-   Summarize the current stack and what content can be reused.
-2. Resolve two open decisions with MrVayn before large work:
-   (a) game = **OVERDRIVE** runner vs **REFLEX RANGE**;
-   (b) stay on current framework vs move to **Next.js** for SEO (current site serves near-empty HTML to crawlers).
-3. Propose a phased plan (use plan mode). After approval, build phase-by-phase, committing after each phase.
+## Hard rules
+- **Visibility contract.** Every reveal is IntersectionObserver + CSS that only animates
+  TOWARD visible; markup ships visible. Never framer-motion, never `gsap.from` on opacity.
+  GSAP is allowed only for non-gating transforms (see `fx/ScrollDepth.tsx`).
+- **Copy.** No em dashes anywhere (site copy, comments, commits, docs). Plain section
+  names: About / Showreel / Work / Impact / Skills / Journey / Contact (`src/data/sections.ts`).
+- **Content lives in data files** (`src/data/*.ts`), never inline in components.
+- **Performance.** Transform/opacity animations only; ROG frames load lazily; phones get
+  lighter blur and no Lenis; reduced motion honoured everywhere.
+- **Accessibility.** Visible focus, dialog focus trap + inert page, 44px tap targets,
+  AA contrast for the meta layer (`--volt`, `--surge` are tuned for it).
+- **Security.** No secrets in code; contact is a mailto, no form backend.
+- **Deploy.** Commit author must be `Meliiodas-0 <aayush.singh007study@gmail.com>` (Vercel
+  Hobby). Never run `npm run build` while `next dev` runs (shared `.next`).
 
-## Hard rules (non-negotiable)
-- **Content-first.** Every section reachable by scroll + nav without playing. The game never traps
-  scroll/focus, never autoplays loud audio, never blocks content. Audio off by default + toggle.
-- **Performance.** Lazy-load the game; pause it when off-screen (IntersectionObserver) and when the
-  tab is hidden; 60fps on desktop; graceful mobile (fewer particles / static fallback);
-  animate transform & opacity only; LCP < 2.5s.
-- **Accessibility.** Honor `prefers-reduced-motion` everywhere (no parallax/shake/auto-motion;
-  instant reveals; game "still" mode). Visible keyboard focus. Semantic HTML, alt text, aria on
-  controls, skip-to-content link. AA contrast for text.
-- **Originality / IP.** Inspired by the genre's _visual language_, not a copy. Do NOT reproduce NFS
-  or Riot/Valorant logos, marks, exact brand colors, proprietary fonts (Tungsten/DIN), or any
-  characters/assets. Use only the tokens in `DESIGN_SYSTEM.md`.
-- **Security.** Never hardcode secrets. A contact form (if any) posts to a vetted provider via an
-  env var. Do not implement anything that needs MrVayn to paste passwords/keys into code.
-  Ask before adding analytics or third-party scripts.
-- **Code quality.** TypeScript, component-driven, centralized design tokens, content in a typed data
-  file (e.g. `src/data/projects.ts`) so it's trivial to update. Keep the game a framework-agnostic
-  module mounted by a thin wrapper.
-
-## How to work
-- Take screenshots and self-critique against `DESIGN_SYSTEM.md` as you build.
-- Prefer procedural/vector VFX over heavy image assets.
-- Use realistic placeholder content MrVayn can replace; **flag every spot** that needs his real content/media.
+## Verify before shipping
+`npx tsc --noEmit`, then capture phone / 1080p / 2K with the headless script (see
+`docs/DESIGN_SYSTEM.md`, "Verification") and check: no console errors, no horizontal
+overflow, no label collisions, ROG complete and far right.

@@ -4,11 +4,11 @@ import { Loadout } from "@/components/work/Loadout";
 
 export function Work() {
   return (
-    <SectionShell id="loadout" eyebrow="Work" title="Selected work" index="02">
+    // labelsBelow: the section above is the red Showreel band, so the label hangs
+    // under the rule instead of notching the red.
+    <SectionShell id="work" title="Selected work" labelsBelow>
       <Loadout featured={featuredProjects} others={otherProjects} />
-      <p className="mt-8 font-mono text-[0.7rem] tracking-wide text-mist/60">
-        Select any build to view details &amp; media. {/* TODO(MrVayn): add case studies for more projects. */}
-      </p>
+      <p className="mt-8 font-mono text-xs text-volt">Select any build to view details and media.</p>
     </SectionShell>
   );
 }

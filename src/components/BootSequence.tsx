@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { readThemeColors } from "@/lib/themeColors";
+import { readThemeColors, readFonts, rgba } from "@/lib/themeColors";
 
 /**
  * Cinematic intro with an IK-skeleton stickman (jointed elbows/knees, not stiff
@@ -35,7 +35,9 @@ export function BootSequence() {
     try { seen = sessionStorage.getItem("booted") === "1"; sessionStorage.setItem("booted", "1"); } catch { /* */ }
     if (!reduce && !seen) setShow(true);
   }, []);
-  const done = useCallback(() => setShow(false), []);
+  // attribute first, so the hero entrance (globals.css boot handoff) starts in the
+  // same frame the overlay unmounts
+  const done = useCallback(() => { document.documentElement.dataset.boot = "done"; setShow(false); }, []);
 
   useEffect(() => {
     if (!show) return;
@@ -44,6 +46,7 @@ export function BootSequence() {
     if (!canvas || !c2d) { const t = setTimeout(done, 100); return () => clearTimeout(t); }
     const ctx = c2d;
     const C = readThemeColors();
+    const F = readFonts();
 
     let W = 0, H = 0, dpr = 1, U = 1, cx = 0, cy = 0;
     const resize = () => {
@@ -155,9 +158,9 @@ export function BootSequence() {
     };
     function buildDust() {
       const off = document.createElement("canvas"); const o = off.getContext("2d"); if (!o) { dustBuilt = true; return; }
-      o.font = `900 ${TSIZE}px 'Anton','Arial Black',sans-serif`;
+      o.font = `600 ${TSIZE}px ${F.display}`;
       const wpx = Math.ceil(o.measureText("MRVAYN").width) + 16, hpx = Math.ceil(TSIZE * 1.5);
-      off.width = wpx; off.height = hpx; o.font = `900 ${TSIZE}px 'Anton','Arial Black',sans-serif`;
+      off.width = wpx; off.height = hpx; o.font = `600 ${TSIZE}px ${F.display}`;
       o.fillStyle = "#fff"; o.textAlign = "center"; o.textBaseline = "middle"; o.fillText("MRVAYN", wpx / 2, hpx / 2);
       const data = o.getImageData(0, 0, wpx, hpx).data, step = W < 640 ? 6 : 5, ox = cx - wpx / 2, oy = tY - hpx / 2;
       dust = [];
@@ -185,17 +188,17 @@ export function BootSequence() {
       // finisher explosion, layered shockwave rings + radial impact lines (additive for punch)
       if (t > KILL && t < KILL + 0.85) {
         const p = (t - KILL) / 0.85, R = Math.max(W, H), oy = cy - 26 * U;
-        ctx.save(); ctx.globalCompositeOperation = "lighter";
+        ctx.save(); ctx.globalCompositeOperation = "multiply";
         const ring = (delay: number, col: string, w: number, sp: number) => { const rp = cl((p - delay) / (1 - delay)); if (rp <= 0) return; ctx.globalAlpha = Math.pow(1 - rp, 1.5); ctx.strokeStyle = col; ctx.lineWidth = w * U * (1 - rp); ctx.beginPath(); ctx.arc(cx, oy, eOut(rp) * R * sp, 0, 6.2832); ctx.stroke(); };
         ring(0, C.bone, 9, 0.5); ring(0.07, C.volt, 6, 0.66); ring(0.16, C.surge, 6, 0.8);
         ctx.globalAlpha = (1 - p) * 0.6; ctx.strokeStyle = C.volt; ctx.lineWidth = 2 * U; ctx.lineCap = "round";
         for (let i = 0; i < 20; i++) { const a = (i / 20) * 6.2832, r0 = (0.25 + p) * 120 * U, r1 = r0 + 90 * U * (1 - p); ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r0, oy + Math.sin(a) * r0); ctx.lineTo(cx + Math.cos(a) * r1, oy + Math.sin(a) * r1); ctx.stroke(); }
         // core flash bloom
-        const cp = cl(p / 0.18), cg = ctx.createRadialGradient(cx, oy, 0, cx, oy, 90 * U * (0.4 + cp)); cg.addColorStop(0, `rgba(255,255,255,${0.9 * (1 - cp)})`); cg.addColorStop(0.5, `rgba(255,200,120,${0.5 * (1 - cp)})`); cg.addColorStop(1, "rgba(255,45,107,0)");
+        const cp = cl(p / 0.18), cg = ctx.createRadialGradient(cx, oy, 0, cx, oy, 90 * U * (0.4 + cp)); cg.addColorStop(0, rgba("ion", 0.55 * (1 - cp))); cg.addColorStop(0.5, rgba("surge", 0.25 * (1 - cp))); cg.addColorStop(1, rgba("surge", 0));
         ctx.globalAlpha = 1; ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, oy, 90 * U * (0.4 + cp), 0, 6.2832); ctx.fill();
         ctx.restore();
       }
-      if (t > KILL && t < KILL + 0.22) { ctx.globalAlpha = (1 - (t - KILL) / 0.22) * 0.85; ctx.fillStyle = C.bone; ctx.fillRect(-20, -20, W + 40, H + 40); ctx.globalAlpha = 1; }
+      if (t > KILL && t < KILL + 0.22) { ctx.globalAlpha = (1 - (t - KILL) / 0.22) * 0.18; ctx.fillStyle = C.ion; ctx.fillRect(-20, -20, W + 40, H + 40); ctx.globalAlpha = 1; }
 
       if (bA > 0) {
         // line enemies, run in, recoil-fly on hit
@@ -274,16 +277,16 @@ export function BootSequence() {
       if (t > VEXIT) {
         const bloomP = cl((t - VEXIT) / (TITLE - VEXIT)), fade = t > TITLE ? cl(1 - (t - TITLE) / 0.5) : 1;
         ctx.save(); const grd = ctx.createLinearGradient(cx, cy + 20 * U, cx, cy - 280 * U);
-        grd.addColorStop(0, "rgba(255,45,107,0)"); grd.addColorStop(0.35, `rgba(255,45,107,${0.45 * bloomP * fade})`); grd.addColorStop(1, "rgba(255,45,107,0)");
+        grd.addColorStop(0, rgba("surge", 0)); grd.addColorStop(0.35, rgba("surge", 0.45 * bloomP * fade)); grd.addColorStop(1, rgba("surge", 0));
         const bw = lerp(28, 110, eOut(bloomP)) * U; ctx.fillStyle = grd; ctx.fillRect(cx - bw / 2, cy - 280 * U, bw, 300 * U); ctx.restore();
       }
       if (t > BLOOM) {
         const titleP = cl((t - BLOOM) / (TITLE - BLOOM));
-        ctx.font = `900 ${TSIZE}px 'Anton','Arial Black',sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.font = `600 ${TSIZE}px ${F.display}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         if (t <= ASH) {
           ctx.save(); ctx.globalAlpha = titleP; ctx.translate(0, (1 - eOut(titleP)) * 24 * U); // rises into place
           ctx.shadowColor = C.surge; ctx.shadowBlur = 26 + Math.sin(t * 4) * 8; ctx.fillStyle = C.bone; ctx.fillText("MRVAYN", cx, tY); ctx.shadowBlur = 0;
-          ctx.font = `600 ${Math.max(10, 12 * U)}px 'Chakra Petch',sans-serif`; ctx.fillStyle = C.surge; ctx.fillText("UNREAL ENGINE & FULL-STACK DEV", cx, tY + TSIZE * 0.66); ctx.restore();
+          ctx.font = `400 ${Math.max(10, 12 * U)}px ${F.mono}`; ctx.fillStyle = C.surge; ctx.fillText("UNREAL ENGINE & FULL-STACK DEV", cx, tY + TSIZE * 0.66); ctx.restore();
         } else {
           if (!dustBuilt) buildDust();
           for (const d of dust) { const lt = t - ASH - d.delay; if (lt < 0) { ctx.fillStyle = C.bone; ctx.fillRect(d.hx, d.hy, 4.5 * U, 4.5 * U); } else { const p = lt / 0.75; if (p >= 1) continue; ctx.globalAlpha = 1 - p; ctx.fillStyle = p > 0.4 ? C.surge : C.bone; ctx.fillRect(d.hx + d.vx * lt, d.hy + d.vy * lt, 3 * U, 3 * U); ctx.globalAlpha = 1; } }
@@ -330,10 +333,10 @@ export function BootSequence() {
         const hMx = chestX + pose.hMain.x * side, hMy = chestY + pose.hMain.y;
         const R = 38 * hs, wa = Math.atan2(Math.sin(pose.sword), Math.cos(pose.sword) * side), a1 = wa - 1.7 * side, a2 = wa;
         const tAlpha = (follow > 0 ? 1 - follow : 1) * 0.9;
-        ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = tAlpha;
+        ctx.save(); ctx.globalCompositeOperation = "multiply"; ctx.globalAlpha = tAlpha;
         ctx.beginPath(); ctx.arc(hMx, hMy, R, a1, a2, a1 > a2); ctx.arc(hMx, hMy, R * 0.52, a2, a1, !(a1 > a2)); ctx.closePath();
         const g = ctx.createRadialGradient(hMx, hMy, R * 0.52, hMx, hMy, R);
-        g.addColorStop(0, "rgba(25,224,255,0)"); g.addColorStop(0.6, "rgba(120,230,255,0.3)"); g.addColorStop(1, "rgba(235,250,255,0.9)");
+        g.addColorStop(0, rgba("surge", 0)); g.addColorStop(0.6, rgba("surge", 0.35)); g.addColorStop(1, rgba("surge", 0.85));
         ctx.fillStyle = g; ctx.fill(); ctx.restore();
       }
       return pose;
@@ -361,9 +364,9 @@ export function BootSequence() {
 
   if (!show) return null;
   return (
-    <div className="fixed inset-0 z-[100] cursor-pointer bg-void" onClick={() => (skipRef.current = true)}>
+    <div className="fixed inset-0 z-boot cursor-pointer bg-void" onClick={() => (skipRef.current = true)}>
       <canvas ref={ref} className="block h-full w-full" />
-      <span className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 font-mono text-[0.7rem] uppercase tracking-widest text-mist/50">click anywhere to skip</span>
+      <span className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 font-mono text-xs uppercase text-mist">tap or press any key to skip</span>
     </div>
   );
 }

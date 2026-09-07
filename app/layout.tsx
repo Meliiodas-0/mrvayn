@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { socials } from "@/data/socials";
 import "./globals.css";
 
-// DESIGN SYSTEM v3, three voices: Space Grotesk 600 (h1/h2 only), Inter (body),
-// JetBrains Mono (ALL meta: labels, years, tags, stats, nav, footer).
+// Three voices: Space Grotesk 500/600 (all display type: h1-h3, tiles, stats, wordmark),
+// Inter (body), JetBrains Mono (ALL meta: labels, years, tags, stats, nav, footer).
 const grotesk = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-grotesk", display: "swap" });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const jetbrains = JetBrains_Mono({ subsets: ["latin"], weight: ["400"], variable: "--font-jetbrains", display: "swap" });
@@ -12,6 +13,9 @@ const SITE = "https://mrvayn.live";
 const TITLE = "MrVayn | Unreal Engine & Full-Stack Developer";
 const DESCRIPTION =
   "MrVayn builds AAA-caliber game feel in Unreal Engine 5 (gameplay systems, Niagara VFX, multiplayer & netcode) and ships full-stack web apps with Next.js, TypeScript, and Postgres. CTO at a 20-person studio; showcased at IGDC 2025.";
+
+// ROG's first frame per tier; must match ScrollSamurai's frameSrc byte for byte.
+const ROG_V = 10;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -88,11 +92,7 @@ const structuredData = [
       "PostgreSQL",
       "LangChain & RAG",
     ],
-    sameAs: [
-      "https://www.linkedin.com/in/aayush-vayn-91533921a/",
-      "https://www.instagram.com/builtbyvayn/",
-      "https://www.youtube.com/@vaynverse",
-    ],
+    sameAs: socials.flatMap((s) => (s.href ? [s.href] : [])),
   },
   {
     "@context": "https://schema.org",
@@ -107,15 +107,22 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
+// Runs before the hero is parsed: tells the CSS whether the boot cinematic will play
+// (returning and reduced-motion visitors skip it, so the hero must not double-reveal).
+const BOOT_SCRIPT =
+  "try{var d=document.documentElement;d.dataset.boot=(matchMedia('(prefers-reduced-motion: reduce)').matches||sessionStorage.getItem('booted')==='1')?'skip':'play'}catch(e){}";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      data-grain="off"
-      data-scanlines="off"
-      className={`${grotesk.variable} ${inter.variable} ${jetbrains.variable}`}
-    >
+    <html lang="en" suppressHydrationWarning className={`${grotesk.variable} ${inter.variable} ${jetbrains.variable}`}>
+      <head>
+        {/* ROG's hero frame, one preload per tier, gated on the same media the canvas uses. */}
+        <link rel="preload" as="image" fetchPriority="high" href={`/rog-sm/f_000.webp?v=${ROG_V}`} media="(max-width: 1023.98px)" />
+        <link rel="preload" as="image" fetchPriority="high" href={`/rog/f_000.webp?v=${ROG_V}`} media="(min-width: 1024px) and (max-resolution: 1.49dppx)" />
+        <link rel="preload" as="image" fetchPriority="high" href={`/rog-hi/f_000.webp?v=${ROG_V}`} media="(min-width: 1024px) and (min-resolution: 1.5dppx)" />
+      </head>
       <body className="font-sans antialiased">
+        <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
         {children}
         <script
           type="application/ld+json"

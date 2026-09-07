@@ -1,24 +1,26 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { readThemeColors, THEME_EVENT } from "@/lib/themeColors";
+import { readThemeColors, readFonts, rgba } from "@/lib/themeColors";
 
 /**
  * Global stickman cursor (desktop / fine-pointer / motion-allowed only).
  * The real cursor is hidden and a sword stickman is drawn at the pointer with
- * ZERO lag (it renders at the exact mouse position; run/lean/flip come from
- * mouse velocity). Enemies wander and ricochet around the page like they're
- * trapped, fleeing the cursor, and they stay out of your real content blocks
- * (any [data-solid] element) so they never overlap text/containers. Bring the
- * cursor onto one to trigger a slash combo. Pointer-events:none; pauses on tab
- * hide; touch / reduced-motion keep the normal cursor.
+ * ZERO lag: its HEAD sits on the real hotspot, the feet hang below like a native
+ * arrow's tail, and a small reticle at the head fills red over anything clickable.
+ * Enemies wander and ricochet around the page like they're trapped, fleeing the
+ * cursor, and they stay out of your real content blocks (any [data-solid]
+ * element, checked at their feet AND their head). Bring the cursor onto one to
+ * trigger a slash combo. Enemies freeze and hide while a dialog is open (the
+ * player stays, it is the only cursor). Pointer-events:none; pauses on tab hide;
+ * touch / reduced-motion keep the normal cursor.
  */
 
-const COUNT = 8;
 const E_MIN = 26, E_MAX = 78, WANDER = 240;
 const FLEE_R = 130, FLEE_F = 520;
 const RANGE = 70, SWING = 0.3;
-const TOP = 72, SIDE = 12, BOT = 14, PAD = 16;
+const TOP = 110, SIDE = 12, BOT = 14, PAD = 16, HEAD = 34;
+const HOT_R = 33.15; // legLen + torso + headR at scale 1.12: the head centre
 
 interface Rect { left: number; top: number; right: number; bottom: number; }
 interface Enemy { x: number; y: number; vx: number; vy: number; alive: boolean; dying: number; phase: number; home: number; }
@@ -37,12 +39,15 @@ export function StickCursor() {
     const c2d = canvas?.getContext("2d");
     if (!canvas || !c2d) return;
     const ctx = c2d;
-    let C = readThemeColors();
+    const C = readThemeColors();
+    const F = readFonts();
 
     let W = 0, H = 0, dpr = 1;
     const m = { x: innerWidth / 2, y: innerHeight / 2 };
+    let hasPointer = false;
     let pmx = m.x, pmy = m.y, vx = 0, vy = 0, face = 1, faceVel = 0, runPhase = 0;
     let atk = -1, atkType = 0, atkFace = 1, combo = 0, comboT = 0, flip = -1, flipCd = 0;
+    let hot = false, hotT = 0;
     let occupied: Rect[] = [];
 
     const enemies: Enemy[] = [];
@@ -58,8 +63,11 @@ export function StickCursor() {
     const rand = (a: number, b: number) => a + Math.random() * (b - a);
     const inOcc = (x: number, y: number, pad: number) =>
       occupied.some((r) => x > r.left - pad && x < r.right + pad && y > r.top - pad && y < r.bottom + pad);
-    const valid = (x: number, y: number) => x > SIDE && x < W - SIDE && y > TOP && y < H - BOT && !inOcc(x, y, PAD);
-    const isPhone = () => W < 768; // phone ratio: no roaming enemies (they scatter / look bad on narrow screens)
+    // an enemy occupies its feet AND its head (34px above), so it never stands on text
+    const hit = (x: number, y: number, pad: number) => inOcc(x, y, pad) || inOcc(x, y - HEAD, pad);
+    const valid = (x: number, y: number) => x > SIDE && x < W - SIDE && y > TOP && y < H - BOT && !hit(x, y, PAD);
+    // enemy budget by viewport width: none under 1280 (they scatter on narrow screens)
+    const active = () => (W >= 1600 ? 6 : W >= 1280 ? 5 : 0);
 
     const computeOccupied = () => {
       occupied = Array.from(document.querySelectorAll<HTMLElement>("[data-solid]"))
@@ -68,8 +76,8 @@ export function StickCursor() {
         .map((r) => ({ left: r.left, top: r.top, right: r.right, bottom: r.bottom }));
     };
 
-    const place = (e: Enemy) => {
-      if (isPhone()) { e.alive = false; return; } // never spawn enemies on phone ratio
+    const place = (e: Enemy, idx: number) => {
+      if (idx >= active()) { e.alive = false; return; }
       for (let t = 0; t < 60; t++) {
         // keep enemies balanced across both halves: stay on the home side first, fall back to anywhere
         const half = t < 42 ? e.home : 0;
@@ -84,7 +92,7 @@ export function StickCursor() {
       }
       e.alive = false; // no gap available right now (re-tried next frames)
     };
-    for (let i = 0; i < COUNT; i++) { const e: Enemy = { x: 0, y: 0, vx: 0, vy: 0, alive: false, dying: 0, phase: 0, home: i % 2 === 0 ? -1 : 1 }; enemies.push(e); }
+    for (let i = 0; i < 6; i++) { const e: Enemy = { x: 0, y: 0, vx: 0, vy: 0, alive: false, dying: 0, phase: 0, home: i % 2 === 0 ? -1 : 1 }; enemies.push(e); }
 
     const burst = (x: number, y: number, n: number) => {
       for (let i = 0; i < n; i++) {
@@ -122,18 +130,22 @@ export function StickCursor() {
 
     let scrollPending = false;
     const onScroll = () => { if (!scrollPending) { scrollPending = true; requestAnimationFrame(() => { computeOccupied(); scrollPending = false; }); } };
-    const onMove = (e: MouseEvent) => { m.x = e.clientX; m.y = e.clientY; };
+    const onMove = (e: MouseEvent) => {
+      if (!hasPointer) { hasPointer = true; pmx = e.clientX; pmy = e.clientY; } // no phantom flick from the viewport centre
+      m.x = e.clientX; m.y = e.clientY;
+    };
+    const onLeave = () => { hasPointer = false; };
     addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseleave", onLeave);
     addEventListener("resize", resize);
     addEventListener("scroll", onScroll, { passive: true });
-    const onTheme = () => { C = readThemeColors(); };
-    addEventListener(THEME_EVENT, onTheme);
     const occInterval = setInterval(computeOccupied, 500);
     document.documentElement.style.cursor = "none";
+    document.documentElement.dataset.stick = "1"; // globals.css: no UA hand over links/buttons
     resize();
 
-    function drawStick(x: number, y: number, o: { color: string; face: number; phase: number; moving: boolean; scale: number; sword: number; swordLen: number; glow?: boolean }) {
-      const { color, face: f, phase, moving, scale, sword, swordLen, glow } = o;
+    function drawStick(x: number, y: number, o: { color: string; face: number; phase: number; moving: boolean; scale: number; sword: number; swordLen: number; glow?: boolean; swordColor?: string }) {
+      const { color, face: f, phase, moving, scale, sword, swordLen, glow, swordColor } = o;
       const legLen = 12 * scale, torso = 13 * scale, headR = 4.6 * scale;
       const hipY = y - legLen, shoulderY = hipY - torso;
       ctx.strokeStyle = color; ctx.lineWidth = 2.3 * scale; ctx.lineCap = "round";
@@ -146,8 +158,9 @@ export function StickCursor() {
       const handX = x + f * 8 * scale, handY = shoulderY + 6 * scale;
       const ax = Math.cos(sword) * f, ay = Math.sin(sword);
       ctx.beginPath(); ctx.moveTo(x, shoulderY + 1); ctx.lineTo(handX, handY); ctx.stroke();
-      ctx.strokeStyle = C.volt; ctx.lineWidth = 2.6 * scale;
-      if (glow) { ctx.shadowColor = C.volt; ctx.shadowBlur = 9; }
+      const sc = swordColor ?? C.volt;
+      ctx.strokeStyle = sc; ctx.lineWidth = 2.6 * scale;
+      if (glow) { ctx.shadowColor = sc; ctx.shadowBlur = 9; }
       ctx.beginPath(); ctx.moveTo(handX, handY); ctx.lineTo(handX + ax * swordLen, handY + ay * swordLen); ctx.stroke();
       ctx.shadowBlur = 0;
       return { handX, handY };
@@ -164,124 +177,147 @@ export function StickCursor() {
       if (!running) return;
       let dt = (now - last) / 1000; last = now; if (dt > 0.05) dt = 0.05;
       const tNow = now / 1000;
+      const modal = document.documentElement.hasAttribute("data-modal");
 
       // mouse velocity (no positional lag, figure is drawn at the exact pointer)
       const dxRaw = m.x - pmx, dyRaw = m.y - pmy;
       vx = dxRaw / Math.max(dt, 0.001); vy = dyRaw / Math.max(dt, 0.001); pmx = m.x; pmy = m.y;
       const speed = Math.hypot(vx, vy);
-      const moving = speed > 40;
+      const moving = hasPointer && speed > 40;
       // facing: smoothed horizontal pixel-delta (frame-rate / browser independent, fixes Chrome not flipping)
       faceVel = faceVel * 0.8 + dxRaw * 0.2;
       if (Math.abs(faceVel) > 0.35) face = faceVel > 0 ? 1 : -1;
       runPhase += dt * (moving ? 18 : 4);
 
-      // nearest enemy
-      let near: Enemy | null = null, nd = 1e9;
-      for (const e of enemies) { if (!e.alive) continue; const d = Math.hypot(e.x - m.x, e.y - m.y); if (d < nd) { nd = d; near = e; } }
+      // hover state, throttled to 10Hz (the canvas is pointer-events:none, so
+      // elementFromPoint returns the page element under the hotspot)
+      hotT -= dt;
+      if (hotT <= 0) {
+        hotT = 0.1;
+        hot = hasPointer && !!document.elementFromPoint(m.x, m.y)?.closest('a,button,[role="button"],video,iframe,summary');
+      }
 
-      // attack on proximity only
-      if (atk < 0 && near && nd < RANGE) { atk = 0; atkType = (atkType + 1 + (Math.random() * 3) | 0) % 5; atkFace = near.x > m.x ? 1 : -1; }
-      if (atk < 0 && flip < 0 && moving && speed > 1400 && flipCd <= 0 && !near) { flip = 0; flipCd = 1.6; }
-      flipCd -= dt;
-      if (comboT > 0) { comboT -= dt; if (comboT <= 0) combo = 0; }
+      if (!modal) {
+        // nearest enemy
+        let near: Enemy | null = null, nd = 1e9;
+        for (const e of enemies) { if (!e.alive) continue; const d = Math.hypot(e.x - m.x, e.y - m.y); if (d < nd) { nd = d; near = e; } }
 
-      // swing
-      if (atk >= 0) {
-        atk += dt / SWING;
-        if (atk > 0.12 && atk < 0.72) {
-          const spin = atkType === 3;
-          for (const e of enemies) {
-            if (!e.alive) continue;
-            const ex = e.x - m.x, d = Math.hypot(ex, e.y - m.y);
-            if (d < RANGE + 6 && (spin || Math.sign(ex) === atkFace || d < 30)) {
-              e.alive = false; e.dying = 0.7; // respawn lock (no death-stick render; shards handle the visual)
-              combo = comboT > 0 ? combo + 1 : 1; comboT = 1.4;
-              slashFx(e.x, e.y, atkFace); sliceApart(e.x, e.y, atkFace); burst(e.x, e.y - 14, 7); // cut line + flying pieces + a few sparks
-              pop(e.x, e.y - 16, combo > 1 ? "x" + combo : "+1");
-              setTimeout(() => place(e), 700 + Math.random() * 700);
+        // attack on proximity only
+        if (hasPointer && atk < 0 && near && nd < RANGE) { atk = 0; atkType = (atkType + 1 + (Math.random() * 3) | 0) % 5; atkFace = near.x > m.x ? 1 : -1; }
+        if (hasPointer && atk < 0 && flip < 0 && moving && speed > 1400 && flipCd <= 0 && !near) { flip = 0; flipCd = 1.6; }
+        flipCd -= dt;
+        if (comboT > 0) { comboT -= dt; if (comboT <= 0) combo = 0; }
+
+        // swing
+        if (atk >= 0) {
+          atk += dt / SWING;
+          if (atk > 0.12 && atk < 0.72) {
+            const spin = atkType === 3;
+            for (const e of enemies) {
+              if (!e.alive) continue;
+              const ex = e.x - m.x, d = Math.hypot(ex, e.y - m.y);
+              if (d < RANGE + 6 && (spin || Math.sign(ex) === atkFace || d < 30)) {
+                e.alive = false; e.dying = 0.7; // respawn lock (no death-stick render; shards handle the visual)
+                combo = comboT > 0 ? combo + 1 : 1; comboT = 1.4;
+                slashFx(e.x, e.y, atkFace); sliceApart(e.x, e.y, atkFace); burst(e.x, e.y - 14, 7); // cut line + flying pieces + a few sparks
+                pop(e.x, e.y - 16, combo > 1 ? "x" + combo : "+1");
+                const idx = enemies.indexOf(e);
+                setTimeout(() => place(e, idx), 700 + Math.random() * 700);
+              }
             }
           }
+          if (atk >= 1) atk = -1;
         }
-        if (atk >= 1) atk = -1;
-      }
-      if (flip >= 0) { flip += dt / 0.5; if (flip >= 1) flip = -1; }
+        if (flip >= 0) { flip += dt / 0.5; if (flip >= 1) flip = -1; }
 
-      // enemies: wander + flee + ricochet (trapped)
-      for (const e of enemies) {
-        if (!e.alive) { if (e.dying > 0) e.dying -= dt; else if (!isPhone() && Math.random() < dt * 0.6) place(e); continue; }
-        if (isPhone()) { e.alive = false; continue; } // dropped to phone ratio mid-session, clear enemies
-        e.phase += dt * 5;
-        // coordinated flow field -> enemies swirl in shifting patterns (not random twitching)
-        const fa = Math.sin(e.x * 0.006 + tNow * 0.5) + Math.cos(e.y * 0.006 - tNow * 0.4) + tNow * 0.22;
-        e.vx += Math.cos(fa) * WANDER * dt; e.vy += Math.sin(fa) * WANDER * dt;
-        e.vx += rand(-1, 1) * WANDER * 0.2 * dt; e.vy += rand(-1, 1) * WANDER * 0.2 * dt;
-        const dxc = e.x - m.x, dyc = e.y - m.y, dc = Math.hypot(dxc, dyc) || 1;
-        if (dc < FLEE_R) { e.vx += (dxc / dc) * FLEE_F * dt; e.vy += (dyc / dc) * FLEE_F * dt; }
-        // separation, keep enemies from stacking on each other
-        for (const o of enemies) {
-          if (o === e || !o.alive) continue;
-          const sx = e.x - o.x, sy = e.y - o.y, sd = Math.hypot(sx, sy);
-          if (sd > 0.1 && sd < 46) { e.vx += (sx / sd) * 680 * dt; e.vy += (sy / sd) * 680 * dt; }
-        }
-        let sp = Math.hypot(e.vx, e.vy);
-        if (sp > E_MAX) { e.vx = (e.vx / sp) * E_MAX; e.vy = (e.vy / sp) * E_MAX; sp = E_MAX; }
-        if (sp < E_MIN) { const a = Math.atan2(e.vy || rand(-1, 1), e.vx || rand(-1, 1)); e.vx = Math.cos(a) * E_MIN; e.vy = Math.sin(a) * E_MIN; }
-        let nx = e.x + e.vx * dt, ny = e.y + e.vy * dt;
-        if (nx < SIDE || nx > W - SIDE) { e.vx = -e.vx; nx = Math.max(SIDE, Math.min(W - SIDE, nx)); }
-        if (ny < TOP || ny > H - BOT) { e.vy = -e.vy; ny = Math.max(TOP, Math.min(H - BOT, ny)); }
-        if (inOcc(nx, ny, PAD)) { // ricochet off a content block
-          if (!inOcc(e.x, ny, PAD)) { e.vx = -e.vx; nx = e.x; }
-          else if (!inOcc(nx, e.y, PAD)) { e.vy = -e.vy; ny = e.y; }
-          else { e.vx = -e.vx; e.vy = -e.vy; nx = e.x; ny = e.y; }
-        }
-        e.x = nx; e.y = ny;
-        if (inOcc(e.x, e.y, 0)) place(e); // content scrolled onto it -> relocate
-      }
+        // enemies: wander + flee + ricochet (trapped)
+        enemies.forEach((e, idx) => {
+          if (!e.alive) { if (e.dying > 0) e.dying -= dt; else if (idx < active() && Math.random() < dt * 0.6) place(e, idx); return; }
+          if (idx >= active()) { e.alive = false; return; } // viewport shrank: drop the extras
+          e.phase += dt * 5;
+          // coordinated flow field -> enemies swirl in shifting patterns (not random twitching)
+          const fa = Math.sin(e.x * 0.006 + tNow * 0.5) + Math.cos(e.y * 0.006 - tNow * 0.4) + tNow * 0.22;
+          e.vx += Math.cos(fa) * WANDER * dt; e.vy += Math.sin(fa) * WANDER * dt;
+          e.vx += rand(-1, 1) * WANDER * 0.2 * dt; e.vy += rand(-1, 1) * WANDER * 0.2 * dt;
+          if (hasPointer) {
+            const dxc = e.x - m.x, dyc = e.y - m.y, dc = Math.hypot(dxc, dyc) || 1;
+            if (dc < FLEE_R) { e.vx += (dxc / dc) * FLEE_F * dt; e.vy += (dyc / dc) * FLEE_F * dt; }
+          }
+          // separation, keep enemies from stacking on each other
+          for (const o of enemies) {
+            if (o === e || !o.alive) continue;
+            const sx = e.x - o.x, sy = e.y - o.y, sd = Math.hypot(sx, sy);
+            if (sd > 0.1 && sd < 46) { e.vx += (sx / sd) * 680 * dt; e.vy += (sy / sd) * 680 * dt; }
+          }
+          let sp = Math.hypot(e.vx, e.vy);
+          if (sp > E_MAX) { e.vx = (e.vx / sp) * E_MAX; e.vy = (e.vy / sp) * E_MAX; sp = E_MAX; }
+          if (sp < E_MIN) { const a = Math.atan2(e.vy || rand(-1, 1), e.vx || rand(-1, 1)); e.vx = Math.cos(a) * E_MIN; e.vy = Math.sin(a) * E_MIN; }
+          let nx = e.x + e.vx * dt, ny = e.y + e.vy * dt;
+          if (nx < SIDE || nx > W - SIDE) { e.vx = -e.vx; nx = Math.max(SIDE, Math.min(W - SIDE, nx)); }
+          if (ny < TOP || ny > H - BOT) { e.vy = -e.vy; ny = Math.max(TOP, Math.min(H - BOT, ny)); }
+          if (hit(nx, ny, PAD)) { // ricochet off a content block
+            if (!hit(e.x, ny, PAD)) { e.vx = -e.vx; nx = e.x; }
+            else if (!hit(nx, e.y, PAD)) { e.vy = -e.vy; ny = e.y; }
+            else { e.vx = -e.vx; e.vy = -e.vy; nx = e.x; ny = e.y; }
+          }
+          e.x = nx; e.y = ny;
+          if (hit(e.x, e.y, 0)) place(e, idx); // content scrolled onto it -> relocate
+        });
 
-      // particles / shards / slash flashes / pops
-      for (const p of parts) { if (!p.on) continue; p.life -= dt; if (p.life <= 0) { p.on = false; continue; } p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.9; p.vy *= 0.9; }
-      for (const s of shards) { if (!s.on) continue; s.life -= dt; if (s.life <= 0) { s.on = false; continue; } s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 540 * dt; s.vx *= 0.98; s.ang += s.va * dt; }
-      for (const s of slashes) { if (s.on) { s.life -= dt; if (s.life <= 0) s.on = false; } }
-      for (const p of pops) { if (p.on) { p.life -= dt; p.y -= dt * 26; if (p.life <= 0) p.on = false; } }
+        // particles / shards / slash flashes / pops
+        for (const p of parts) { if (!p.on) continue; p.life -= dt; if (p.life <= 0) { p.on = false; continue; } p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.9; p.vy *= 0.9; }
+        for (const s of shards) { if (!s.on) continue; s.life -= dt; if (s.life <= 0) { s.on = false; continue; } s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 540 * dt; s.vx *= 0.98; s.ang += s.va * dt; }
+        for (const s of slashes) { if (s.on) { s.life -= dt; if (s.life <= 0) s.on = false; } }
+        for (const p of pops) { if (p.on) { p.life -= dt; p.y -= dt * 26; if (p.life <= 0) p.on = false; } }
+      }
 
       // ---- render ----
       ctx.clearRect(0, 0, W, H);
 
-      for (const e of enemies) {
-        if (!e.alive) continue;
-        drawStick(e.x, e.y, { color: C.mist, face: e.x > m.x ? -1 : 1, phase: e.phase, moving: true, scale: 0.9, sword: -0.7, swordLen: 15 });
-        ctx.fillStyle = C.surge; ctx.fillRect(e.x - 1.5, e.y - 33, 3, 3);
+      if (!modal) {
+        ctx.globalAlpha = 0.85;
+        for (const e of enemies) {
+          if (!e.alive) continue;
+          drawStick(e.x, e.y, { color: C.volt, face: e.x > m.x ? -1 : 1, phase: e.phase, moving: true, scale: 0.85, sword: -0.7, swordLen: 14 });
+          ctx.fillStyle = C.surge; ctx.fillRect(e.x - 1.5, e.y - 31, 3, 3);
+        }
+        ctx.globalAlpha = 1;
+        // slash cut-line flash (the blade stroke)
+        for (const s of slashes) { if (!s.on) continue; const k = s.life / 0.22; ctx.globalAlpha = k; ctx.strokeStyle = C.bone; ctx.lineWidth = 2.5; ctx.lineCap = "round"; const L = 24 * (1.25 - k * 0.4), cxx = Math.cos(s.ang) * L, cyy = Math.sin(s.ang) * L; ctx.beginPath(); ctx.moveTo(s.x - cxx, s.y - cyy); ctx.lineTo(s.x + cxx, s.y + cyy); ctx.stroke(); ctx.globalAlpha = 1; }
+        // sliced body shards tumbling away, then gone
+        for (const s of shards) { if (!s.on) continue; ctx.globalAlpha = Math.max(0, s.life / s.max); ctx.strokeStyle = s.col; ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.save(); ctx.translate(s.x, s.y); ctx.rotate(s.ang); ctx.beginPath(); ctx.moveTo(-s.len / 2, 0); ctx.lineTo(s.len / 2, 0); ctx.stroke(); ctx.restore(); ctx.globalAlpha = 1; }
+        for (const p of parts) { if (!p.on) continue; ctx.globalAlpha = Math.max(0, p.life / p.max); ctx.fillStyle = p.c; ctx.fillRect(p.x - p.r / 2, p.y - p.r / 2, p.r, p.r); }
+        ctx.globalAlpha = 1;
+        for (const p of pops) { if (!p.on) continue; ctx.globalAlpha = Math.min(1, p.life / 0.5); ctx.fillStyle = C.surge; ctx.font = `500 13px ${F.mono}`; ctx.textAlign = "center"; ctx.fillText(p.text, p.x, p.y); ctx.globalAlpha = 1; }
+        ctx.textAlign = "left";
       }
-      // slash cut-line flash (the blade stroke)
-      for (const s of slashes) { if (!s.on) continue; const k = s.life / 0.22; ctx.globalAlpha = k; ctx.strokeStyle = C.bone; ctx.lineWidth = 2.5; ctx.lineCap = "round"; const L = 24 * (1.25 - k * 0.4), cxx = Math.cos(s.ang) * L, cyy = Math.sin(s.ang) * L; ctx.beginPath(); ctx.moveTo(s.x - cxx, s.y - cyy); ctx.lineTo(s.x + cxx, s.y + cyy); ctx.stroke(); ctx.globalAlpha = 1; }
-      // sliced body shards tumbling away, then gone
-      for (const s of shards) { if (!s.on) continue; ctx.globalAlpha = Math.max(0, s.life / s.max); ctx.strokeStyle = s.col; ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.save(); ctx.translate(s.x, s.y); ctx.rotate(s.ang); ctx.beginPath(); ctx.moveTo(-s.len / 2, 0); ctx.lineTo(s.len / 2, 0); ctx.stroke(); ctx.restore(); ctx.globalAlpha = 1; }
-      for (const p of parts) { if (!p.on) continue; ctx.globalAlpha = Math.max(0, p.life / p.max); ctx.fillStyle = p.c; ctx.fillRect(p.x - p.r / 2, p.y - p.r / 2, p.r, p.r); }
-      ctx.globalAlpha = 1;
-      for (const p of pops) { if (!p.on) continue; ctx.globalAlpha = Math.min(1, p.life / 0.5); ctx.fillStyle = C.surge; ctx.font = "700 13px 'Space Mono', monospace"; ctx.textAlign = "center"; ctx.fillText(p.text, p.x, p.y); ctx.globalAlpha = 1; }
-      ctx.textAlign = "left";
 
-      // player stickman at the exact pointer
-      ctx.save();
-      ctx.translate(m.x, m.y + 24);
-      if (flip >= 0) { ctx.translate(0, -16); ctx.rotate(flip * 6.2832 * face); ctx.translate(0, 16); }
-      let sword = moving ? -0.95 : -0.62 + Math.sin(now / 380) * 0.14;
-      let swordLen = 22;
-      if (atk >= 0) {
-        const p = atk, e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; // easeInOutCubic
-        if (atkType === 0) sword = (-135 + e * 160) * (Math.PI / 180);
-        else if (atkType === 1) sword = (-85 + e * 175) * (Math.PI / 180);
-        else if (atkType === 2) { sword = -0.1; swordLen = 22 + Math.sin(p * Math.PI) * 18; }
-        else if (atkType === 3) sword = e * 6.2832 - Math.PI / 2;
-        else sword = (75 - e * 165) * (Math.PI / 180);
-        // slash wedge
-        const hx = face * 8, hy = -7, a1 = sword, a0 = sword - face * 0.9;
-        const g = ctx.createRadialGradient(hx, hy, 4, hx, hy, swordLen);
-        g.addColorStop(0, "rgba(25,224,255,0)"); g.addColorStop(0.7, "rgba(25,224,255,0.28)"); g.addColorStop(1, "rgba(255,45,107,0.32)");
-        ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.arc(hx, hy, swordLen, Math.min(a0, a1), Math.max(a0, a1)); ctx.closePath(); ctx.fill();
+      // player stickman: head on the real pointer, feet hanging below
+      if (hasPointer) {
+        ctx.save();
+        ctx.translate(m.x, m.y + HOT_R);
+        if (flip >= 0) { ctx.translate(0, -16); ctx.rotate(flip * 6.2832 * face); ctx.translate(0, 16); }
+        let sword = moving ? -0.95 : -0.62 + Math.sin(now / 380) * 0.14;
+        let swordLen = 22;
+        if (atk >= 0) {
+          const p = atk, e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; // easeInOutCubic
+          if (atkType === 0) sword = (-135 + e * 160) * (Math.PI / 180);
+          else if (atkType === 1) sword = (-85 + e * 175) * (Math.PI / 180);
+          else if (atkType === 2) { sword = -0.1; swordLen = 22 + Math.sin(p * Math.PI) * 18; }
+          else if (atkType === 3) sword = e * 6.2832 - Math.PI / 2;
+          else sword = (75 - e * 165) * (Math.PI / 180);
+          // slash wedge, red on paper
+          const hx = face * 8, hy = -7, a1 = sword, a0 = sword - face * 0.9;
+          const g = ctx.createRadialGradient(hx, hy, 4, hx, hy, swordLen);
+          g.addColorStop(0, rgba("surge", 0)); g.addColorStop(0.7, rgba("surge", 0.22)); g.addColorStop(1, rgba("ion", 0.32));
+          ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.arc(hx, hy, swordLen, Math.min(a0, a1), Math.max(a0, a1)); ctx.closePath(); ctx.fill();
+        }
+        drawStick(0, 0, { color: C.bone, face, phase: runPhase, moving, scale: 1.12, sword, swordLen, glow: true, swordColor: hot ? C.surge : undefined });
+        // the reticle at the hotspot: a centre dot, or a filled red head over targets
+        ctx.fillStyle = hot ? C.surge : C.bone;
+        ctx.beginPath(); ctx.arc(0, -HOT_R, hot ? 5.15 : 1.6, 0, 6.2832); ctx.fill();
+        ctx.restore();
       }
-      drawStick(0, 0, { color: C.bone, face, phase: runPhase, moving, scale: 1.12, sword, swordLen, glow: true });
-      ctx.restore();
 
       raf = requestAnimationFrame(loop);
     }
@@ -291,13 +327,14 @@ export function StickCursor() {
       cancelAnimationFrame(raf);
       clearInterval(occInterval);
       removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeave);
       removeEventListener("resize", resize);
       removeEventListener("scroll", onScroll);
-      removeEventListener(THEME_EVENT, onTheme);
       document.removeEventListener("visibilitychange", onVis);
       document.documentElement.style.cursor = "";
+      delete document.documentElement.dataset.stick;
     };
   }, []);
 
-  return <canvas ref={ref} aria-hidden className="pointer-events-none fixed inset-0 z-[95]" />;
+  return <canvas ref={ref} aria-hidden className="pointer-events-none fixed inset-0 z-cursor" />;
 }

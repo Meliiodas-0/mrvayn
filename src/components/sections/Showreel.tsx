@@ -1,15 +1,18 @@
 import { reelFrames } from "@/data/showreel";
+import { section } from "@/data/sections";
+import { ReelPause } from "@/components/sections/ReelPause";
 
 // Two passes of the frames so the CSS marquee (translateX -50%) loops seamlessly.
 const loop = [...reelFrames, ...reelFrames];
 
 /**
- * Field Recordings, v3: THE single loudest red on the site. Solid --red band,
- * #08090D text, one marquee (the only one allowed), no ghost layers. Frames link
- * to each build's showcase. Server-rendered; scroll is a transform-only CSS
- * marquee that pauses on hover/focus and stills under prefers-reduced-motion.
+ * Showreel: THE single loudest red on the site. Solid --ion band, white text, one
+ * marquee. Frames link to each build's showcase. Server-rendered; the strip is a
+ * transform-only CSS marquee that pauses on hover, focus or the Pause control, and
+ * becomes a hand-scrolled, snapping row on touch and reduced-motion devices.
  */
 export function Showreel() {
+  const def = section("showreel");
   return (
     <section
       id="showreel"
@@ -18,39 +21,39 @@ export function Showreel() {
       style={{ backgroundColor: "rgb(var(--ion))" }}
     >
       {/* header */}
-      <div className="mx-auto mb-9 flex w-[min(1440px,100%-clamp(32px,6vw,128px))] items-end justify-between gap-4">
+      <div data-solid className="mv-col mb-9 flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
         <div>
-          <p className="font-mono text-[0.8125rem] uppercase text-white/85">00 / Showreel</p>
+          <p className="font-mono text-meta uppercase text-white/85">
+            {def.index} / {def.label}
+          </p>
           <h2
-            data-solid
+            data-depth="title"
             className="mt-3 font-display font-semibold uppercase leading-[0.95] text-white"
             style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)" }}
           >
             Showreel
           </h2>
         </div>
-        <p className="hidden shrink-0 items-end gap-2 font-mono text-[0.8125rem] uppercase text-white/85 sm:flex">
-          <span aria-hidden className="flex items-end gap-[3px] text-white">
-            <span className="eq" /><span className="eq" /><span className="eq" />
-          </span>
-          REC · {reelFrames.length} builds
+        <p className="flex shrink-0 items-center font-mono text-xs uppercase text-white/85 sm:text-meta">
+          {reelFrames.length} builds
+          <ReelPause />
         </p>
       </div>
 
       {/* the one marquee */}
-      <div className="mv-marquee-mask kinetic-skew relative">
+      <div data-solid className="mv-marquee-mask relative">
         <ul className="mv-marquee flex w-max gap-4 sm:gap-5">
           {loop.map((f, i) => {
             const clone = i >= reelFrames.length;
             return (
-              <li key={`${f.id}-${i}`} className="shrink-0">
+              <li key={`${f.id}-${i}`} data-clone={clone ? "" : undefined} className="shrink-0">
                 <a
                   href={f.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-hidden={clone}
                   tabIndex={clone ? -1 : undefined}
-                  className="mv-frame group relative block w-[clamp(15rem,42vw,21rem)] overflow-hidden rounded border border-white/40 bg-[#0B0E14] transition-transform duration-200 ease-snap hover:-translate-y-[2px]"
+                  className="group relative block w-[clamp(15rem,42vw,21rem)] overflow-hidden rounded border border-white/40 bg-bone transition-transform duration-200 ease-snap hover:-translate-y-[2px]"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -64,7 +67,7 @@ export function Showreel() {
                   <span aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 px-3.5 pb-3 pt-8">
                     <span className="font-display text-sm font-semibold uppercase text-white">{f.title}</span>
-                    <span className="shrink-0 font-mono text-[11px] uppercase text-white/70">{f.year}</span>
+                    <span className="shrink-0 font-mono text-meta-xs uppercase text-white/70">{f.year}</span>
                   </div>
                 </a>
               </li>
@@ -73,8 +76,9 @@ export function Showreel() {
         </ul>
       </div>
 
-      <p className="mx-auto mt-8 w-[min(1440px,100%-clamp(32px,6vw,128px))] font-mono text-[11px] uppercase text-white/80">
-        Hover to pause · tap any frame to watch the build
+      <p data-solid className="mv-col mt-8 font-mono text-meta-xs uppercase text-white/80">
+        <span className="reel-hint-hover">Hover or press pause to hold the strip · click a frame to watch the build</span>
+        <span className="reel-hint-touch">Swipe to browse · tap a frame to watch the build</span>
       </p>
     </section>
   );

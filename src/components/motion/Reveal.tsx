@@ -1,28 +1,27 @@
 import type { ReactNode } from "react";
 
-type Fx = "up" | "left" | "right" | "pop" | "tilt" | "glass" | "deal-l" | "deal-r" | "flip";
+type Fx = "up" | "left" | "right" | "pop" | "tilt" | "glass";
 
 interface RevealProps {
   children: ReactNode;
   className?: string;
+  /** Authored delay in seconds (the hero cascade); otherwise ScrollFx staggers
+   *  whatever enters the viewport together. */
   delay?: number;
-  /** Kept for API compat: skew maps to the "tilt" variant. */
-  skew?: boolean;
-  /** Scroll-animation variant (v4): up | left | right | pop | tilt | glass. */
+  /** Scroll-animation variant: up | left | right | pop | tilt | glass. */
   fx?: Fx;
 }
 
 /**
- * v4 scroll reveal: server-renderable div tagged [data-sfx]; ScrollFx adds .sfx-in
- * when it enters the viewport and the CSS variant plays once (stagger via delay).
+ * Scroll reveal: server-renderable div tagged [data-sfx]; ScrollFx adds .sfx-in
+ * when it enters the viewport and the CSS variant plays once.
  * The base state is VISIBLE (never opacity:0 in markup), so content can never be
  * left hidden if JS fails, the hard iOS lesson. Reduced-motion gated in CSS.
  */
-export function Reveal({ children, className, delay = 0, skew = false, fx }: RevealProps) {
-  const variant: Fx = fx ?? (skew ? "tilt" : "up");
+export function Reveal({ children, className, delay = 0, fx = "up" }: RevealProps) {
   return (
     <div
-      data-sfx={variant}
+      data-sfx={fx}
       className={className}
       style={delay ? { animationDelay: `${delay}s` } : undefined}
     >

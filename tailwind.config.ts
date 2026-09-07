@@ -1,11 +1,9 @@
 import type { Config } from "tailwindcss";
 
-// DESIGN SYSTEM v3 tokens, see app/globals.css for the values.
-// Legacy token names (void/carbon/steel/mist/bone/surge/volt/ion) are kept as
-// CLASS names but remapped to the v3 graphite + red system, so the whole
-// component tree re-themes from one place:
-//   void=bg-0  carbon=bg-2  steel=line-1  mist=fg-2  bone=fg-1
-//   surge=red-hi (text/border red)  ion=red (solid fills)  volt=fg-3
+// Design tokens live in app/globals.css (:root). Class names keep the legacy token
+// names, remapped to the v4 light-glass system:
+//   void=page  bg1=alt section  carbon=card base  bg3=raised  steel=hairline  line2=hover line
+//   bone=ink headings  mist=body  volt=meta  surge=text/border red  ion=solid-fill red
 export default {
   darkMode: "class",
   content: ["./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
@@ -20,23 +18,41 @@ export default {
         surge: "rgb(var(--surge) / <alpha-value>)",
         volt: "rgb(var(--volt) / <alpha-value>)",
         ion: "rgb(var(--ion) / <alpha-value>)",
-        // v3 additions (elevation + hover lines)
+        ionHover: "rgb(var(--ion-hover) / <alpha-value>)",
         bg1: "rgb(var(--bg-1) / <alpha-value>)",
         bg3: "rgb(var(--bg-3) / <alpha-value>)",
         line2: "rgb(var(--line-2) / <alpha-value>)",
       },
       fontFamily: {
         display: ["var(--font-grotesk)", "system-ui", "sans-serif"],
-        // v3: mono owns ALL meta. font-hud is kept as a class name but IS the mono voice.
-        hud: ["var(--font-jetbrains)", "ui-monospace", "monospace"],
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         mono: ["var(--font-jetbrains)", "ui-monospace", "monospace"],
-        anton: ["var(--font-grotesk)", "system-ui", "sans-serif"],
       },
+      // The two meta sizes; tracking is owned by .font-mono in globals.css.
+      fontSize: {
+        "meta-xs": ["11px", { lineHeight: "1.5" }],
+        meta: ["13px", { lineHeight: "1.5" }],
+      },
+      // 4px for small hairline objects, 8px (lg) for containers, full for pills/dots.
       borderRadius: {
+        none: "0",
         DEFAULT: "4px",
         sm: "4px",
         md: "4px",
+        lg: "8px",
+        xl: "12px",
+        full: "9999px",
+      },
+      // One z ladder for the whole page.
+      zIndex: {
+        fx: "0",
+        content: "10",
+        hud: "40",
+        nav: "50",
+        chrome: "60",
+        overlay: "90",
+        cursor: "95",
+        boot: "100",
       },
       transitionTimingFunction: {
         beat: "cubic-bezier(0.22, 1.2, 0.36, 1)",
