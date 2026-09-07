@@ -21,21 +21,28 @@ export const lenisRef = { current: null as Lenis | null };
  */
 export function SmoothScroll() {
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.matchMedia("(pointer: coarse)").matches) return;
-
-    const lenis = new Lenis({ lerp: 0.14, wheelMultiplier: 0.92, anchors: true });
-    lenisRef.current = lenis;
-    lenis.on("scroll", ScrollTrigger.update);
-    const tick = (t: number) => lenis.raf(t * 1000);
-    gsap.ticker.add(tick);
-    gsap.ticker.lagSmoothing(0);
-
-    return () => {
-      gsap.ticker.remove(tick);
-      lenisRef.current = null;
-      lenis.destroy();
+    const native = window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px)");
+    let cleanup: (() => void) | undefined;
+    const sync = () => {
+      cleanup?.();
+      cleanup = undefined;
+      if (native.matches) return;
+      const lenis = new Lenis({ lerp: 0.14, wheelMultiplier: 0.92, anchors: true });
+      lenisRef.current = lenis;
+      if (document.documentElement.hasAttribute("data-modal")) lenis.stop();
+      lenis.on("scroll", ScrollTrigger.update);
+      const tick = (t: number) => lenis.raf(t * 1000);
+      gsap.ticker.add(tick);
+      gsap.ticker.lagSmoothing(0);
+      cleanup = () => {
+        gsap.ticker.remove(tick);
+        lenisRef.current = null;
+        lenis.destroy();
+      };
     };
+    sync();
+    native.addEventListener("change", sync);
+    return () => { native.removeEventListener("change", sync); cleanup?.(); };
   }, []);
 
   return null;

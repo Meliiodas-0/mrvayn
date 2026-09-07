@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono, Barlow_Condensed } from "next/font/google";
 import { socials } from "@/data/socials";
 import "./globals.css";
 
@@ -8,14 +8,14 @@ import "./globals.css";
 const grotesk = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-grotesk", display: "swap" });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const jetbrains = JetBrains_Mono({ subsets: ["latin"], weight: ["400"], variable: "--font-jetbrains", display: "swap" });
+// A separate display voice leaves the cinematic font tokens unchanged.
+const headline = Barlow_Condensed({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-headline", display: "swap" });
 
 const SITE = "https://mrvayn.live";
 const TITLE = "MrVayn | Unreal Engine & Full-Stack Developer";
 const DESCRIPTION =
   "MrVayn builds AAA-caliber game feel in Unreal Engine 5 (gameplay systems, Niagara VFX, multiplayer & netcode) and ships full-stack web apps with Next.js, TypeScript, and Postgres. CTO at a 20-person studio; showcased at IGDC 2025.";
 
-// ROG's first frame per tier; must match ScrollSamurai's frameSrc byte for byte.
-const ROG_V = 10;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -114,13 +114,7 @@ const BOOT_SCRIPT =
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${grotesk.variable} ${inter.variable} ${jetbrains.variable}`}>
-      <head>
-        {/* ROG's hero frame, one preload per tier, gated on the same media the canvas uses. */}
-        <link rel="preload" as="image" fetchPriority="high" href={`/rog-sm/f_000.webp?v=${ROG_V}`} media="(max-width: 1023.98px)" />
-        <link rel="preload" as="image" fetchPriority="high" href={`/rog/f_000.webp?v=${ROG_V}`} media="(min-width: 1024px) and (max-resolution: 1.49dppx)" />
-        <link rel="preload" as="image" fetchPriority="high" href={`/rog-hi/f_000.webp?v=${ROG_V}`} media="(min-width: 1024px) and (min-resolution: 1.5dppx)" />
-      </head>
+    <html lang="en" suppressHydrationWarning className={`${grotesk.variable} ${inter.variable} ${jetbrains.variable} ${headline.variable}`}>
       <body className="font-sans antialiased">
         <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
         {children}

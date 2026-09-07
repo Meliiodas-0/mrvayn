@@ -10,6 +10,7 @@ export interface ProjectLink {
 export interface Project {
   id: string;
   title: string;
+  displayTitle?: string;
   role: string;
   year: string;
   summary: string;
@@ -140,6 +141,7 @@ export const projects: Project[] = [
   {
     id: "multiplayer-tba",
     title: "SAO-X · Skill Art Online",
+    displayTitle: "SAO-X",
     role: "Solo build, personal",
     year: "2026",
     summary:

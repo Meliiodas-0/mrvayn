@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { motion, useScroll, useSpring } from "motion/react";
+import { motion, useScroll, useSpring, useReducedMotion } from "motion/react";
 
 const DevMotionTuner =
   process.env.NODE_ENV === "development"
@@ -19,6 +19,7 @@ export function ScrollProgress() {
 }
 
 function ProductionProgress() {
+  const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 170,
@@ -29,8 +30,8 @@ function ProductionProgress() {
   return (
     <motion.div
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 top-0 z-chrome h-[3px] origin-left bg-ion shadow-[0_0_18px_rgb(var(--ion)/0.45)]"
-      style={{ scaleX }}
+      className="portfolio-theme pointer-events-none fixed inset-x-0 top-0 z-chrome h-[2px] origin-left bg-ion"
+      style={{ scaleX: reduce ? scrollYProgress : scaleX }}
     />
   );
 }

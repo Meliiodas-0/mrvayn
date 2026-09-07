@@ -3,15 +3,9 @@
 import { useEffect, useRef } from "react";
 import { ROG_OFFSETS, ROG_OFFSET_MEAN } from "@/data/rogOffsets";
 
-/**
- * ROG, the resident wraith. A 200-frame transparent-WebP sequence on a canvas,
- * scrubbed smoothly by scroll. CALM by design (owner: no shake): no lean, no
- * glitch, no pulses, just the eased frame scrub at a UNIFORM faint opacity so he
- * reads as the same quiet ink figure from the hero to the footer.
- * The ink treatment is baked into the frames (scripts/rog_pipeline.py), so the
- * canvas runs no CSS filter. Frames load hero-first, then keyframes, then the
- * full set within about half a second (nearest to the scrub first). prefers-reduced-motion: static poster frame.
- */
+/** Sevarog owns the opening stage, not the reading surface behind every section.
+ * The original 200-frame sequence scrubs calmly as the cover leaves the viewport.
+ * Phones load nearby frames on demand; reduced motion gets one static frame. */
 const FRAMES = 200;
 const HERO_IDX = 0;
 const frameSrc = (folder: string, i: number) => `/${folder}/f_${String(i).padStart(3, "0")}.webp?v=10`;
@@ -40,9 +34,9 @@ export function ScrollSamurai() {
       const iw = im.naturalWidth, ih = im.naturalHeight;
       const s = Math.min(W / iw, H / ih);
       const dw = iw * s, dh = ih * s;
-      // Hug the RIGHT edge of the stage on every device (owner: keep him far right);
-      // frames are body-centred at export, so the placement is stable.
-      ctx.drawImage(im, W - dw + dxFrac * dw, H - dh, dw, dh);
+      // The enlarged canvas preserves transparent headroom for raised-weapon
+      // frames. Fit the entire source inside it, with feet anchored and no crop.
+      ctx.drawImage(im, (W - dw) / 2 + dxFrac * dw, H - dh, dw, dh);
     };
 
     const q = new URLSearchParams(location.search);
@@ -50,12 +44,10 @@ export function ScrollSamurai() {
     const phone = window.matchMedia("(max-width: 1023.98px)").matches;
     const hi = !phone && (window.devicePixelRatio || 1) >= 1.5;
     const folder = phone ? "rog-sm" : hi ? "rog-hi" : "rog";
-    const m = "radial-gradient(64% 70% at 50% 56%, #000 52%, transparent 92%)";
+    const m = "none";
     canvas.style.setProperty("mask-image", m); canvas.style.setProperty("-webkit-mask-image", m);
-    // UNIFORM presence: same opacity everywhere. Fainter on phone where he sits
-    // beside centred content. Set before the reduced-motion branch so the static
-    // poster gets the same weight.
-    wrap.style.opacity = String(phone ? 0.14 : 0.34);
+    // The figure now has its own space on both screen sizes.
+    wrap.style.opacity = "0.92";
 
     resize();
     window.addEventListener("resize", resize);
@@ -93,13 +85,14 @@ export function ScrollSamurai() {
     };
     function draw(idx: number) {
       let i = Math.round(idx); i = Math.max(0, Math.min(N - 1, i));
-      for (let k = i - 8; k <= i + 16; k++) ensure(k);
+      for (let k = i - (phone ? 4 : 8); k <= i + (phone ? 8 : 16); k++) ensure(k);
       if (i === lastI) return;
       lastI = i; dxFrac = offsetForFrame(i);
       paint(nearest(i));
     }
     ensure(HERO_IDX, "high");
-    for (let k = 5; k < N; k += 5) ensure(k);
+    const keyframeStep = phone ? 20 : 5;
+    for (let k = keyframeStep; k < N; k += keyframeStep) ensure(k);
     window.addEventListener("resize", repaint);
 
     // Fill the rest right away, nearest-to-scrub first, 24 frames every 40ms (the
@@ -115,7 +108,7 @@ export function ScrollSamurai() {
       pending.slice(0, 24).forEach((k) => ensure(k));
       fillTimer = window.setTimeout(fillStep, 40);
     };
-    if (!saveData) fillTimer = window.setTimeout(fillStep, 0);
+    if (!saveData && !phone) fillTimer = window.setTimeout(fillStep, 0);
 
     const tick = () => {
       cur += (target - cur) * ease;
@@ -125,10 +118,9 @@ export function ScrollSamurai() {
     };
     const kick = () => { if (!running && !document.hidden) { running = true; raf = requestAnimationFrame(tick); } };
     const compute = () => {
-      const vh = window.innerHeight, y = window.scrollY;
-      const max = document.documentElement.scrollHeight - vh;
-      const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
-      target = Math.min(N - 1, Math.sqrt(p) * (N - 1) + lead);
+      const rect = wrap.closest("section")?.getBoundingClientRect();
+      const p = rect ? Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height))) : 0;
+      target = Math.min(N - 1, p * (N - 1) + lead);
       kick();
     };
     const onVis = () => { if (!document.hidden) kick(); };
@@ -153,13 +145,10 @@ export function ScrollSamurai() {
       ref={wrapRef}
       data-solid
       aria-hidden
-      // Right-anchored everywhere. Desktop: hugs the viewport edge up to 1920 and the
-      // 1440 content column's edge on wider screens (2K), so he stays beside the copy
-      // instead of 500px outside it. Phone: right-anchored, smaller and fainter, so he
-      // never stands behind the centred CTAs. Short desktop viewports cap the height.
-      className="pointer-events-none fixed bottom-0 z-fx h-[82vh] w-full max-w-[940px] max-lg:left-auto max-lg:right-[max(-18vw,-64px)] max-lg:h-[54vh] max-lg:w-[78vw] lg:left-auto lg:right-[max(1vw,calc((100vw_-_1440px)/2_-_12.5vw))] lg:w-[46vw] lg:[@media(max-height:1150px)]:h-[62vh]"
+      // Positioned by the hero, with a separate art row on narrow phones.
+      className="sevarog-stage pointer-events-none absolute inset-0"
     >
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full invert grayscale contrast-125 mix-blend-screen" />
+      <canvas ref={canvasRef} className="absolute bottom-0 left-[-20%] h-[140%] w-[140%] invert grayscale contrast-125 mix-blend-screen" />
     </div>
   );
 }

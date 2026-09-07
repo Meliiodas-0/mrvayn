@@ -1,15 +1,12 @@
 import { BootSequence } from "@/components/BootSequence";
 import { StickCursor } from "@/components/StickCursor";
-import { FxLayer } from "@/components/fx/FxLayer";
 import { SmoothScroll } from "@/components/fx/SmoothScroll";
-import { ScrollDepth } from "@/components/fx/ScrollDepth";
 import { ScrollFx } from "@/components/fx/ScrollFx";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
-import { ProofTicker } from "@/components/sections/ProofTicker";
-import { ScrollSamurai } from "@/components/ScrollSamurai";
+import { HeroSculpture } from "@/components/hero/HeroSculpture";
 import { About } from "@/components/sections/About";
 import { Showreel } from "@/components/sections/Showreel";
 import { Work } from "@/components/sections/Work";
@@ -30,25 +27,18 @@ export default function Home() {
 
       <BootSequence />
       <StickCursor />
-      <FxLayer />
       <SmoothScroll />
-      <ScrollDepth />
       <ScrollFx />
-      <ScrollSamurai />
       <Nav />
       <ScrollProgress />
-      {/* colour fields behind the glass so the blur has something to refract */}
-      <div aria-hidden className="blob blob-red left-[-12vw] top-[8vh] h-[46vh] w-[46vh]" />
-      <div aria-hidden className="blob blob-ink right-[18vw] top-[46vh] h-[52vh] w-[52vh]" />
-      <div aria-hidden className="blob blob-red bottom-[-10vh] left-[32vw] h-[40vh] w-[40vh] opacity-40" />
 
-      <main id="content" className="relative z-content">
+      <main id="content" className="portfolio-theme relative z-content">
+        <HeroSculpture />
         <Hero />
-        <ProofTicker />
-        <About />
-        <Showreel />
         <Work />
+        <About />
         <Impact />
+        <Showreel />
         <Skills />
         <Timeline />
         <Contact />

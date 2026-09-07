@@ -72,11 +72,11 @@ export function ClipPreview({ src, poster, title, label = projectUi.playPreview,
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={poster} alt={posterAlt ?? `${title} preview`} width={1280} height={720} loading="lazy" className="h-full w-full object-contain" />
           <span className="absolute inset-0 grid place-items-center bg-black/15 transition-colors group-hover:bg-black/5">
-            <span className="grid h-16 w-16 place-items-center rounded-full border border-white/60 bg-black/75 text-white shadow-xl transition-transform group-hover:scale-105 motion-reduce:transform-none">
+            <span className="grid h-14 w-14 place-items-center rounded-full bg-bone text-void transition-transform group-hover:scale-105 motion-reduce:transform-none sm:h-16 sm:w-16">
               <Play aria-hidden className="ml-1 h-6 w-6 fill-current" />
             </span>
           </span>
-          <span className="absolute bottom-3 right-3 rounded border border-white/20 bg-black/85 px-3 py-2 font-mono text-[10px] uppercase text-white sm:bottom-4 sm:right-4 sm:text-xs">{label}</span>
+          <span className="absolute bottom-3 right-3 bg-black/85 px-3 py-2 text-[11px] text-white sm:bottom-4 sm:right-4 sm:text-xs">{label}</span>
         </button>
       )}
     </div>

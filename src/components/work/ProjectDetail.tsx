@@ -55,8 +55,10 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
     document.body.style.overflow = "hidden";
     // Let CSS pause the marquees hidden behind the panel (globals.css).
     document.documentElement.setAttribute("data-modal", "1");
+    document.dispatchEvent(new Event("portfolio:pause-previews"));
     // The page behind the dialog is inert (the portal lives on body, so it stays live).
     const shielded = Array.from(document.querySelectorAll<HTMLElement>("#content, header, footer"));
+    const priorInert = shielded.map(el => el.hasAttribute("inert"));
     shielded.forEach((el) => el.setAttribute("inert", ""));
     // Only the controls that are actually displayed at this breakpoint (the pinned
     // phone X vs the in-panel desktop X); getClientRects, not offsetParent, because
@@ -81,8 +83,8 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
       document.removeEventListener("keydown", onKey, true);
       document.body.style.overflow = prevOverflow;
       document.documentElement.removeAttribute("data-modal");
-      shielded.forEach((el) => el.removeAttribute("inert"));
-      prevFocus?.focus?.();
+      shielded.forEach((el, i) => { if (!priorInert[i]) el.removeAttribute("inert"); });
+      prevFocus?.focus?.({ preventScroll: true });
     };
   }, [onClose]);
 
@@ -97,7 +99,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
       // frame while the canvases animate behind it, which is what made the panel lag.
       // Auto margins on the panel: centred when it fits, top-aligned and fully
       // scrollable when it is taller than the viewport.
-      className="mv-fade fixed inset-0 z-overlay flex overflow-y-auto bg-black/80 sm:p-6"
+      className="portfolio-theme folio-dialog mv-fade fixed inset-0 z-overlay flex overflow-y-auto bg-black/80 sm:p-6"
       onClick={onClose}
     >
       {/* Phone close, pinned to the VIEWPORT. It must be a child of the overlay, not
@@ -108,7 +110,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
         aria-label="Close"
         className="fixed right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded border border-steel bg-carbon text-mist sm:hidden"
       >
-        <X className="h-5 w-5" />
+        <X aria-hidden className="h-5 w-5" />
       </button>
       <div
         ref={panelRef}
@@ -126,7 +128,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
           aria-label="Close"
           className="absolute right-4 top-4 hidden h-11 w-11 place-items-center rounded border border-steel text-mist transition-colors hover:border-surge/60 hover:text-bone sm:grid"
         >
-          <X className="h-4 w-4" />
+          <X aria-hidden className="h-4 w-4" />
         </button>
 
         <div className="flex flex-wrap items-center gap-2 pr-10">

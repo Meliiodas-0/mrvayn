@@ -7,6 +7,8 @@ import { profile } from "@/data/profile";
 import { socials } from "@/data/socials";
 import { SECTIONS } from "@/data/sections";
 import { BevelButton } from "@/components/ui/BevelButton";
+import { lenisRef } from "@/components/fx/SmoothScroll";
+import { activeSection, type SectionAnchor } from "@/lib/sectionNavigation";
 
 const items = SECTIONS.filter((s) => s.nav);
 
@@ -18,23 +20,36 @@ export function Nav() {
   const menuRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const onScroll = () => {
+    let anchors: SectionAnchor[] = [];
+    let height = 1;
+    let maxScroll = 1;
+    let frame = 0;
+    const sync = () => {
+      frame = 0;
       setScrolled(window.scrollY > 40);
-      if (window.scrollY < window.innerHeight * 0.6) setActive("");
+      setActive(activeSection(window.scrollY, height, maxScroll, anchors));
     };
-    onScroll();
+    const measure = () => {
+      height = window.innerHeight;
+      maxScroll = document.documentElement.scrollHeight - height;
+      anchors = items.flatMap(item => {
+        const element = document.getElementById(item.id);
+        return element ? [{ id: item.id, top: element.getBoundingClientRect().top + window.scrollY }] : [];
+      });
+      sync();
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(sync); };
+    const observer = new ResizeObserver(measure);
+    observer.observe(document.body);
+    measure();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const els = items.map((i) => document.getElementById(i.id)).filter((el): el is HTMLElement => !!el);
-    const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
-      { rootMargin: "-45% 0px -50% 0px" },
-    );
-    els.forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", measure);
+      observer.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, []);
 
   // Phone menu: scroll lock, Escape, focus in and back out, and auto-close past md
@@ -45,8 +60,23 @@ export function Nav() {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     document.documentElement.setAttribute("data-modal", "1");
+    lenisRef.current?.stop();
+    document.dispatchEvent(new Event("portfolio:pause-previews"));
+    const shielded = Array.from(document.querySelectorAll<HTMLElement>("#content, footer"));
+    const priorInert = shielded.map(el => el.hasAttribute("inert"));
+    shielded.forEach(el => el.setAttribute("inert", ""));
     menuRef.current?.querySelector<HTMLElement>("a")?.focus({ preventScroll: true });
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setOpen(false); return; }
+      if (e.key !== "Tab") return;
+      const links = Array.from(menuRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])') ?? []);
+      const controls = [btn, ...links].filter((el): el is HTMLElement => !!el && el.getClientRects().length > 0);
+      const index = controls.indexOf(document.activeElement as HTMLElement);
+      if (index < 0 || (e.shiftKey && index === 0) || (!e.shiftKey && index === controls.length - 1)) {
+        e.preventDefault();
+        (e.shiftKey ? controls[controls.length - 1] : controls[0])?.focus();
+      }
+    };
     const mq = window.matchMedia("(min-width: 768px)");
     const onMq = () => { if (mq.matches) setOpen(false); };
     window.addEventListener("keydown", onKey);
@@ -56,6 +86,8 @@ export function Nav() {
       mq.removeEventListener("change", onMq);
       document.body.style.overflow = prevOverflow;
       document.documentElement.removeAttribute("data-modal");
+      lenisRef.current?.start();
+      shielded.forEach((el, i) => { if (!priorInert[i]) el.removeAttribute("inert"); });
       btn?.focus({ preventScroll: true });
     };
   }, [open]);
@@ -65,17 +97,16 @@ export function Nav() {
       <header
         data-solid
         className={cn(
-          "fixed inset-x-0 top-0 z-nav border-b border-steel/80 transition-[background-color,box-shadow] duration-300",
+          "portfolio-theme folio-nav fixed inset-x-0 top-0 z-nav transition-[background-color,box-shadow] duration-300",
           !scrolled && "backdrop-blur-md",
           scrolled && "shadow-[0_14px_40px_var(--ink-dim)]",
         )}
-        // Solid once scrolled: the translucent header turned pink over the red Showreel band.
-        style={{ backgroundColor: scrolled ? "rgb(var(--void) / 0.96)" : "rgb(var(--void) / 0.72)" }}
+        // Opaque while reading so text cannot ghost through the navigation.
+        style={{ backgroundColor: scrolled || open ? "rgb(var(--void))" : "rgb(var(--void) / 0.72)" }}
       >
         <nav className="mv-col flex items-center justify-between py-4" aria-label="Primary">
           <a href="#hero" className="group flex items-center gap-2.5">
-            <span aria-hidden className="inline-block h-6 w-6 rounded bg-ion shadow-[0_0_22px_rgb(var(--ion)/0.24)] transition-transform duration-200 ease-snap group-hover:scale-110" />
-            <span className="font-display text-lg font-semibold uppercase text-bone">MrVayn</span>
+            <span className="nav-wordmark" aria-label="MrVayn, home">mv.</span>
           </a>
 
           <div className="hidden items-center gap-7 md:flex">
@@ -83,12 +114,13 @@ export function Nav() {
               <a
                 key={item.id}
                 href={`#${item.id}`}
+                aria-current={active === item.id ? "location" : undefined}
                 className={cn(
                   "relative inline-flex items-center gap-2 font-mono text-xs uppercase transition-colors duration-200 ease-snap",
                   active === item.id ? "text-bone" : "text-volt hover:text-bone",
                 )}
               >
-                {/* active section = red dot + mono label */}
+                {/* Active section uses both a marker and a semantic state. */}
                 <span
                   aria-hidden
                   className={cn("h-1.5 w-1.5 rounded-full bg-ion transition-opacity duration-200", active === item.id ? "opacity-100" : "opacity-0")}
@@ -98,6 +130,7 @@ export function Nav() {
             ))}
             <a
               href="#contact"
+              aria-current={active === "contact" ? "location" : undefined}
               className={cn(
                 "rounded border px-4 py-2 font-mono text-xs uppercase text-bone transition-colors duration-200 ease-snap hover:border-surge",
                 active === "contact" ? "border-surge" : "border-line2",
@@ -115,7 +148,7 @@ export function Nav() {
             aria-controls="mobile-menu"
             className="-mr-1 grid h-11 w-11 place-items-center text-bone md:hidden"
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? <X aria-hidden className="h-5 w-5" /> : <Menu aria-hidden className="h-5 w-5" />}
           </button>
         </nav>
       </header>
@@ -123,9 +156,10 @@ export function Nav() {
       {open && (
         <nav
           id="mobile-menu"
+          data-lenis-prevent
           ref={menuRef}
           aria-label="Menu"
-          className="fixed inset-0 z-hud flex flex-col overflow-y-auto overscroll-contain bg-void/95 px-6 pb-10 pt-24 backdrop-blur-md md:hidden"
+          className="portfolio-theme folio-menu fixed inset-0 z-hud flex flex-col overflow-y-auto overscroll-contain bg-void px-6 pb-10 pt-24 md:hidden"
         >
           <div className="mt-auto">
             {items.map((item) => (
@@ -136,7 +170,6 @@ export function Nav() {
                 aria-current={active === item.id ? "true" : undefined}
                 className="flex items-baseline gap-4 border-b border-steel/60 py-4 font-display text-[2.25rem] font-semibold uppercase text-bone"
               >
-                <span className="font-mono text-xs text-volt">{item.index}</span>
                 {item.label}
                 <span aria-hidden className={cn("ml-auto h-1.5 w-1.5 rounded-full bg-ion", active === item.id ? "opacity-100" : "opacity-0")} />
               </a>

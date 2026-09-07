@@ -11,10 +11,10 @@ export interface SectionDef {
 }
 
 export const SECTIONS: SectionDef[] = [
-  { id: "about", label: "About", index: "01", nav: true },
-  { id: "showreel", label: "Showreel", index: "02", nav: false },
-  { id: "work", label: "Work", index: "03", nav: true },
-  { id: "impact", label: "Impact", index: "04", nav: false },
+  { id: "work", label: "Work", index: "01", nav: true },
+  { id: "about", label: "About", index: "02", nav: true },
+  { id: "impact", label: "Impact", index: "03", nav: false },
+  { id: "showreel", label: "Showreel", index: "04", nav: false },
   { id: "skills", label: "Skills", index: "05", nav: true },
   { id: "journey", label: "Journey", index: "06", nav: true },
   { id: "contact", label: "Contact", index: "07", nav: true },

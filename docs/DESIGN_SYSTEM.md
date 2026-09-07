@@ -1,115 +1,163 @@
-# mrvayn.live design system (v5, obsidian signal)
-
-The shipped truth. Tokens are declared once in `app/globals.css` (`:root`) and mapped to
-Tailwind classes in `tailwind.config.ts`. Superseded specs (the dark OVERDRIVE system, the
-original brief, the hero mini-game spec) are in `docs/archive/` and describe nothing that
-ships.
+# mrvayn.live design system (v6.7, continuous editorial scroll)
 
 ## Direction
-One cinematic instrument panel on an obsidian ground. Graphite panes, vivid work media,
-one red signal, and cold white type. Two resident figures carry the identity: ROG, the pale
-wraith fixed far right and scrubbed calmly by scroll, and the stickman cursor game with its
-boot cinematic. Everything else is restrained chrome that measures something.
 
-## Colour
-| Token (class) | Value | Role |
-| --- | --- | --- |
-| `--void` (`void`) | 7 8 11 | page |
-| `--bg-1` (`bg1`) | 11 13 17 | alternating sections |
-| `--carbon` (`carbon`) | 16 19 24 | card base, dialog ground |
-| `--bg-3` (`bg3`) | 22 26 33 | raised / hover |
-| `--steel` (`steel`) | 45 51 61 | structural hairline |
-| `--line-2` (`line2`) | 75 84 98 | hover borders, ghost button |
-| `--bone` (`bone`) | 239 242 246 | headings, cold white |
-| `--mist` (`mist`) | 173 182 194 | body |
-| `--volt` (`volt`) | 130 141 156 | meta layer |
-| `--surge` (`surge`) | 255 102 118 | accessible text and border red |
-| `--ion` (`ion`) | 237 27 58 | solid fills only; `--ion-hover` 255 51 82 |
+A developer's portfolio with an original black-lacquer MRVAYN sculpture as its opening.
+The owner selected Maxime Veilleux's hero concept on 7 September 2026 and asked for
+MRVAYN followed by the existing content. This explicitly supersedes the text-only
+v6.4 hero. There are no slogans, superiority claims, game backgrounds or video loops.
+Open, unboxed project layouts follow, where the actual footage belongs.
 
-Derived: `--red-dim` = ion at 0.14 (spotlight, hero wash), `--ink-dim` = black at 0.4
-(glass shadow). Never hand-type a near-token colour in TSX; use the class or
-`rgb(var(--x) / a)`.
+The owner rejected v5's repeated glass panels, v6's giant wordmark / blue arch /
+Sevarog opening, v6.1's game-scene background, v6.2's static silver V, and v6.3's
+Code / Play typography and cobalt field. The latest request explicitly says dark and
+subtle. The new sculpture is an explicit owner choice, not a return to the earlier
+wordmark/arch layout. Sevarog's source and media are retained locally, but it is not
+mounted. The hero plan is in `HERO_SCROLL_DIRECTION.md`; the whole-site polish is
+in `SITE_POLISH_DIRECTION.md`. The owner explicitly
+corrected v6.5's pointer-only behaviour: the reference must be studied by scrolling.
 
-## Surfaces
-- `.glass`: graphite gradient (bg-3 0.78 to carbon 0.7), 16px blur, steel rim, soft black
-  shadow. Phones: 8px blur and an almost opaque gradient so nothing reads through text.
-  Used by `Panel`, the hero pill and readout.
-- `.glass-solid`: the reading surface (project dialog), carbon at 0.985, no blur.
-- Sections (`SectionShell`) sit on `void` or `bg-1` at 0.9 so ROG ghosts through
-  uniformly; the footer uses a 0.94 ground.
-- Ambient `.blob` colour fields (static) sit under `main` so the glass has colour to refract.
+The user's September 2026 boundary is explicit: do not change the stickman cinematic
+or the cursor/enemy game. Sevarog can move. This implementation leaves both protected
+files byte-for-byte unchanged, and preserves their root colour and font tokens.
 
-## Type
-- Display: Space Grotesk 500/600, `-0.02em`, for h1, h2, h3, tiles, stats, wordmark.
-- Body: Inter, 16px / 1.7.
-- Meta: JetBrains Mono, uppercase, ONE tracking owned by `.font-mono` (0.08em, 0.06em
-  under 640px). Sizes: `text-meta-xs` 11px, `text-xs` 12px, `text-meta` 13px. No
-  `tracking-*` utilities on mono elements.
+## Palette and typography
 
-## Shape and spacing
-- Radius: 4px (`rounded`) for buttons, chips, small chrome; 8px (`rounded-lg`) for glass
-  containers; `rounded-full` only for the identity pill and status dots.
-- The one content column is `.mv-col` = `min(1440px, 100% - clamp(32px, 6vw, 128px))`;
-  nav row, sections, ticker and footer all sit on it.
-- Section padding: 68px on phones, `clamp(88px, 10vh, 140px)` from 640px.
-- z ladder (`tailwind.config.ts`): fx 0 (ROG), content 10, hud 40 (phone menu), nav 50,
-  chrome 60 (progress bar, skip link), overlay 90 (dialog), cursor 95 (stickman), boot 100.
+- Canvas ground: #07080B.
+- Primary type: #EFF2F6.
+- Body: #ADB6C2.
+- Quiet page metadata: #96A0AF (root cinematic metadata remains #828D9C).
+- Cobalt page actions: #546BF3.
+- Accessible blue text: #A9B7FF.
 
-## Components
-- `BevelButton`: the one button. `primary` = ion fill, white, ion-hover + 1px lift;
-  `ghost` = line-2 hairline on a graphite pane. Both retain a visible focus ring.
-- `Tag`: the one chip, with a red accent for released builds.
-- `Panel`: glass card, optional red left edge, optional hover lift; carries `data-solid`
-  so the stickman enemies stay off it.
-- `SectionShell`: rules top and bottom, "NN / LABEL" from `src/data/sections.ts` on the
-  top rule, with consistent spacing after the dark Showreel band.
-- `ProjectSpotlight`: the newest showcase leads the work section, with a native-ratio
-  preview, a concise overview and three facts.
-- `SelectedProject`: Antarya, SAO-X and MagViz use full-width alternating 7/5 desktop
-  layouts. Phones always read title, media, caption, contribution, facts, actions.
-- `ClipPreview`: one player shared by all local project clips and detail dialogs.
-  Media loads only on an explicit Play, never crops the gameplay/HUD, pauses offscreen
-  or on a hidden tab, and allows only one preview to play at a time. Opening a case
-  study pauses the card player. Reduced-motion visitors also opt in to playback.
-- `ProjectTile`: current smaller builds show local thumbnails, a short summary and
-  a visible case-study affordance; archived prototypes remain compact.
-- `ProjectDetail`: full project/video links sit immediately below media. Focus is
-  trapped, the background is inert, and Close has a 44px target on both breakpoints.
+The hero uses the dark page palette. Its #23252A lacquer material catches neutral
+studio reflections. No neon, coloured glow, solid colour field or fake interface.
 
-## Motion contract
-- Reveals: `Reveal` renders `[data-sfx]`, `ScrollFx` adds `.sfx-in` via
-  IntersectionObserver, CSS animates toward the visible base state. Stagger comes from
-  co-arrival. If JS never runs nothing is hidden. DialKit tunes reveal distance and timing
-  during local development. Motion drives only the additive scroll-progress signal.
-- Scroll depth (`fx/ScrollDepth.tsx`): GSAP ScrollTrigger, transforms only, desktop only,
-  synced to Lenis (`fx/SmoothScroll.tsx`, desktop only, `anchors: true`).
-- Boot handoff: the inline script in `layout.tsx` sets `html[data-boot]` before first
-  paint (`skip` for returning or reduced-motion visitors, `play` otherwise); the boot sets
-  `done` when it lifts and the hero entrance replays once.
-- ROG (`ScrollSamurai.tsx`): fixed, far right (hugs the 1440 column above 1920), uniform
-  faint opacity (0.34 desktop, 0.14 phone), calm eased scrub, frames lazy-loaded around
-  the scrub position, inverted to a pale screen-blended ghost for the dark ground.
-- Stickman (`StickCursor.tsx`): head on the hotspot, red reticle over targets, enemies
-  avoid `[data-solid]` at feet and head, freeze under an open dialog.
-- Reduced motion: every keyframe is gated; marquees stop and become hand-scrolled rows.
+The page palette is scoped to `.portfolio-theme`. The original red cinematic palette
+remains on `:root`, because `src/lib/themeColors.ts` reads those properties directly.
+Do not replace the root tokens to recolour the page.
 
-## Content
-All copy lives in `src/data/*.ts` (profile, projects, impact, skills, experience,
-socials, showreel, sections). Numbers are real and consistent (4+ years in UE5, 20-person
-studio, 3 products shipped). Identity order: UE5 + software developer first, Roblox last.
-No em dashes anywhere.
+The hero letterforms are original paths cast into continuous rounded geometry.
+Inter remains the reading and navigation voice, in sentence case. Barlow Condensed
+500/600 carries project titles, section headings and footer. No font or media assets were added for this hero.
+Three.js is lazy-loaded for its geometry and renderer; Motion drives the response.
+The original Space Grotesk and JetBrains Mono variables remain unchanged for the
+protected canvases.
+
+## Whole-page continuity
+
+The sculpture fades to 18% as work arrives, then continues its chapter choreography
+on one transparent dark ground. Sections use inset rules, not opaque background slabs.
+The exit normalizes to the reachable document end so the footer finishes clear.
+Phone workshop items use a readable single-column editorial list. Body copy is 15px,
+secondary descriptions 13-14px and media captions 12px. Narrow screens use native
+scrolling, including when resizing from desktop. Navigation uses cached section
+positions and exposes its active state to assistive technology.
+
+## Composition
+
+The content column remains max 1440px, with fluid outer gutters. The full-viewport
+hero has an asymmetric two-row wordmark on desktop, and three two-letter rows on
+phone. A compact identity and normal Work link anchor its lower edge. The sculpture
+is viewport-pinned during normal scrolling. Individual letters separate, enlarge,
+rotate and move to the edges as existing content passes in front. Phone letters
+rise out of the reading viewport. The sculpture is decorative to assistive
+technology; a native h1 exposes MRVAYN once.
+
+Desktop opening:
+```text
+existing navigation
+
+           M     R     V
+              A     Y     N
+
+Aayush / MrVayn                            View work
+Unreal Engine & full-stack development
+```
+
+Work appears immediately after the opening:
+```text
+Cricket Broadcast Lab
+[               full-width film               ]
+contribution + links             format / runtime
+
+Antarya
+[ large gameplay still ]
+                              SAO-X
+                              [ gameplay preview ]
+contribution                  contribution
+
+[ MagViz product preview ]    MagViz / contribution
+
+[ smaller project ] [ smaller project ] [ ... ]
+Earlier experiments (expandable)
+```
+
+Antarya and SAO-X are offset game spreads, with different visual weight. MagViz is a
+wide product spread. Cricket leads as a screening room. Phones read title, media,
+caption, contribution, actions, without visual reordering of meaningful content.
+
+About pairs a large personal thesis with a compact bio. Skills and Journey are
+reading lists, not cards. The Contact section closes with a direct email link and
+a large cobalt wordmark. Additional collaborations and older prototypes remain
+available through native details controls.
+
+## Interaction and motion
+
+- The protected cinematic and cursor/enemy game retain their original logic, timing,
+  colours, fonts, controls, and source files.
+- Sevarog is not rendered, and its preload links have been removed. The hero uses
+  no external model, texture, image or video assets. A server-rendered SVG remains
+  visible until the lazy WebGL renderer draws, and returns on context loss.
+- Scroll position drives a reversible six-letter choreography, not a triggered
+  autoplay. Work, About, Impact, Showreel, Skills and Journey define the successive
+  large-letter holds. Contact clears the geometry. Existing alternate section
+  backgrounds remain above the decorative layer. No added scroll runway or pinning
+  of the actual content. Phones use upward exit paths, not background letter holds.
+- The sculpture also retains a restrained pointer response. Touch has a smaller
+  response, with passive listeners and native vertical scrolling. No pointer
+  capture, drag lock or orientation permission. Canvas never intercepts links.
+- The renderer draws on changes only, pauses offscreen and in hidden tabs, and caps
+  the pixel budget. Reduced motion keeps it still. The development-only DialKit Hero
+  group tunes pointer response plus scroll span, turn, stiffness and damping.
+  Reduced motion restores an ordinary, non-pinned still hero. Production does not
+  subscribe to the development tuning event.
+- The cinematic is unchanged; the new hero is immediately visible after it ends.
+  No staggered card entrances or drifting section titles.
+- The capture strip is manual, with swipe, native scrollbar, keyboard-accessible
+  links, and 44px previous/next buttons. There is no autoplay marquee.
+- Motion also drives the thin additive scroll-progress line. Reduced motion bypasses
+  its spring. DialKit stays development-only, with stable 12px / .55s reveal defaults.
+- Desktop Lenis remains; phones and reduced-motion visitors scroll natively.
+
+## Media and accessibility
+
+`ClipPreview` still loads only on explicit Play. Native controls preserve the entire
+16:9 gameplay frame. Local video pauses offscreen, on hidden tabs, when another
+preview plays, or when a project detail opens. The full Drive links are unchanged.
+All project claims, case-study evidence and media remain sourced from the existing
+data. Editorial copy lives in `src/data/editorial.ts`.
+
+The project dialog traps focus and makes the page inert. The mobile menu also
+contains keyboard focus, marks the reading surface inert, closes with Escape, and
+restores focus to the opener. Focus rings and 44px targets remain mandatory.
+Reduced-motion CSS never affects the protected signature canvases.
 
 ## Verification
-1. `npx tsc --noEmit`.
-2. Headless captures at 375x812 @2x, 1920x950 and 2560x1300 (the capture script lives
-   outside the repo in the working scratch folder; it skips the boot via
-   `sessionStorage.booted`, screenshots every `section[id]`, the open dialog and the phone
-   menu, and reports console errors and horizontal overflow).
-3. Gate: zero console errors, no overflow, no label collisions, ROG complete and far right,
-   dialog top reachable at 1080p.
 
-## Handoff
-Ships: everything above. Intentionally not built: a hero mini-game (the cursor game and
-ROG replaced it), a contact form (mailto), testimonials (none supplied), a CV download
-(`profile.resumeHref` stays null until the PDF exists in `public/`), a GitHub channel
-(the owner has not supplied a public handle).
+Run `node scripts/test-hero-scroll.mjs`, `npx tsc --noEmit`, `npm run lint`, and a production build. Stop `next dev`
+before building because they share `.next`. Use the available browser tooling for
+375x812, 1920x950, and 2560x1300 checks, plus a narrow 320px overflow audit.
+
+Review the opening, all selected projects, native previews, capture controls,
+mobile menu, project dialog, footer, console errors, and horizontal overflow.
+Check the protected file hashes before handing off:
+
+- BootSequence.tsx: 2F77266738613702E3B1A71157D6E29CF74F4B918DCCB7C142F596A311E745DE
+- StickCursor.tsx: 24A56EC1EA227225C6FA8CC4FA8F5E911DFFF7E54CFD9AEE5CF187D1033D3F45
+
+## Delivery state
+
+This revision is a local design preview. It is not committed or deployed. The live
+Vercel website remains on the previously published version until the owner chooses
+to replace it. Keep the existing GitHub/Vercel hosting workflow, not a new host.
