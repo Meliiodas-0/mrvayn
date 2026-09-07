@@ -5,7 +5,7 @@ export function Footer() {
   return (
     // Same 0.86 ground as the sections so ROG stays the same faint ink here; Contact's
     // bottom rule is the footer's top rule (no doubled hairline).
-    <footer data-solid className="relative z-content bg-void/[0.86]">
+    <footer data-solid className="relative z-content bg-void/[0.94]">
       <div className="mv-col flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2.5">
           <span aria-hidden className="inline-block h-5 w-5 rounded bg-ion" />

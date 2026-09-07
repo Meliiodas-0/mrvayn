@@ -2,26 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== v4 LIGHT GLASS tokens: off-white paper, ink text, greyish glass, one red signal.
-   Legacy names stay (the whole tree reads them): void=page, bg-1=alt section,
-   carbon=card base, bg-3=raised, steel=hairline, line-2=hover line, bone=headings,
-   mist=body, volt=meta, surge=text/border red, ion=solid-fill red. */
+/* ===== v5 OBSIDIAN SIGNAL tokens: near-black ground, graphite surfaces, one red signal.
+   Legacy names stay so every component reads the same shared palette. */
 :root {
-  --void: 240 242 246;
-  --bg-1: 231 234 240;
-  --carbon: 236 239 245;
-  --bg-3: 244 246 250;
-  --steel: 205 210 220;
-  --line-2: 182 189 202;
-  --bone: 11 14 20;
-  --mist: 62 70 82;
-  --volt: 88 96 110;   /* 5.6:1 on the page: AA for the 11-13px meta layer */
-  --surge: 200 12 38;  /* text/border red: AA on the page, bg-1 and the glass */
-  --ion: 232 17 45;    /* solid fills only */
-  --ion-hover: 255 33 64;
-  --red-dim: rgb(var(--ion) / 0.1);
-  --ink-dim: rgb(var(--bone) / 0.1);
-  --ease-beat: cubic-bezier(0.22, 1.2, 0.36, 1);
+  --void: 7 8 11;
+  --bg-1: 11 13 17;
+  --carbon: 16 19 24;
+  --bg-3: 22 26 33;
+  --steel: 45 51 61;
+  --line-2: 75 84 98;
+  --bone: 239 242 246;
+  --mist: 173 182 194;
+  --volt: 130 141 156;
+  --surge: 255 102 118;
+  --ion: 237 27 58;
+  --ion-hover: 255 51 82;
+  --red-dim: rgb(var(--ion) / 0.14);
+  --ink-dim: rgb(0 0 0 / 0.4);
+  --reveal-y: 22px;
+  --reveal-x: 18px;
+  --reveal-duration: 0.72s;
+  --ease-beat: cubic-bezier(0.2, 0.85, 0.25, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-snap: cubic-bezier(0.7, 0, 0.2, 1);
 }
@@ -44,32 +45,31 @@ html[data-stick] :is(a, button, [role="button"], video, summary) { cursor: none;
 
 /* ===== GLASS ===== */
 .glass {
-  /* greyish glass: slate-tinted panes over the off-white page */
-  background: linear-gradient(135deg, rgb(var(--bg-1) / 0.62), rgb(var(--steel) / 0.4));
-  -webkit-backdrop-filter: blur(18px) saturate(1.5);
-  backdrop-filter: blur(18px) saturate(1.5);
-  border: 1px solid rgb(255 255 255 / 0.55);
+  background:
+    linear-gradient(135deg, rgb(var(--bg-3) / 0.78), rgb(var(--carbon) / 0.7));
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  backdrop-filter: blur(16px) saturate(1.15);
+  border: 1px solid rgb(var(--steel) / 0.88);
   box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 0.75),
-    inset 0 -1px 0 0 rgb(var(--bone) / 0.06),
-    0 10px 40px var(--ink-dim);
+    inset 0 1px 0 rgb(255 255 255 / 0.055),
+    0 18px 60px rgb(0 0 0 / 0.22);
 }
 /* Phones: lighter blur (cost) and a more opaque pane, so ROG and the page never
    read through the text. */
 @media (max-width: 1023.98px) {
   .glass {
-    -webkit-backdrop-filter: blur(8px) saturate(1.4);
-    backdrop-filter: blur(8px) saturate(1.4);
-    background: linear-gradient(135deg, rgb(var(--bg-1) / 0.9), rgb(var(--steel) / 0.82));
+    -webkit-backdrop-filter: blur(8px) saturate(1.1);
+    backdrop-filter: blur(8px) saturate(1.1);
+    background: linear-gradient(135deg, rgb(var(--bg-3) / 0.94), rgb(var(--carbon) / 0.92));
   }
 }
 /* Reading surface (the project dialog): near-opaque, no blur, one soft shadow. */
 .glass-solid {
-  background: rgb(var(--carbon) / 0.97);
-  border: 1px solid rgb(255 255 255 / 0.6);
+  background: rgb(var(--carbon) / 0.985);
+  border: 1px solid rgb(var(--line-2) / 0.75);
   box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 0.75),
-    0 24px 80px rgb(var(--bone) / 0.22);
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 24px 90px rgb(0 0 0 / 0.72);
 }
 
 /* Ambient colour fields BEHIND the glass: without colour to refract, glass reads as
@@ -82,27 +82,27 @@ html[data-stick] :is(a, button, [role="button"], video, summary) { cursor: none;
   filter: blur(90px);
   opacity: 0.55;
 }
-.blob-red { background: radial-gradient(circle, rgb(var(--ion) / 0.28), transparent 65%); }
-.blob-ink { background: radial-gradient(circle, rgb(var(--mist) / 0.26), transparent 65%); }
+.blob-red { background: radial-gradient(circle, rgb(var(--ion) / 0.24), transparent 68%); }
+.blob-ink { background: radial-gradient(circle, rgb(var(--line-2) / 0.18), transparent 68%); }
 
 /* ===== Scroll reveals.
    SAFETY CONTRACT: base state is ALWAYS visible; ScrollFx only ADDS .sfx-in when the
    element enters the viewport, and every keyframe ends at the natural state. If JS
    never runs, nothing is ever hidden (the iOS rule). Variants via data-sfx. ===== */
 @media (prefers-reduced-motion: no-preference) {
-  .sfx-in[data-sfx="up"] { animation: sfx-up 0.7s var(--ease-out) both; }
-  .sfx-in[data-sfx="left"] { animation: sfx-left 0.75s var(--ease-out) both; }
-  .sfx-in[data-sfx="right"] { animation: sfx-right 0.75s var(--ease-out) both; }
-  .sfx-in[data-sfx="pop"] { animation: sfx-pop 0.65s var(--ease-beat) both; }
-  .sfx-in[data-sfx="tilt"] { animation: sfx-tilt 0.8s var(--ease-beat) both; }
-  .sfx-in[data-sfx="glass"] { animation: sfx-glass 0.8s var(--ease-out) both; }
+  .sfx-in[data-sfx="up"] { animation: sfx-up var(--reveal-duration) var(--ease-out) both; }
+  .sfx-in[data-sfx="left"] { animation: sfx-left var(--reveal-duration) var(--ease-out) both; }
+  .sfx-in[data-sfx="right"] { animation: sfx-right var(--reveal-duration) var(--ease-out) both; }
+  .sfx-in[data-sfx="pop"] { animation: sfx-pop var(--reveal-duration) var(--ease-out) both; }
+  .sfx-in[data-sfx="tilt"] { animation: sfx-tilt var(--reveal-duration) var(--ease-out) both; }
+  .sfx-in[data-sfx="glass"] { animation: sfx-glass var(--reveal-duration) var(--ease-out) both; }
 }
-@keyframes sfx-up { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: none; } }
-@keyframes sfx-left { from { opacity: 0; transform: translateX(-42px); } to { opacity: 1; transform: none; } }
-@keyframes sfx-right { from { opacity: 0; transform: translateX(42px); } to { opacity: 1; transform: none; } }
-@keyframes sfx-pop { from { opacity: 0; transform: translateY(18px) scale(0.94); } to { opacity: 1; transform: none; } }
-@keyframes sfx-tilt { from { opacity: 0; transform: translateY(26px) rotate(-1.6deg) scale(0.97); } to { opacity: 1; transform: none; } }
-@keyframes sfx-glass { from { opacity: 0; transform: translateY(24px); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes sfx-up { from { opacity: 0; transform: translateY(var(--reveal-y)); } to { opacity: 1; transform: none; } }
+@keyframes sfx-left { from { opacity: 0; transform: translate3d(calc(var(--reveal-x) * -1), 10px, 0); } to { opacity: 1; transform: none; } }
+@keyframes sfx-right { from { opacity: 0; transform: translate3d(var(--reveal-x), 10px, 0); } to { opacity: 1; transform: none; } }
+@keyframes sfx-pop { from { opacity: 0; transform: translateY(14px) scale(0.985); } to { opacity: 1; transform: none; } }
+@keyframes sfx-tilt { from { opacity: 0; transform: translateY(18px) scale(0.99); } to { opacity: 1; transform: none; } }
+@keyframes sfx-glass { from { opacity: 0; transform: translateY(18px); filter: blur(3px); } to { opacity: 1; transform: none; filter: blur(0); } }
 
 /* Letter cascade (hero wordmark): rises per-letter on the beat curve. Base state is
    VISIBLE; the animation only runs when motion is allowed. */
@@ -261,6 +261,10 @@ html[data-modal] .mv-marquee { animation-play-state: paused; }
   html:not(.lenis) { scroll-behavior: smooth; }
   body {
     background-color: rgb(var(--void));
+    background-image:
+      linear-gradient(rgb(var(--steel) / 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--steel) / 0.08) 1px, transparent 1px);
+    background-size: 72px 72px;
     color: rgb(var(--bone));
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
@@ -297,6 +301,23 @@ html[data-modal] .mv-marquee { animation-play-state: paused; }
   }
   /* Branded fallback when a media thumbnail cannot load. */
   .media-fallback {
-    background: linear-gradient(120deg, rgb(var(--surge) / 0.18), rgb(var(--ion) / 0.14) 50%, rgb(var(--volt) / 0.12));
+    background:
+      linear-gradient(120deg, rgb(var(--surge) / 0.12), rgb(var(--ion) / 0.08) 50%, rgb(var(--volt) / 0.1)),
+      rgb(var(--carbon));
   }
+}
+
+/* The hero reads as a calibrated viewport rather than a generic banner. */
+.hero-grid {
+  background-image:
+    linear-gradient(rgb(var(--steel) / 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--steel) / 0.12) 1px, transparent 1px);
+  background-size: clamp(42px, 5vw, 76px) clamp(42px, 5vw, 76px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 8%, #000 68%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 8%, #000 68%, transparent 100%);
+}
+
+.signal-line {
+  background: linear-gradient(90deg, rgb(var(--ion)), rgb(var(--surge) / 0.45) 55%, transparent);
+  box-shadow: 0 0 24px rgb(var(--ion) / 0.28);
 }

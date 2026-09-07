@@ -13,15 +13,15 @@ export function Contact() {
       <div className="grid gap-6 lg:grid-cols-12">
         {/* One confident door. The work above makes the case; this just opens it. */}
         <Reveal fx="left" className="lg:col-span-7">
-          <Panel edge className="flex h-full flex-col p-7 sm:p-9">
+          <Panel edge className="flex h-full flex-col p-7 sm:p-10">
             <p className="flex items-start gap-2 font-mono text-xs uppercase text-mist">
               <span aria-hidden className="mt-[0.35rem] inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-surge" />
               {profile.availability}
             </p>
-            <h3 className="mt-5 max-w-md font-display text-2xl font-semibold uppercase leading-tight text-bone sm:text-3xl">
+            <h3 className="mt-5 max-w-lg font-display text-3xl font-semibold uppercase leading-[1.05] text-bone sm:text-5xl">
               Building something worth shipping?
             </h3>
-            <p className="mt-3 max-w-md font-sans leading-relaxed text-mist">
+            <p className="mt-5 max-w-lg font-sans text-base leading-relaxed text-mist sm:text-lg">
               Email is the fastest channel. UE5 work, product builds, or just talking shop
               about Antarya and the MMORPG: my inbox is open.
             </p>
@@ -60,7 +60,7 @@ export function Contact() {
                         href={s.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex min-w-0 items-center justify-between gap-3 rounded border border-steel bg-white/40 px-3 py-2.5 transition-colors hover:border-surge/50"
+                        className="group flex min-h-11 min-w-0 items-center justify-between gap-3 rounded border border-steel bg-bg3/55 px-3 py-2.5 transition-colors hover:border-surge/50 hover:bg-bg3"
                       >
                         <span className="font-mono text-xs uppercase text-bone">{s.name}</span>
                         <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-mist transition-colors group-hover:text-surge" />

@@ -36,7 +36,7 @@ export function CountUp({ value, className, style }: { value: string; className?
   }, [value]);
 
   return (
-    <p ref={ref} data-solid className={className} style={style}>
+    <p ref={ref} data-solid aria-label={value} className={className} style={style}>
       {value}
     </p>
   );

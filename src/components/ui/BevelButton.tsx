@@ -39,11 +39,11 @@ type BevelButtonProps = ButtonProps | AnchorProps;
 // phones so ROG never reads through it). Keyboard focus keeps the global ring; the
 // solid fill switches it to ink.
 const base =
-  "group relative inline-flex items-center justify-center gap-2 rounded px-6 py-3 font-mono text-meta uppercase transition-[background-color,border-color,color,transform] duration-200 ease-snap";
+  "group relative inline-flex min-h-11 items-center justify-center gap-2 overflow-hidden rounded px-6 py-3 font-mono text-meta uppercase transition-[background-color,border-color,color,transform,box-shadow] duration-200 ease-snap";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-ion text-white hover:bg-ionHover hover:-translate-y-px focus-visible:outline-bone",
-  ghost: "border border-line2 bg-void/90 text-bone hover:border-surge lg:bg-white/45",
+  primary: "bg-ion text-white shadow-[0_10px_30px_rgb(var(--ion)/0.16)] hover:bg-ionHover hover:-translate-y-px hover:shadow-[0_14px_38px_rgb(var(--ion)/0.25)] focus-visible:outline-bone",
+  ghost: "border border-line2 bg-carbon/80 text-bone hover:border-surge hover:bg-bg3",
 };
 
 export function BevelButton(props: BevelButtonProps) {

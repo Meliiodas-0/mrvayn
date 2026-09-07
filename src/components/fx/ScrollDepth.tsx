@@ -22,20 +22,20 @@ export function ScrollDepth() {
     mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
       const hero = document.querySelector<HTMLElement>('[data-depth="hero-copy"]');
       if (hero) {
-        gsap.to(hero, { y: -60, ease: "none", scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 0.6 } });
+        gsap.to(hero, { y: -34, ease: "none", scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 0.75 } });
       }
       document.querySelectorAll<HTMLElement>('[data-depth="title"]').forEach((h2) => {
         gsap.fromTo(
           h2,
-          { y: 24 },
-          { y: -24, ease: "none", scrollTrigger: { trigger: h2.closest("section") ?? h2, start: "top bottom", end: "bottom top", scrub: 0.6 } },
+          { y: 12 },
+          { y: -12, ease: "none", scrollTrigger: { trigger: h2.closest("section") ?? h2, start: "top bottom", end: "bottom top", scrub: 0.75 } },
         );
       });
       document.querySelectorAll<HTMLElement>('[data-depth="media"]').forEach((m) => {
         gsap.fromTo(
           m,
-          { yPercent: -6 },
-          { yPercent: 6, ease: "none", scrollTrigger: { trigger: m.closest("[data-sfx]") ?? m, start: "top bottom", end: "bottom top", scrub: 0.6 } },
+          { yPercent: -3.5 },
+          { yPercent: 3.5, ease: "none", scrollTrigger: { trigger: m.closest("[data-sfx]") ?? m, start: "top bottom", end: "bottom top", scrub: 0.75 } },
         );
       });
     });

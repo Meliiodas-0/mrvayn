@@ -55,7 +55,7 @@ export function ScrollSamurai() {
     // UNIFORM presence: same opacity everywhere. Fainter on phone where he sits
     // beside centred content. Set before the reduced-motion branch so the static
     // poster gets the same weight.
-    wrap.style.opacity = String(phone ? 0.25 : 0.7);
+    wrap.style.opacity = String(phone ? 0.14 : 0.34);
 
     resize();
     window.addEventListener("resize", resize);
@@ -159,7 +159,7 @@ export function ScrollSamurai() {
       // never stands behind the centred CTAs. Short desktop viewports cap the height.
       className="pointer-events-none fixed bottom-0 z-fx h-[82vh] w-full max-w-[940px] max-lg:left-auto max-lg:right-[max(-18vw,-64px)] max-lg:h-[54vh] max-lg:w-[78vw] lg:left-auto lg:right-[max(1vw,calc((100vw_-_1440px)/2_-_12.5vw))] lg:w-[46vw] lg:[@media(max-height:1150px)]:h-[62vh]"
     >
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full invert grayscale contrast-125 mix-blend-screen" />
     </div>
   );
 }

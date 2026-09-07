@@ -10,17 +10,17 @@ import { Reveal } from "@/components/motion/Reveal";
 export function Impact() {
   return (
     <SectionShell id="impact" title="Proof of work" alt>
-      <div className="grid border-l border-t border-steel/50 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid border-l border-t border-steel/70 sm:grid-cols-2 lg:grid-cols-3">
         {impactStats.map((s) => (
           <Reveal fx="pop" key={s.label} className="border-b border-r border-steel/50">
-            <div data-solid className="spot-card group relative h-full overflow-hidden bg-carbon/80 p-6 transition-colors duration-200 ease-snap hover:bg-bg3/80 sm:p-7">
+            <div data-solid className="spot-card group relative h-full min-h-[220px] overflow-hidden bg-carbon/70 p-7 transition-colors duration-300 ease-out3 hover:bg-bg3/90 sm:p-8">
               <CountUp
                 value={s.value}
-                className="font-display font-semibold leading-none text-bone transition-colors duration-200 group-hover:text-surge"
-                style={{ fontSize: "clamp(2.5rem, 4vw, 4rem)" }}
+                className="font-display font-semibold leading-none text-surge drop-shadow-[0_0_24px_rgb(var(--ion)/0.18)]"
+                style={{ fontSize: "clamp(3rem, 5vw, 5.5rem)" }}
               />
               <p className="mt-3 font-mono text-meta uppercase text-volt">{s.label}</p>
-              <p className="mt-2 max-w-[26ch] font-sans text-sm leading-relaxed text-mist">{s.context}</p>
+              <p className="mt-3 max-w-[30ch] font-sans text-sm leading-relaxed text-mist">{s.context}</p>
             </div>
           </Reveal>
         ))}

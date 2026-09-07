@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 // Design tokens live in app/globals.css (:root). Class names keep the legacy token
-// names, remapped to the v4 light-glass system:
+// names, remapped to the v5 obsidian-signal system:
 //   void=page  bg1=alt section  carbon=card base  bg3=raised  steel=hairline  line2=hover line
 //   bone=ink headings  mist=body  volt=meta  surge=text/border red  ion=solid-fill red
 export default {

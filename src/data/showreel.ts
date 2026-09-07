@@ -15,6 +15,7 @@ export interface ReelFrame {
 // see scratchpad extractors). Includes the flagship SAO-X (multiplayer-tba) and MagViz;
 // excludes Grannyspot and Glazer Games. Ordered to alternate dark/bright for rhythm.
 const REEL: { id: string; tag: string; project?: string }[] = [
+  { id: "cricket-broadcast", tag: "UE5 · Camera & Broadcast" },
   { id: "antarya", tag: "Unreal Engine 5" },
   { id: "multiplayer-tba", tag: "UE5 · MMORPG" },
   { id: "magviz", tag: "UE5 · Archviz" },
@@ -38,6 +39,6 @@ export const reelFrames: ReelFrame[] = REEL.map(({ id, tag, project }) => {
     tag,
     year: p.year,
     href: p.links[0]?.href ?? "#work",
-    img: `/showreel/${id}.webp`,
+    img: p.spotlight && p.media ? p.media : `/showreel/${id}.webp`,
   };
 });

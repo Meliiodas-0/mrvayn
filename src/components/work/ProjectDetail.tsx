@@ -10,6 +10,7 @@ import { lenisRef } from "@/components/fx/SmoothScroll";
 import { Tag } from "@/components/ui/Tag";
 import { Thumb } from "@/components/ui/Thumb";
 import { BevelButton } from "@/components/ui/BevelButton";
+import { ClipPreview } from "@/components/ui/ClipPreview";
 
 /** Project detail dialog: Problem -> Approach -> Result + media + links.
  *  Renders only while a project is selected (unmounts on close). Accessible:
@@ -36,11 +37,10 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
     project.media ||
     reelFrames.find((f) => f.id === project.id)?.img ||
     (primaryHref ? driveThumb(primaryHref, 1280) : null);
-  // A LOCAL clip is light, so it autoplays (muted) the moment the panel opens.
-  // Reduced-motion users keep the poster. The Drive iframe stays deferred.
-  const [playing, setPlaying] = useState(
-    () => !!project.clip && !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
+  // All media starts on demand. Local clips use the same player as the cards.
+  const [playing, setPlaying] = useState(false);
+  const caption = project.spotlight?.previewCaption ?? project.selection?.caption;
+  const facts = project.spotlight?.facts ?? project.selection?.facts;
 
   // Freeze Lenis while the dialog is open (mount-only, so re-renders never churn it);
   // the overlay carries data-lenis-prevent so wheel scrolls the dialog natively.
@@ -97,7 +97,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
       // frame while the canvases animate behind it, which is what made the panel lag.
       // Auto margins on the panel: centred when it fits, top-aligned and fully
       // scrollable when it is taller than the viewport.
-      className="mv-fade fixed inset-0 z-overlay flex overflow-y-auto bg-bone/50 sm:p-6"
+      className="mv-fade fixed inset-0 z-overlay flex overflow-y-auto bg-black/80 sm:p-6"
       onClick={onClose}
     >
       {/* Phone close, pinned to the VIEWPORT. It must be a child of the overlay, not
@@ -106,7 +106,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
       <button
         onClick={(e) => { e.stopPropagation(); onClose(); }}
         aria-label="Close"
-        className="fixed right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded border border-steel bg-carbon text-mist sm:hidden"
+        className="fixed right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded border border-steel bg-carbon text-mist sm:hidden"
       >
         <X className="h-5 w-5" />
       </button>
@@ -117,14 +117,14 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
         aria-labelledby="project-detail-title"
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="mv-reveal glass-solid relative mt-auto w-full max-w-2xl rounded-lg p-6 outline-none max-sm:rounded-b-none max-sm:rounded-t-xl sm:m-auto sm:p-8"
+        className="mv-reveal glass-solid relative mt-auto w-full max-w-3xl rounded-lg p-6 outline-none max-sm:rounded-b-none max-sm:rounded-t-xl sm:m-auto sm:p-8"
       >
         <span aria-hidden className="pointer-events-none absolute left-0 top-0 h-full w-[2px] bg-surge" />
         {/* Desktop close (in-panel); hidden on phone, where the pinned X on the overlay is the close. */}
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 hidden h-8 w-8 place-items-center rounded border border-steel text-mist transition-colors hover:border-surge/60 hover:text-bone sm:grid"
+          className="absolute right-4 top-4 hidden h-11 w-11 place-items-center rounded border border-steel text-mist transition-colors hover:border-surge/60 hover:text-bone sm:grid"
         >
           <X className="h-4 w-4" />
         </button>
@@ -137,28 +137,15 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
           )}
           <span className="font-mono text-xs uppercase text-mist">{project.year}</span>
         </div>
-        <h3 id="project-detail-title" className="mt-3 font-display text-2xl font-semibold uppercase text-bone sm:text-3xl">
+        <h3 id="project-detail-title" className="mt-3 pr-8 font-display text-2xl font-semibold uppercase text-bone sm:text-3xl">
           {project.title}
         </h3>
         <p className="mt-1 font-mono text-xs uppercase text-surge">{project.role}</p>
 
         {/* media: a self-hosted clip, else a Drive preview, else a still; framed like the tile */}
         <div className="relative mt-5 aspect-video w-full overflow-hidden rounded border border-steel">
-          {clip && playing ? (
-            // eslint-disable-next-line jsx-a11y/media-has-caption
-            <video
-              src={clip}
-              poster={image ?? undefined}
-              aria-label={`${project.title} gameplay clip`}
-              className="h-full w-full bg-void object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              controls
-            />
-          ) : clip ? (
-            <PosterButton image={image} title={project.title} onPlay={() => setPlaying(true)} />
+          {clip ? (
+            <ClipPreview src={clip} poster={image ?? undefined} title={project.title} label={project.spotlight?.previewLabel ?? project.selection?.previewLabel} describedBy={caption ? "project-detail-caption" : undefined} />
           ) : embed && playing ? (
             <iframe
               src={embed}
@@ -177,7 +164,32 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
           )}
         </div>
 
+        {caption && (
+          <p id="project-detail-caption" className="mt-3 text-sm leading-relaxed text-volt">{caption}</p>
+        )}
+
+        {!project.locked && project.links.length > 0 && (
+          <div className="mt-5 flex flex-wrap gap-3">
+            {project.links.map((link) => (
+              <BevelButton key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">
+                {link.label}<ArrowUpRight aria-hidden className="h-3.5 w-3.5" />
+              </BevelButton>
+            ))}
+          </div>
+        )}
+
         <p className="mt-5 font-sans leading-relaxed text-mist">{project.summary}</p>
+
+        {facts && (
+          <dl className="mt-6 grid grid-cols-3 gap-3 border-y border-steel py-5">
+            {facts.map((fact) => (
+              <div key={fact.label}>
+                <dt className="font-mono text-[10px] uppercase leading-relaxed text-volt">{fact.label}</dt>
+                <dd className="mt-2 font-display text-lg font-semibold leading-tight text-bone">{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
 
         {(project.problem || project.approach || project.result) && (
           <dl className="mt-6 space-y-4">
@@ -193,25 +205,18 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
           ))}
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-3">
-          {project.locked ? (
+        {project.locked && (
+          <div className="mt-6 flex flex-wrap gap-3">
             <span className="inline-flex items-center gap-2 rounded border border-steel px-4 py-2.5 font-mono text-xs uppercase text-mist">
               <Lock className="h-3.5 w-3.5" /> Private, to be announced
             </span>
-          ) : (
-            project.links.map((l) => (
-              <BevelButton key={l.href} href={l.href} variant="primary" target="_blank" rel="noopener noreferrer">
-                {l.label}
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </BevelButton>
-            ))
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Phone-only way back at the natural end of reading (the pinned X covers the top). */}
         <button
           onClick={onClose}
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded border-2 border-line2 bg-white/50 px-4 py-3 font-mono text-xs uppercase text-bone transition-colors hover:border-surge/60 sm:hidden"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded border-2 border-line2 bg-bg3/70 px-4 py-3 font-mono text-xs uppercase text-bone transition-colors hover:border-surge/60 sm:hidden"
         >
           <X className="h-4 w-4" />
           Close
@@ -227,8 +232,8 @@ function PosterButton({ image, title, onPlay }: { image: string | null; title: s
   return (
     <button onClick={onPlay} aria-label={`Play ${title} preview`} className="group relative block h-full w-full">
       <Thumb src={image} alt={`${title} preview`} />
-      <span className="absolute inset-0 grid place-items-center bg-bone/20 transition-colors group-hover:bg-bone/10">
-        <span className="grid h-14 w-14 place-items-center rounded border border-white/60 bg-bone/70 text-white transition-colors group-hover:border-surge group-hover:text-surge">
+      <span className="absolute inset-0 grid place-items-center bg-black/20 transition-colors group-hover:bg-black/10">
+        <span className="grid h-14 w-14 place-items-center rounded-full border border-white/60 bg-black/75 text-white transition-colors group-hover:border-surge group-hover:text-surge">
           <Play className="ml-0.5 h-6 w-6" />
         </span>
       </span>

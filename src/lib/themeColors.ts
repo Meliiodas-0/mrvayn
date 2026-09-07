@@ -1,7 +1,7 @@
 // Read the design tokens as ready-to-use rgb() strings plus the loaded font
 // families, for canvas layers (BootSequence, StickCursor) that cannot use CSS
 // variables directly. Values come from :root in app/globals.css; the fallbacks
-// mirror the light theme so a parse failure never paints dark-era colours.
+// mirror the shipped theme so a parse failure keeps every canvas legible.
 
 export interface ThemeColors {
   void: string; carbon: string; steel: string; mist: string; bone: string;
@@ -11,9 +11,9 @@ export interface ThemeColors {
 type Triplet = [number, number, number];
 
 const FALLBACK: Record<keyof ThemeColors, Triplet> = {
-  void: [240, 242, 246], carbon: [236, 239, 245], steel: [205, 210, 220],
-  mist: [62, 70, 82], bone: [11, 14, 20],
-  surge: [200, 12, 38], volt: [88, 96, 110], ion: [232, 17, 45],
+  void: [7, 8, 11], carbon: [16, 19, 24], steel: [45, 51, 61],
+  mist: [173, 182, 194], bone: [239, 242, 246],
+  surge: [255, 102, 118], volt: [130, 141, 156], ion: [237, 27, 58],
 };
 
 const VAR: Record<keyof ThemeColors, string> = {

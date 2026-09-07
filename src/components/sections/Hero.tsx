@@ -8,20 +8,20 @@ import { Reveal } from "@/components/motion/Reveal";
 // Server component; content is always in the SSR HTML (iOS-safe reveals).
 export function Hero() {
   return (
-    <section id="hero" className="relative flex min-h-svh flex-col justify-center overflow-hidden pb-14 pt-24 sm:pb-24 sm:pt-28">
-      {/* one quiet wash behind the composition (the blobs do the rest) */}
+    <section id="hero" className="relative flex min-h-svh flex-col justify-center overflow-hidden border-b border-steel/70 pb-14 pt-24 sm:pb-20 sm:pt-28">
+      <div aria-hidden className="hero-grid pointer-events-none absolute inset-0" />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
-        style={{ background: "radial-gradient(60% 50% at 85% 20%, var(--red-dim), transparent 70%)" }}
+        style={{ background: "radial-gradient(52% 58% at 82% 38%, var(--red-dim), transparent 72%)" }}
       />
 
       <div className="mv-col relative">
         <div className="grid grid-cols-12">
-          <div className="col-span-12 lg:col-span-8" data-depth="hero-copy">
+          <div className="col-span-12 lg:col-span-9 xl:col-span-8" data-depth="hero-copy">
             {/* identity pill: static role (phones get the one-line form) */}
             <Reveal>
-              <span data-solid className="glass inline-flex max-w-full items-center gap-2.5 rounded-full px-4 py-2 font-mono text-meta uppercase text-surge">
+              <span data-solid className="glass inline-flex max-w-full items-center gap-2.5 rounded-full px-4 py-2 font-mono text-meta uppercase text-surge shadow-[0_0_40px_rgb(var(--ion)/0.08)]">
                 <span aria-hidden className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-ion motion-safe:animate-pulse" />
                 <span className="sm:hidden">{profile.roleShort}</span>
                 <span className="max-sm:hidden">{profile.role}</span>
@@ -33,7 +33,7 @@ export function Hero() {
                 <h1
                   data-solid
                   aria-label="MrVayn"
-                  className="font-display text-[clamp(3.5rem,8.5vw,8rem)] font-semibold uppercase leading-[0.9] text-bone min-[2200px]:text-[10rem]"
+                  className="font-display text-[clamp(4rem,10.5vw,10rem)] font-semibold uppercase leading-[0.82] text-bone drop-shadow-[0_12px_40px_rgb(0_0_0/0.5)] min-[2200px]:text-[11.5rem]"
                 >
                   {"MrVayn".split("").map((c, i) => (
                     <span key={i} aria-hidden className="ltr" style={{ animationDelay: `${0.12 + i * 0.05}s` }}>
@@ -42,12 +42,12 @@ export function Hero() {
                   ))}
                 </h1>
                 {/* the red slab: the signature mark under the name */}
-                <span aria-hidden className="mt-4 block h-2.5 w-[34%] max-w-[240px] bg-ion" />
+                <span aria-hidden className="signal-line mt-5 block h-1.5 w-[46%] max-w-[360px]" />
               </div>
             </Reveal>
 
             <Reveal delay={0.16}>
-              <p data-solid className="mt-7 max-w-[65ch] font-sans text-base leading-[1.7] text-mist lg:max-w-xl min-[2200px]:max-w-2xl min-[2200px]:text-[1.125rem]">
+              <p data-solid className="mt-8 max-w-[62ch] font-sans text-base leading-[1.75] text-mist sm:text-lg lg:max-w-2xl">
                 {profile.thesis}
               </p>
             </Reveal>
@@ -67,10 +67,10 @@ export function Hero() {
 
             {/* glass readout: three facts in the data voice */}
             <Reveal delay={0.3}>
-              <div data-solid className="glass mt-8 inline-flex max-w-full flex-wrap items-center gap-x-8 gap-y-3 rounded-lg px-5 py-3.5 font-mono text-meta uppercase text-volt sm:mt-12">
+              <div data-solid className="glass mt-9 inline-grid max-w-full grid-cols-1 overflow-hidden rounded-lg font-mono text-meta uppercase text-volt sm:mt-14 sm:grid-cols-3">
                 {profile.specialties.map((s) => (
-                  <span key={s.label} className="whitespace-nowrap">
-                    <span className="text-bone">{s.value}</span> {s.label}
+                  <span key={s.label} className="whitespace-nowrap border-b border-steel/70 px-5 py-3.5 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0">
+                    <span className="mr-1 text-bone">{s.value}</span> {s.label}
                   </span>
                 ))}
               </div>

@@ -1,5 +1,5 @@
 import { ArrowUpRight, Lock } from "lucide-react";
-import type { Project } from "@/data/projects";
+import { projectUi, type Project } from "@/data/projects";
 import { cn } from "@/lib/cn";
 import { projectThumb } from "@/lib/drive";
 import { Panel } from "@/components/ui/Panel";
@@ -22,6 +22,7 @@ export function ProjectTile({
   onSelect?: () => void;
 }) {
   const primaryLink = project.links[0];
+  const hasMedia = featured || (!project.archive && !!project.media);
 
   const inner = (
     <Panel
@@ -29,20 +30,25 @@ export function ProjectTile({
       interactive={!project.locked}
       className={cn(
         "group flex h-full flex-col overflow-hidden",
-        featured ? "p-6 sm:p-8" : "p-5",
+        hasMedia ? "p-0" : "p-5 sm:p-6",
         project.locked && "opacity-60",
-        wide && "lg:grid lg:grid-cols-12 lg:items-center lg:gap-8",
+        wide && "lg:grid lg:grid-cols-12 lg:items-stretch",
       )}
     >
-      {featured && (
-        <div className={cn("wipe-in relative mb-5 aspect-video w-full overflow-hidden rounded border border-steel", wide && "lg:col-span-7 lg:mb-0")}>
-          {/* overscan wrapper so the scroll-depth parallax never shows the box edge */}
-          <div data-depth="media" className="absolute inset-x-0 -top-[7%] h-[114%] will-change-transform">
-            <Thumb src={projectThumb(project.media, project.links)} alt={`${project.title} preview`} className="transition-transform duration-500 ease-out3 group-hover:scale-[1.03]" />
+      {hasMedia && (
+        <div
+          className={cn(
+            "relative aspect-video w-full overflow-hidden border-b border-steel/80 bg-void",
+            wide && "lg:col-span-7 lg:h-full lg:min-h-[430px] lg:aspect-auto lg:border-b-0 lg:border-r",
+          )}
+        >
+          <div className="absolute inset-0">
+            <Thumb src={projectThumb(project.media, project.links)} alt={`${project.title} preview`} className="contrast-[1.04] saturate-[1.08] transition-transform duration-700 ease-out3 group-hover:scale-[1.035]" />
           </div>
+          <span aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-void/55 via-transparent to-transparent" />
         </div>
       )}
-      <div className={cn("flex flex-1 flex-col", wide && "lg:col-span-5")}>
+      <div className={cn("flex flex-1 flex-col", hasMedia && "p-5 sm:p-6", wide && "lg:col-span-5 lg:justify-center lg:p-10")}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             {project.badge && (
@@ -62,20 +68,25 @@ export function ProjectTile({
         <h3
           className={cn(
             "mt-4 font-display font-semibold uppercase leading-none text-bone transition-colors group-hover:text-surge",
-            featured ? "text-2xl sm:text-3xl" : "text-lg",
+            featured ? "text-2xl sm:text-[2rem]" : "text-xl",
           )}
         >
           {project.title}
         </h3>
-        <p className="mt-1.5 font-mono text-xs uppercase text-surge">{project.role}</p>
+        <p className="mt-1.5 font-mono text-xs uppercase leading-relaxed text-surge">{project.role}</p>
 
-        {featured && <p className="mt-4 max-w-prose font-sans text-sm leading-relaxed text-mist">{project.summary}</p>}
+        {!project.archive && <p className="mt-4 max-w-prose font-sans text-sm leading-relaxed text-mist">{project.summary}</p>}
 
         <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
           {project.tech.slice(0, featured ? 6 : 3).map((t) => (
             <Tag key={t}>{t}</Tag>
           ))}
         </div>
+        {!project.archive && (
+          <span className="mt-5 flex min-h-11 items-center justify-between gap-3 border-t border-steel/80 pt-4 font-mono text-xs uppercase text-bone">
+            {projectUi.viewProject}<ArrowUpRight aria-hidden className="h-4 w-4 text-surge" />
+          </span>
+        )}
       </div>
     </Panel>
   );

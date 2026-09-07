@@ -1,4 +1,4 @@
-# mrvayn.live design system (v4, light glass)
+# mrvayn.live design system (v5, obsidian signal)
 
 The shipped truth. Tokens are declared once in `app/globals.css` (`:root`) and mapped to
 Tailwind classes in `tailwind.config.ts`. Superseded specs (the dark OVERDRIVE system, the
@@ -6,36 +6,37 @@ original brief, the hero mini-game spec) are in `docs/archive/` and describe not
 ships.
 
 ## Direction
-One instrument panel on paper. Off-white page, greyish glass panes on a real ground, one
-red (fills and signals), ink type. Two resident figures carry the identity: ROG, the ink
-reaper fixed far right and scrubbed calmly by scroll, and the stickman cursor game with its
-boot cinematic. Everything else is quiet chrome that measures something.
+One cinematic instrument panel on an obsidian ground. Graphite panes, vivid work media,
+one red signal, and cold white type. Two resident figures carry the identity: ROG, the pale
+wraith fixed far right and scrubbed calmly by scroll, and the stickman cursor game with its
+boot cinematic. Everything else is restrained chrome that measures something.
 
 ## Colour
 | Token (class) | Value | Role |
 | --- | --- | --- |
-| `--void` (`void`) | 240 242 246 | page |
-| `--bg-1` (`bg1`) | 231 234 240 | alternating sections |
-| `--carbon` (`carbon`) | 236 239 245 | card base, dialog ground |
-| `--bg-3` (`bg3`) | 244 246 250 | raised / hover |
-| `--steel` (`steel`) | 205 210 220 | structural hairline; `steel/50` for dividers |
-| `--line-2` (`line2`) | 182 189 202 | hover borders, ghost button |
-| `--bone` (`bone`) | 11 14 20 | headings, ink |
-| `--mist` (`mist`) | 62 70 82 | body |
-| `--volt` (`volt`) | 88 96 110 | meta layer (5.6:1 on the page, AA at 11px) |
-| `--surge` (`surge`) | 200 12 38 | text and border red (AA on page, bg-1 and glass) |
-| `--ion` (`ion`) | 232 17 45 | solid fills only; `--ion-hover` 255 33 64 |
+| `--void` (`void`) | 7 8 11 | page |
+| `--bg-1` (`bg1`) | 11 13 17 | alternating sections |
+| `--carbon` (`carbon`) | 16 19 24 | card base, dialog ground |
+| `--bg-3` (`bg3`) | 22 26 33 | raised / hover |
+| `--steel` (`steel`) | 45 51 61 | structural hairline |
+| `--line-2` (`line2`) | 75 84 98 | hover borders, ghost button |
+| `--bone` (`bone`) | 239 242 246 | headings, cold white |
+| `--mist` (`mist`) | 173 182 194 | body |
+| `--volt` (`volt`) | 130 141 156 | meta layer |
+| `--surge` (`surge`) | 255 102 118 | accessible text and border red |
+| `--ion` (`ion`) | 237 27 58 | solid fills only; `--ion-hover` 255 51 82 |
 
-Derived: `--red-dim` = ion at 0.1 (spotlight, hero wash), `--ink-dim` = bone at 0.1 (glass
-shadow). Never hand-type a near-token colour in TSX; use the class or `rgb(var(--x) / a)`.
+Derived: `--red-dim` = ion at 0.14 (spotlight, hero wash), `--ink-dim` = black at 0.4
+(glass shadow). Never hand-type a near-token colour in TSX; use the class or
+`rgb(var(--x) / a)`.
 
 ## Surfaces
-- `.glass`: slate gradient (bg-1 0.62 to steel 0.4), 18px blur, white rim, inner light
-  edge, soft ink shadow. Phones: 8px blur and a 0.9 / 0.82 gradient so nothing reads
-  through the text. Used by `Panel`, the hero pill and readout.
-- `.glass-solid`: the reading surface (project dialog), carbon at 0.97, no blur.
-- Sections (`SectionShell`) sit on `void` or `bg-1` at 0.86 so ROG ghosts through
-  uniformly; the ticker and footer use the same 0.86 ground.
+- `.glass`: graphite gradient (bg-3 0.78 to carbon 0.7), 16px blur, steel rim, soft black
+  shadow. Phones: 8px blur and an almost opaque gradient so nothing reads through text.
+  Used by `Panel`, the hero pill and readout.
+- `.glass-solid`: the reading surface (project dialog), carbon at 0.985, no blur.
+- Sections (`SectionShell`) sit on `void` or `bg-1` at 0.9 so ROG ghosts through
+  uniformly; the footer uses a 0.94 ground.
 - Ambient `.blob` colour fields (static) sit under `main` so the glass has colour to refract.
 
 ## Type
@@ -50,32 +51,44 @@ shadow). Never hand-type a near-token colour in TSX; use the class or `rgb(var(-
   containers; `rounded-full` only for the identity pill and status dots.
 - The one content column is `.mv-col` = `min(1440px, 100% - clamp(32px, 6vw, 128px))`;
   nav row, sections, ticker and footer all sit on it.
-- Section padding: 60px on phones, `clamp(96px, 12vh, 180px)` from 640px.
+- Section padding: 68px on phones, `clamp(88px, 10vh, 140px)` from 640px.
 - z ladder (`tailwind.config.ts`): fx 0 (ROG), content 10, hud 40 (phone menu), nav 50,
   chrome 60 (progress bar, skip link), overlay 90 (dialog), cursor 95 (stickman), boot 100.
 
 ## Components
-- `BevelButton`: the one button. `primary` = ion fill, white, ion-hover + 1px lift, ink
-  focus ring; `ghost` = line-2 hairline on a light pane (near-solid on phones).
-- `Tag`: the one chip (`size`, `tone`, `as`). Red text only for released builds.
+- `BevelButton`: the one button. `primary` = ion fill, white, ion-hover + 1px lift;
+  `ghost` = line-2 hairline on a graphite pane. Both retain a visible focus ring.
+- `Tag`: the one chip, with a red accent for released builds.
 - `Panel`: glass card, optional red left edge, optional hover lift; carries `data-solid`
   so the stickman enemies stay off it.
 - `SectionShell`: rules top and bottom, "NN / LABEL" from `src/data/sections.ts` on the
-  top rule (`labelsBelow` when the section above is the red Showreel band).
+  top rule, with consistent spacing after the dark Showreel band.
+- `ProjectSpotlight`: the newest showcase leads the work section, with a native-ratio
+  preview, a concise overview and three facts.
+- `SelectedProject`: Antarya, SAO-X and MagViz use full-width alternating 7/5 desktop
+  layouts. Phones always read title, media, caption, contribution, facts, actions.
+- `ClipPreview`: one player shared by all local project clips and detail dialogs.
+  Media loads only on an explicit Play, never crops the gameplay/HUD, pauses offscreen
+  or on a hidden tab, and allows only one preview to play at a time. Opening a case
+  study pauses the card player. Reduced-motion visitors also opt in to playback.
+- `ProjectTile`: current smaller builds show local thumbnails, a short summary and
+  a visible case-study affordance; archived prototypes remain compact.
+- `ProjectDetail`: full project/video links sit immediately below media. Focus is
+  trapped, the background is inert, and Close has a 44px target on both breakpoints.
 
 ## Motion contract
 - Reveals: `Reveal` renders `[data-sfx]`, `ScrollFx` adds `.sfx-in` via
-  IntersectionObserver, CSS animates TOWARD the visible base state. Stagger comes from
-  co-arrival. If JS never runs nothing is hidden. Never framer-motion, never `gsap.from`
-  on opacity.
+  IntersectionObserver, CSS animates toward the visible base state. Stagger comes from
+  co-arrival. If JS never runs nothing is hidden. DialKit tunes reveal distance and timing
+  during local development. Motion drives only the additive scroll-progress signal.
 - Scroll depth (`fx/ScrollDepth.tsx`): GSAP ScrollTrigger, transforms only, desktop only,
   synced to Lenis (`fx/SmoothScroll.tsx`, desktop only, `anchors: true`).
 - Boot handoff: the inline script in `layout.tsx` sets `html[data-boot]` before first
   paint (`skip` for returning or reduced-motion visitors, `play` otherwise); the boot sets
   `done` when it lifts and the hero entrance replays once.
 - ROG (`ScrollSamurai.tsx`): fixed, far right (hugs the 1440 column above 1920), uniform
-  opacity (0.7 desktop, 0.25 phone), calm eased scrub, frames lazy-loaded around the
-  scrub position, ink treatment baked into the frames by `scripts/rog_pipeline.py`.
+  faint opacity (0.34 desktop, 0.14 phone), calm eased scrub, frames lazy-loaded around
+  the scrub position, inverted to a pale screen-blended ghost for the dark ground.
 - Stickman (`StickCursor.tsx`): head on the hotspot, red reticle over targets, enemies
   avoid `[data-solid]` at feet and head, freeze under an open dialog.
 - Reduced motion: every keyframe is gated; marquees stop and become hand-scrolled rows.

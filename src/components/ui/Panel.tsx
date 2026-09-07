@@ -16,7 +16,7 @@ export function Panel({ className, edge = false, interactive = false, children, 
       className={cn(
         "spot-card glass relative overflow-hidden rounded-lg",
         interactive &&
-          "transition-[background-color,border-color,transform,box-shadow] duration-200 ease-snap hover:-translate-y-[2px] hover:border-line2 hover:bg-bg3/80",
+          "transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out3 hover:-translate-y-[3px] hover:border-line2 hover:bg-bg3/90 hover:shadow-[0_22px_70px_rgb(0_0_0/0.42)]",
         className,
       )}
       {...props}

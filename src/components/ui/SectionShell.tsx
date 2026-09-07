@@ -21,16 +21,15 @@ interface SectionShellProps {
  */
 export function SectionShell({ id, title, alt = false, labelsBelow = false, children, className }: SectionShellProps) {
   const def = section(id);
-  // Slightly translucent so ROG's fixed canvas ghosts through every section
-  // (owner: he should stay visible beyond the hero), still ~86% solid for text.
-  const bg = alt ? "rgb(var(--bg-1) / 0.86)" : "rgb(var(--void) / 0.86)";
+  // Slightly translucent so ROG's fixed canvas ghosts through every section.
+  const bg = alt ? "rgb(var(--bg-1) / 0.9)" : "rgb(var(--void) / 0.9)";
   // A label straddling the rule needs a SOLID ground so whatever sits behind the
   // boundary never shows through the text.
   const labelBg = alt ? "rgb(var(--bg-1))" : "rgb(var(--void))";
   return (
     <section
       id={def.id}
-      className={cn("relative scroll-mt-20 border-b border-t border-steel py-[60px] sm:py-[clamp(96px,12vh,180px)]", className)}
+      className={cn("relative scroll-mt-20 border-b border-t border-steel/70 py-[68px] sm:py-[clamp(88px,10vh,140px)]", className)}
       style={{ backgroundColor: bg }}
     >
       {/* mono label on (or just under) the top rule; the h2 carries the real name */}
@@ -51,16 +50,17 @@ export function SectionShell({ id, title, alt = false, labelsBelow = false, chil
 
       <div className="mv-col">
         <Reveal>
-          <h2
-            data-solid
-            data-depth="title"
-            className="block w-fit font-display font-semibold uppercase leading-[0.95] text-bone"
-            style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)" }}
-          >
-            {title}
-          </h2>
+          <div data-solid data-depth="title" className="flex items-end gap-4 sm:gap-6">
+            <span aria-hidden className="mb-1.5 h-9 w-1 bg-ion shadow-[0_0_18px_rgb(var(--ion)/0.35)] sm:h-12" />
+            <h2
+              className="block w-fit font-display font-semibold uppercase leading-[0.85] text-bone"
+              style={{ fontSize: "clamp(2.75rem, 5vw, 4.75rem)" }}
+            >
+              {title}
+            </h2>
+          </div>
         </Reveal>
-        <div className="mt-8 sm:mt-12">{children}</div>
+        <div className="mt-10 sm:mt-14">{children}</div>
       </div>
     </section>
   );

@@ -7,12 +7,13 @@ import { Reveal } from "@/components/motion/Reveal";
 export function Skills() {
   return (
     <SectionShell id="skills" title="Skills">
-      <div className="grid gap-x-12 gap-y-8 border-t border-steel/50 pt-8 md:grid-cols-2">
-        {skillGroups.map((group) => (
+      <div className="grid border-l border-t border-steel/70 md:grid-cols-2">
+        {skillGroups.map((group, index) => (
           <Reveal key={group.label}>
-            <div data-solid>
-              <h3 className="font-display text-base font-semibold uppercase tracking-wide text-bone sm:text-lg">{group.label}</h3>
-              <p className="mt-2 font-mono text-[0.72rem] uppercase leading-relaxed text-mist">
+            <div data-solid className="h-full border-b border-r border-steel/70 bg-carbon/55 p-6 transition-colors duration-300 hover:bg-bg3/80 sm:p-8">
+              <p className="font-mono text-meta-xs text-surge">{String(index + 1).padStart(2, "0")}</p>
+              <h3 className="mt-3 font-display text-lg font-semibold uppercase text-bone sm:text-xl">{group.label}</h3>
+              <p className="mt-4 font-mono text-[0.72rem] uppercase leading-[1.9] text-mist">
                 {group.items.map((item, k) => (
                   <Fragment key={item}>
                     {k > 0 && <span className="text-steel"> / </span>}

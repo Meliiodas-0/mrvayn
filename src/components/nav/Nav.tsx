@@ -65,16 +65,16 @@ export function Nav() {
       <header
         data-solid
         className={cn(
-          "fixed inset-x-0 top-0 z-nav border-b border-steel transition-[background-color,box-shadow] duration-300",
+          "fixed inset-x-0 top-0 z-nav border-b border-steel/80 transition-[background-color,box-shadow] duration-300",
           !scrolled && "backdrop-blur-md",
-          scrolled && "shadow-[0_8px_30px_var(--ink-dim)]",
+          scrolled && "shadow-[0_14px_40px_var(--ink-dim)]",
         )}
         // Solid once scrolled: the translucent header turned pink over the red Showreel band.
-        style={{ backgroundColor: scrolled ? "rgb(var(--void))" : "rgb(var(--void) / 0.78)" }}
+        style={{ backgroundColor: scrolled ? "rgb(var(--void) / 0.96)" : "rgb(var(--void) / 0.72)" }}
       >
         <nav className="mv-col flex items-center justify-between py-4" aria-label="Primary">
           <a href="#hero" className="group flex items-center gap-2.5">
-            <span aria-hidden className="inline-block h-6 w-6 rounded bg-ion transition-transform duration-200 ease-snap group-hover:scale-110" />
+            <span aria-hidden className="inline-block h-6 w-6 rounded bg-ion shadow-[0_0_22px_rgb(var(--ion)/0.24)] transition-transform duration-200 ease-snap group-hover:scale-110" />
             <span className="font-display text-lg font-semibold uppercase text-bone">MrVayn</span>
           </a>
 

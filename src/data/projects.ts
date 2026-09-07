@@ -23,6 +23,25 @@ export interface Project {
   media?: string;
   /** Optional local video clip (under /public), plays in the detail panel. */
   clip?: string;
+  /** Editorial details for the selected-work presentations. */
+  selection?: {
+    category: string;
+    previewLabel: string;
+    caption: string;
+    posterAlt: string;
+    facts: { value: string; label: string }[];
+  };
+  /** A full-width lead project with an on-demand inline video preview. */
+  spotlight?: {
+    label: string;
+    previewLabel: string;
+    previewTitle: string;
+    previewCaption: string;
+    posterAlt: string;
+    videoLabel: string;
+    detailLabel: string;
+    facts: { value: string; label: string }[];
+  };
   /** Older prototypes collapse under "Earlier builds" in the Work grid. */
   archive?: boolean;
   /** Case study (shown in the detail panel). */
@@ -33,18 +52,64 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: "cricket-broadcast",
+    title: "Cricket Broadcast Lab",
+    role: "Creator, camera & broadcast systems",
+    year: "2026",
+    summary:
+      "A cricket camera and broadcast framework in Unreal Engine 5.8. Live ball tracking flows into slow-motion replays with trails, backed by an operator desk for replay inspection, camera preview and take, and lighting looks.",
+    tech: ["Unreal Engine 5.8", "C++", "Blueprints", "Camera Systems", "Replay Tools", "Cinematic Presentation"],
+    links: [{ label: "Watch full film", href: "https://drive.google.com/file/d/1G-xUExs9pRnRpInMRkHpyMEIHtdcoBwh/view?usp=sharing" }],
+    badge: "PRODUCTION TEST 03",
+    featured: true,
+    media: "/projects/cricket-broadcast.jpg",
+    clip: "/projects/cricket-broadcast-preview.mp4",
+    spotlight: {
+      label: "Latest showcase",
+      previewLabel: "Play 21s preview",
+      previewTitle: "21s preview / Live + replay",
+      previewCaption:
+        "A live six followed by its complete slow replay with ball trails. Silent preview; the full film includes sound.",
+      posterAlt: "Cricket Broadcast Lab, the batsman and ball during a six replay",
+      videoLabel: "Cricket Broadcast Lab: live six and trail replay",
+      detailLabel: "View project",
+      facts: [
+        { value: "06", label: "Shot + replay pairs" },
+        { value: "4K / 60", label: "Full film quality" },
+        { value: "3:02", label: "Full film runtime" },
+      ],
+    },
+    problem:
+      "Cricket coverage has to keep a small, fast-moving ball readable while switching between live action, close contact, field tracking and replay. The operator also needs clear control over the next camera and the replay timeline.",
+    approach:
+      "Built camera profiles and state-driven coverage in UE 5.8 with C++ and Blueprint controls. Six authored outcomes pair live coverage with immediate slow replays and native ball trails. A broadcast desk exposes frame inspection, trail control, camera preview/take and lighting presets.",
+    result:
+      "A playable portfolio framework with mannequin athletes and six authored outcomes: dot ball, single, four, six, caught and bowled. The native 4K/60 presentation shows every live shot and replay, then a concise operator-tools tour and a ground cinematic.",
+  },
+  {
     id: "antarya",
     title: "Antarya",
     role: "CTO, Magadha Studios",
     year: "2024-Present",
     summary:
-      "A studio title built on a reusable, data-driven gameplay framework for rapid iteration and scale. Showcased at IGDC 2025; demo in progress.",
+      "Gameplay architecture and real-time production for Magadha Studios' flagship title. I lead core technology and a modular UE5 framework that lets the team build and iterate together.",
     tech: ["Unreal Engine 5", "Gameplay Framework", "Multiplayer", "Niagara VFX"],
     links: [{ label: "Studio", href: "https://magadhastudios.com/category" }],
     badge: "IN DEV",
     featured: true,
     shipped: false,
     media: "/projects/antarya.webp", // owner's in-engine screenshot (shadow-lifted + sharpened)
+    selection: {
+      category: "Studio game development",
+      previewLabel: "Explore the project",
+      caption: "In-engine capture from Antarya. Gameplay systems, multiplayer foundations and Niagara VFX, built at Magadha Studios.",
+      posterAlt: "Antarya gameplay, a trident-wielding character inside a stone temple",
+      facts: [
+        { value: "CTO", label: "My role" },
+        { value: "20-person", label: "Studio team" },
+        { value: "IGDC 2025", label: "Public showcase" },
+      ],
+    },
     problem:
       "Small teams iterate slowly when gameplay is hard-coded: every new mechanic risks rewriting core systems.",
     approach:
@@ -58,7 +123,7 @@ export const projects: Project[] = [
     role: "Creator, autonomous AI tooling",
     year: "2026",
     summary:
-      "Autonomous AI tooling for Unreal Engine: it auto-detects the connected MCP servers and routes any UE task to the best available tool: C++, Blueprints, Niagara, materials, Control Rig, animation, PCG, lighting, UMG, Sequencer, GAS, physics, multiplayer, profiling, packaging, even Blender.",
+      "One command surface for Unreal Engine automation. Detects connected MCP servers and routes tasks across gameplay, art, animation and production tools.",
     tech: ["AI Agents", "MCP", "TypeScript", "Python", "Unreal Engine 5.8 / 5.6", "Blender"],
     links: [],
     badge: "IN DEV",
@@ -70,7 +135,7 @@ export const projects: Project[] = [
     result:
       "One command surface over the whole engine: 70+ tools and 23 workflow recipes, turning hours of editor busywork into minutes and driving real day-to-day work.",
   },
-  { id: "ai-therapist", title: "Virtual AI Therapist", role: "Developer", year: "2023", summary: "An AI-driven conversational prototype that handles real-time dialogue and reads sentiment.", tech: ["AI", "LangChain", "RAG", "Prototype"], links: [{ label: "View", href: "https://drive.google.com/file/d/1WV2xYvS9aCd0mrpUbshdrsm8rcOFGNf8/view?usp=drive_link" }] },
+  { id: "ai-therapist", title: "Virtual AI Therapist", role: "Developer", year: "2023", summary: "A conversational AI prototype combining real-time dialogue, sentiment analysis and retrieval-augmented responses.", media: "/showreel/ai-therapist.webp", tech: ["AI", "LangChain", "RAG", "Prototype"], links: [{ label: "View", href: "https://drive.google.com/file/d/1WV2xYvS9aCd0mrpUbshdrsm8rcOFGNf8/view?usp=drive_link" }] },
   { id: "unreal-horror", title: "Unreal Horror Game", role: "Developer", year: "2023", summary: "An atmospheric horror prototype in Unreal Engine 5.", tech: ["Unreal Engine 5", "Horror"], archive: true, links: [{ label: "Watch", href: "https://drive.google.com/file/d/1X1QuGVAsIcP6mcX-Q5LFw_Sr0XxBt8Xb/view?usp=sharing" }] },
   {
     id: "multiplayer-tba",
@@ -78,7 +143,7 @@ export const projects: Project[] = [
     role: "Solo build, personal",
     year: "2026",
     summary:
-      "A multiplayer action RPG on Unreal Engine 5.8 and the Gameplay Ability System: UMG inventory, player-to-player trading, PvP zones, and a behavior-tracked “Awakening Diagnosis” that reads how you play to place you in one of 6 races. Backed by a dedicated Docker stack running 100 concurrent players per server instance.",
+      "A playable multiplayer action RPG, built from combat to persistence. GAS abilities, player trading, inventory and PvP share a dedicated backend, while an Awakening Diagnosis assigns a race based on how you play.",
     tech: ["Unreal Engine 5.8", "C++", "GAS", "Dedicated Server", "Docker", "PostgreSQL", "Redis", "NATS", "JWT Auth"],
     links: [{ label: "Watch full video", href: "https://drive.google.com/file/d/1JZbLI4k2nWNDb9mieb6ihhG_NjEabZCy/view?usp=drive_link" }],
     badge: "PLAYABLE",
@@ -86,6 +151,17 @@ export const projects: Project[] = [
     shipped: false,
     media: "/projects/saox-hero.webp", // hero still: staff stance in the town hub, arches + floating rocks (owner-picked shot)
     clip: "/projects/saox-town.mp4", // ~10s continuous townhall walk: village road, plaza, arch colonnade (no dungeon)
+    selection: {
+      category: "Multiplayer action RPG",
+      previewLabel: "Play 10s preview",
+      caption: "A continuous walk through the town hub, from village road to plaza and arch colonnade. Open the full video for the wider gameplay showcase.",
+      posterAlt: "SAO-X gameplay, a staff-wielding character beneath floating rocks and stone arches",
+      facts: [
+        { value: "GAS", label: "Combat foundation" },
+        { value: "06", label: "Player races" },
+        { value: "Playable", label: "Current build" },
+      ],
+    },
     problem:
       "Action-RPG combat at MMO scale is unforgiving: abilities, trading, PvP, and persistence all have to stay authoritative and in sync with many players sharing one world.",
     approach:
@@ -99,7 +175,7 @@ export const projects: Project[] = [
     role: "Creator, Vayn Studios (commercial)",
     year: "2026",
     summary:
-      "A real-time archviz sales tool built in Unreal Engine 5.8 and C++: it turns an architect's CAD model into a standalone, offline app, fly-through and first-person walk, clickable apartments with live pricing and availability, floor-by-floor section cuts, swappable facade finishes, and dynamic time-of-day.",
+      "An architect's CAD model becomes an interactive sales experience. Explore the building, check apartment pricing and availability, isolate floors, and change finishes or daylight in a standalone offline app.",
     tech: ["Unreal Engine 5.8", "C++", "Datasmith / FBX", "Lumen GI", "UMG", "Windows Build"],
     links: [{ label: "Watch full video", href: "https://drive.google.com/file/d/1bimzCoh5DpLQ7v1hIzspsM90RO6XA6IX/view?usp=drive_link" }],
     badge: "SHIPPED",
@@ -107,6 +183,17 @@ export const projects: Project[] = [
     shipped: true,
     media: "/projects/magviz.webp", // hero still: dusk aerial with the live tool UI (own capture)
     clip: "/projects/magviz-sections.mp4", // ~11s: green unit/section blocks, floor-isolation cut, night-to-dawn weather sweep
+    selection: {
+      category: "Commercial real-time architecture",
+      previewLabel: "Play 11s preview",
+      caption: "The working sales tool: unit and section views, floor isolation, and a night-to-dawn lighting sweep. Captured directly from the app.",
+      posterAlt: "MagViz, a coastal apartment development with interactive pricing, section and lighting controls",
+      facts: [
+        { value: "Shipped", label: "Commercial release" },
+        { value: "Offline", label: "Standalone app" },
+        { value: "Lumen", label: "Real-time lighting" },
+      ],
+    },
     problem:
       "Selling an unbuilt development off static renders and a PDF price list is flat: buyers can't explore the building, see what's still available, or picture it at a different time of day.",
     approach:
@@ -151,7 +238,7 @@ export const projects: Project[] = [
     links: [{ label: "Play on Roblox", href: "https://www.roblox.com/games/137847988705947/Couragely" }],
     badge: "LIVE",
     shipped: true,
-    media: "https://tr.rbxcdn.com/180DAY-8c1ca43249f81b505fa0eb47531f04ee/500/280/Image/Jpeg/noFilter",
+    media: "/showreel/couragely.webp",
     problem:
       "Could a sticky, shareable horror loop be built and shipped in a week, and actually find an audience?",
     approach:
@@ -163,3 +250,9 @@ export const projects: Project[] = [
 
 export const featuredProjects = projects.filter((p) => p.featured);
 export const otherProjects = projects.filter((p) => !p.featured);
+
+export const projectUi = {
+  viewProject: "View project",
+  playPreview: "Play preview",
+  previewUnavailable: "Preview unavailable. Open the full project using the link below.",
+} as const;

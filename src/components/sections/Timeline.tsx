@@ -8,7 +8,7 @@ export function Timeline() {
     <SectionShell id="journey" title="Journey" alt>
       <div className="grid gap-6 lg:grid-cols-12">
         {/* the spine (#journey ol::before/::after in globals.css) fills as you read */}
-        <ol className="relative space-y-5 lg:col-span-7">
+        <ol className="relative space-y-4 lg:col-span-7">
           {experience.map((e, i) => (
             <li key={`${e.year}-${e.title}`} className="relative pl-10 sm:pl-12">
               {/* numbered marker, real sequence, so numbering is legitimate; follows the fill */}
@@ -19,9 +19,9 @@ export function Timeline() {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <Reveal fx="left">
-                <Panel className="p-5">
+                <Panel className="p-6 sm:p-7">
                   <p className="font-mono text-xs uppercase text-mist">{e.year}</p>
-                  <h3 className="mt-1 font-display text-lg font-semibold uppercase text-bone">{e.title}</h3>
+                  <h3 className="mt-1 font-display text-xl font-semibold uppercase text-bone">{e.title}</h3>
                   <p className="mt-0.5 font-mono text-xs uppercase text-surge">{e.org}</p>
                   <p className="mt-3 max-w-[68ch] font-sans text-sm leading-relaxed text-mist">{e.summary}</p>
                 </Panel>

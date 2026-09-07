@@ -1,40 +1,36 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import { motion, useScroll, useSpring } from "motion/react";
+
+const DevMotionTuner =
+  process.env.NODE_ENV === "development"
+    ? dynamic(() => import("./fx/DevMotionTuner").then((mod) => mod.DevMotionTuner), { ssr: false })
+    : null;
 
 /**
- * HUD scroll-progress bar: a 2px accent line across the very top that fills as
- * you scroll (game-client "mission progress" read). Transform-only (GPU), passive
- * listener, no layout thrash. Purely additive, never gates content visibility.
+ * The top signal line is tied to real scroll progress with a damped Motion spring.
+ * Local development swaps in the DialKit-backed version so tuning code is not part
+ * of the production route.
  */
 export function ScrollProgress() {
-  const ref = useRef<HTMLDivElement>(null);
+  if (DevMotionTuner) return <DevMotionTuner />;
+  return <ProductionProgress />;
+}
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const update = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      el.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
-    };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, []);
+function ProductionProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 170,
+    damping: 30,
+    mass: 0.32,
+  });
 
   return (
-    <div
-      ref={ref}
+    <motion.div
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 top-0 z-chrome h-[2px] origin-left"
-      style={{
-        transform: "scaleX(0)",
-        background: "rgb(var(--ion))",
-      }}
+      className="pointer-events-none fixed inset-x-0 top-0 z-chrome h-[3px] origin-left bg-ion shadow-[0_0_18px_rgb(var(--ion)/0.45)]"
+      style={{ scaleX }}
     />
   );
 }

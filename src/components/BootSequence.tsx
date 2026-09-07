@@ -188,7 +188,7 @@ export function BootSequence() {
       // finisher explosion, layered shockwave rings + radial impact lines (additive for punch)
       if (t > KILL && t < KILL + 0.85) {
         const p = (t - KILL) / 0.85, R = Math.max(W, H), oy = cy - 26 * U;
-        ctx.save(); ctx.globalCompositeOperation = "multiply";
+        ctx.save(); ctx.globalCompositeOperation = "screen";
         const ring = (delay: number, col: string, w: number, sp: number) => { const rp = cl((p - delay) / (1 - delay)); if (rp <= 0) return; ctx.globalAlpha = Math.pow(1 - rp, 1.5); ctx.strokeStyle = col; ctx.lineWidth = w * U * (1 - rp); ctx.beginPath(); ctx.arc(cx, oy, eOut(rp) * R * sp, 0, 6.2832); ctx.stroke(); };
         ring(0, C.bone, 9, 0.5); ring(0.07, C.volt, 6, 0.66); ring(0.16, C.surge, 6, 0.8);
         ctx.globalAlpha = (1 - p) * 0.6; ctx.strokeStyle = C.volt; ctx.lineWidth = 2 * U; ctx.lineCap = "round";
@@ -333,7 +333,7 @@ export function BootSequence() {
         const hMx = chestX + pose.hMain.x * side, hMy = chestY + pose.hMain.y;
         const R = 38 * hs, wa = Math.atan2(Math.sin(pose.sword), Math.cos(pose.sword) * side), a1 = wa - 1.7 * side, a2 = wa;
         const tAlpha = (follow > 0 ? 1 - follow : 1) * 0.9;
-        ctx.save(); ctx.globalCompositeOperation = "multiply"; ctx.globalAlpha = tAlpha;
+        ctx.save(); ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = tAlpha;
         ctx.beginPath(); ctx.arc(hMx, hMy, R, a1, a2, a1 > a2); ctx.arc(hMx, hMy, R * 0.52, a2, a1, !(a1 > a2)); ctx.closePath();
         const g = ctx.createRadialGradient(hMx, hMy, R * 0.52, hMx, hMy, R);
         g.addColorStop(0, rgba("surge", 0)); g.addColorStop(0.6, rgba("surge", 0.35)); g.addColorStop(1, rgba("surge", 0.85));

@@ -103,8 +103,8 @@ const structuredData = [
 ];
 
 export const viewport: Viewport = {
-  themeColor: "#F0F2F6",
-  colorScheme: "light",
+  themeColor: "#07080B",
+  colorScheme: "dark",
 };
 
 // Runs before the hero is parsed: tells the CSS whether the boot cinematic will play
