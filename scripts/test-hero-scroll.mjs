@@ -37,17 +37,46 @@ for (const layout of [desktop, phone]) {
       const after = letterPose(index, layout, { distance: 2, chapter, outro: 0 }, HERO_MOTION);
       for (const key of Object.keys(before)) assert.ok(Math.abs(before[key] - after[key]) < .001, `continuous ${chapter}/${key}`);
     }
-    if (layout.phone) {
-      const cleared = poses.at(-1);
-      assert.ok(cleared.y - cleared.scale * 3 > layout.height / 2, "Phone letters clear the text viewport");
+  }
+}
+// Portrait letters persist through the reading chapters, not just the opening.
+// Use a conservative radius of three glyph units to check parked/exit bounds.
+for (const width of [7.5, 9, 12]) {
+  for (const height of [14, 18, 22]) {
+    const layout = { ...phone, width, height };
+    for (let chapter = 0; chapter <= 5; chapter++) {
+      for (let index = 0; index < 6; index++) {
+        const held = letterPose(index, layout, { distance: 2, chapter, outro: 0 }, HERO_MOTION);
+        if (index === chapter) {
+          assert.ok(Math.abs(held.x) < width / 2, "Held phone letter intersects viewport");
+          assert.equal(held.scale, width * HERO_MOTION.phoneScale, "Phone scale follows width, not height");
+          if (chapter < 5) {
+            const moving = letterPose(index, layout, { distance: 2, chapter: chapter + .4, outro: 0 }, HERO_MOTION);
+            assert.ok(Math.abs(moving.rz - held.rz) > .1, "Letter rolls within its chapter");
+          }
+        } else {
+          assert.ok(Math.abs(held.x) - held.scale * 3 > width / 2, "Unselected phone letters park offscreen");
+        }
+        const exited = letterPose(index, layout, { distance: 2, chapter, outro: 1 }, HERO_MOTION);
+        assert.ok(Math.abs(exited.x) - exited.scale * 3 > width / 2, "All phone geometry clears the footer");
+      }
     }
+  }
+}
+for (let i = 0; i <= 500; i++) {
+  for (let index = 0; index < 6; index++) {
+    const scroll = { distance: 2, chapter: i / 100, outro: 0 };
+    const pose = letterPose(index, phone, scroll, HERO_MOTION);
+    assert.ok(Object.values(pose).every(Number.isFinite));
+    assert.deepEqual(pose, letterPose(index, phone, scroll, HERO_MOTION), "Phone chapters are deterministic");
+    checked++;
   }
 }
 assert.equal(scrollChapter(0, [100, 1000, 2000]), 0);
 assert.equal(scrollChapter(1000, [100, 1000, 2000]), 1);
 assert.equal(scrollChapter(1500, [100, 1000, 2000]), 1.5);
 assert.equal(scrollChapter(3000, [100, 1000, 2000]), 2);
-console.log(`Hero scroll: ${checked} poses finite, reversible and continuous. Phone exit and chapter boundaries passed.`);
+console.log(`Hero scroll: ${checked} poses finite and deterministic. Opening reversal, chapter boundaries, phone holds and footer exit passed.`);
 
 assert.equal(readingOpacity(0, HERO_MOTION.readingOpacity), 1);
 assert.ok(Math.abs(readingOpacity(1, HERO_MOTION.readingOpacity) - HERO_MOTION.readingOpacity) < 1e-9);

@@ -1,6 +1,6 @@
 # Frontend Design (project method)
 
-Read `docs/DESIGN_SYSTEM.md` completely before changing the visual system. Version 6.6
+Read `docs/DESIGN_SYSTEM.md` completely before changing the visual system. Version 6.8
 follows the owner's explicit choice of Maxime Veilleux's sculptural hero concept:
 original MRVAYN geometry in black lacquer, followed by the existing portfolio content.
 This supersedes the text-only v6.4 restriction. No copied reference assets or source.
@@ -23,7 +23,9 @@ Motion should answer an action. Preserve the cinematic. The owner explicitly wan
 Maxime's scroll concept: viewport-pinned letters that separate and rotate around
 the incoming content. See `docs/HERO_SCROLL_DIRECTION.md`. A pointer-only treatment
 does not satisfy this brief. Keep the sequence reversible and driven by scroll,
-with a smaller upward exit on phone and native scrolling.
+with width-scaled, cropped letter holds on phone and native scrolling. The owner
+found the former phone-only upward exit too flat; `docs/MOBILE_DIRECTION.md`
+supersedes that part of the original scroll plan.
 Use an independent phone composition, not a cropped desktop canvas. No idle loops,
 fake terminal, marketing slogan or additional cursor. Keep a visible SVG fallback.
 Keep visible server-rendered content everywhere. No autoplay marquees, section-title

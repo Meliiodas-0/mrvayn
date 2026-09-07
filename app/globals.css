@@ -464,7 +464,7 @@ html { color-scheme: dark; }
   .sculpture-svg-desktop { display: none; }
   .sculpture-svg-phone { display: block; }
   .sculpture-caption { inset: auto 20px 22px; align-items: center; gap: 18px; }
-  .sculpture-identity { max-width: 24ch; font-size: 11px; line-height: 1.85; }
+  .sculpture-identity { max-width: 25ch; font-size: 12px; line-height: 1.7; }
   .sculpture-identity p + p { margin-top: 3px; }
   .sculpture-work-link { flex-shrink: 0; gap: 14px; min-height: 48px; font-size: 12px; }
 }
@@ -545,7 +545,7 @@ html { color-scheme: dark; }
   .screening-heading h3 { font-size: 45px; }
   .screening-edition { display: flex; gap: 12px; margin-top: 16px; font-size: 11px; text-align: left; }
   .screening-edition span + span { padding-left: 12px; border-left: 1px solid rgb(var(--steel)); }
-  .screening-media { width: calc(100% + 32px); margin-left: -16px; }
+  .screening-media { width: calc(100% + clamp(32px, 6vw, 128px)); margin-left: calc(clamp(32px, 6vw, 128px) / -2); }
   .screening-notes { grid-template-columns: 1fr; gap: 30px; padding-top: 24px; }
   .project-category, .project-role { font-size: 12px; }
   .project-summary { font-size: 15px; }
@@ -558,6 +558,8 @@ html { color-scheme: dark; }
   .print-heading h3 { font-size: 64px; }
   .print-heading { margin-bottom: 20px; }
   .print-heading .project-role { margin-top: 10px; }
+  .selected-print .print-media { margin-inline: calc(clamp(32px, 6vw, 128px) / -2); }
+  .selected-print .media-caption { margin-inline: calc(clamp(32px, 6vw, 128px) / 2); }
   .print-notes { margin-top: 20px; }
   .project-actions { margin-top: 16px; gap: 12px 25px; }
   .workshop-heading { margin-top: 80px; align-items: start; }

@@ -41,5 +41,6 @@ to hire or fund; credentials are stated as facts. No invented numbers.
 `npx tsc --noEmit`, then capture phone / 1080p / 2K with the headless script (see
 `docs/DESIGN_SYSTEM.md`, "Verification") and check: no console errors, no horizontal
 overflow, no label collisions, hero pointer response and phone layout, keyboard navigation
-and deep links. Also scrub down and up, test chapter handoffs and the phone exit.
-The hero direction is recorded in `docs/HERO_SCROLL_DIRECTION.md`.
+and deep links. Also scrub down and up, test mobile chapter holds and the footer exit.
+The hero direction is recorded in `docs/HERO_SCROLL_DIRECTION.md`, with the mobile
+refinement in `docs/MOBILE_DIRECTION.md`.

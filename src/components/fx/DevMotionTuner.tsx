@@ -18,6 +18,11 @@ const MOTION_CONTROLS = {
     scrollDamping: [HERO_MOTION.scrollDamping, 20, 50, 1] as [number, number, number, number],
     readingOpacity: [HERO_MOTION.readingOpacity, .1, .4, .01] as [number, number, number, number],
   },
+  Mobile: {
+    scale: [HERO_MOTION.phoneScale, .22, .36, .01] as [number, number, number, number],
+    turn: [HERO_MOTION.phoneTurn, .1, .55, .01] as [number, number, number, number],
+    touch: [HERO_MOTION.phoneTouch, 0, 3, .1] as [number, number, number, number],
+  },
   Progress: {
     stiffness: [170, 60, 360, 5] as [number, number, number, number],
     damping: [30, 12, 60, 1] as [number, number, number, number],
@@ -57,9 +62,12 @@ export function DevMotionTuner() {
         scrollStiffness: tuning.Hero.scrollStiffness,
         scrollDamping: tuning.Hero.scrollDamping,
         readingOpacity: tuning.Hero.readingOpacity,
+        phoneScale: tuning.Mobile.scale,
+        phoneTurn: tuning.Mobile.turn,
+        phoneTouch: tuning.Mobile.touch,
       },
     }));
-  }, [tuning.Hero.stiffness, tuning.Hero.damping, tuning.Hero.rotation, tuning.Hero.lightTravel, tuning.Hero.scrollSpan, tuning.Hero.scrollTurn, tuning.Hero.scrollStiffness, tuning.Hero.scrollDamping, tuning.Hero.readingOpacity]);
+  }, [tuning.Hero.stiffness, tuning.Hero.damping, tuning.Hero.rotation, tuning.Hero.lightTravel, tuning.Hero.scrollSpan, tuning.Hero.scrollTurn, tuning.Hero.scrollStiffness, tuning.Hero.scrollDamping, tuning.Hero.readingOpacity, tuning.Mobile.scale, tuning.Mobile.turn, tuning.Mobile.touch]);
 
   useEffect(() => {
     const root = document.getElementById("content");
@@ -81,7 +89,7 @@ export function DevMotionTuner() {
         className="portfolio-theme pointer-events-none fixed inset-x-0 top-0 z-chrome h-[2px] origin-left bg-ion"
         style={{ scaleX: reduce ? scrollYProgress : scaleX }}
       />
-      <DialRoot position="bottom-right" defaultOpen={false} theme="dark" productionEnabled={false} />
+      <DialRoot position="bottom-right" defaultOpen={false} theme="dark" />
     </>
   );
 }

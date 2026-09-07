@@ -1,5 +1,9 @@
 # Hero v6.6: scroll-driven letter choreography
 
+Historical implementation plan. The mobile upward-exit decision below is superseded
+by `MOBILE_DIRECTION.md` (v6.8), following the owner's request for a more engaging
+phone experience. The desktop choreography remains unchanged.
+
 The owner explicitly corrected the v6.5 implementation on 8 September 2026:
 study Maxime Veilleux by scrolling and reproduce the scroll concept, not only its
 lettering or mouse response.

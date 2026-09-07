@@ -55,18 +55,24 @@ export function HeroSculpture() {
   useEffect(() => {
     const element = host.current;
     if (!element) return;
-    const reset = () => { pointerX.set(0); pointerY.set(0); };
+    let touchId: number | null = null;
+    const reset = () => { touchId = null; pointerX.set(0); pointerY.set(0); };
     const move = (event: PointerEvent) => {
-      if (reduce || event.pointerType === "touch" || document.documentElement.hasAttribute("data-modal")) return;
-      pointerX.set(Math.max(-1, Math.min(1, (event.clientX / window.innerWidth) * 2 - 1)));
-      pointerY.set(Math.max(-1, Math.min(1, (event.clientY / window.innerHeight) * 2 - 1)));
+      if (reduce || document.documentElement.hasAttribute("data-modal")) return;
+      if (event.pointerType === "touch" && event.pointerId !== touchId) return;
+      const strength = event.pointerType === "touch" ? tuning.phoneTouch : 1;
+      pointerX.set(Math.max(-1, Math.min(1, (event.clientX / window.innerWidth) * 2 - 1)) * strength);
+      pointerY.set(Math.max(-1, Math.min(1, (event.clientY / window.innerHeight) * 2 - 1)) * strength);
     };
     const tap = (event: PointerEvent) => {
       if (reduce || event.pointerType !== "touch" || document.documentElement.hasAttribute("data-modal")) return;
-      pointerX.set((event.clientX / window.innerWidth - .5) * .65);
-      pointerY.set((event.clientY / window.innerHeight - .5) * .4);
+      const target = event.target;
+      if (!(target instanceof Element) || !target.closest("#hero") || target.closest("a, button, input, summary")) return;
+      if (touchId !== null) return;
+      touchId = event.pointerId;
+      move(event);
     };
-    const release = (event: PointerEvent) => { if (event.pointerType === "touch") reset(); };
+    const release = (event: PointerEvent) => { if (event.pointerId === touchId) reset(); };
     if (reduce) { reset(); smoothX.jump(0); smoothY.jump(0); }
     window.addEventListener("pointermove", move, { passive: true });
     window.addEventListener("pointerdown", tap, { passive: true });
@@ -82,7 +88,7 @@ export function HeroSculpture() {
       window.removeEventListener("pointerup", release);
       window.removeEventListener("pointercancel", reset);
     };
-  }, [reduce, pointerX, pointerY, smoothX, smoothY]);
+  }, [reduce, pointerX, pointerY, smoothX, smoothY, tuning.phoneTouch]);
 
   useEffect(() => {
     const element = host.current;
@@ -94,14 +100,13 @@ export function HeroSculpture() {
     let maxScroll = 1;
     let heroHeight = 1;
     let viewportHeight = 1;
-    let phone = false;
     const canvas = element.querySelector<HTMLCanvasElement>("canvas");
     const render = () => {
       const position = reduce ? scrollY.get() : smoothScroll.get();
       const distance = Math.max(0, position / heroHeight);
       const outro = pageOutro(position, end, maxScroll, viewportHeight);
-      const active = reduce ? distance < 1.1 : phone ? distance < tuning.scrollSpan + .15 : outro < 1;
-      if (canvas) canvas.style.opacity = active ? String(phone || reduce ? 1 : readingOpacity(distance, tuning.readingOpacity) * (1 - outro)) : "0";
+      const active = reduce ? distance < 1.1 : outro < 1;
+      if (canvas) canvas.style.opacity = active ? String(reduce ? 1 : readingOpacity(distance, tuning.readingOpacity) * (1 - outro)) : "0";
       renderer.current?.setVisible(active && !document.hidden && !document.documentElement.hasAttribute("data-modal"));
       renderer.current?.update(reduce ? 0 : smoothX.get(), reduce ? 0 : smoothY.get(), tuning, {
         distance: reduce ? 0 : distance,
@@ -113,8 +118,10 @@ export function HeroSculpture() {
       viewportHeight = Math.max(1, window.innerHeight);
       maxScroll = Math.max(1, document.documentElement.scrollHeight - viewportHeight);
       heroHeight = Math.max(1, hero.offsetHeight);
-      phone = element.clientWidth < 640;
-      anchors = ["work", "about", "impact", "showreel", "skills", "journey"].map(id => {
+      const chapters = element.clientWidth < 640
+        ? ["work", "antarya", "multiplayer-tba", "about", "skills", "journey"]
+        : ["work", "about", "impact", "showreel", "skills", "journey"];
+      anchors = chapters.map(id => {
         const section = document.getElementById(id);
         return section ? section.getBoundingClientRect().top + window.scrollY : 0;
       });

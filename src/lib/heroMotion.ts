@@ -8,6 +8,9 @@ export const HERO_MOTION = {
   scrollStiffness: 180,
   scrollDamping: 30,
   readingOpacity: 0.18,
+  phoneScale: 0.29,
+  phoneTurn: 0.32,
+  phoneTouch: 1.8,
 } as const;
 
 export type HeroMotion = { [Key in keyof typeof HERO_MOTION]: number };

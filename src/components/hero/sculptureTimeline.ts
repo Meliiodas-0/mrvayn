@@ -44,18 +44,43 @@ const edgePose = (index: number, active: number, width: number, height: number, 
   };
 };
 
+// Portrait compositions use viewport width, so the held letter stays recognisable.
+// Only the selected letter rolls within a chapter; parked letters remain offscreen.
+const phoneEdgePose = (index: number, active: number, phase: number, layout: SculptureLayout, tuning: HeroMotion): LetterPose => {
+  const side = index % 2 ? 1 : -1;
+  const selected = index === active;
+  return {
+    x: side * layout.width * (selected ? .38 : 1.7),
+    y: layout.height * (selected ? mix(.08, -.1, ease(phase)) : (index - 2.5) * .14),
+    scale: layout.width * (selected ? tuning.phoneScale : .23),
+    rx: side * (selected ? mix(-.12, .18, ease(phase)) : .35),
+    ry: side * (selected ? -.2 : -.6),
+    rz: side * (selected ? mix(tuning.phoneTurn, -tuning.phoneTurn, ease(phase)) : .5),
+  };
+};
+
 // Scroll is the timeline: the same position always produces the same six poses.
 export function letterPose(index: number, layout: SculptureLayout, scroll: SculptureScroll, tuning: HeroMotion): LetterPose {
   const [x, y, angle] = layout.letters[index];
   const spread = ease(scroll.distance / tuning.scrollSpan);
-  if (layout.phone) return {
-    x: x + (index % 2 ? 1 : -1) * layout.width * spread * .22,
-    y: y + layout.height * spread * (1.2 + index * .025),
-    scale: 1 + spread * .35,
-    rx: spread * (index % 2 ? .6 : -.5),
-    ry: spread * (index % 2 ? -.7 : .65),
-    rz: angle + spread * tuning.scrollTurn * (index % 2 ? 1 : -1),
-  };
+  if (layout.phone) {
+    const chapter = Math.max(0, Math.min(5, scroll.chapter));
+    const active = Math.floor(chapter);
+    const phase = chapter - active;
+    const handoff = ease((phase - .45) / .55);
+    const from = phoneEdgePose(index, active, phase, layout, tuning);
+    const to = phoneEdgePose(index, Math.min(5, active + 1), 0, layout, tuning);
+    const exit = ease(scroll.outro);
+    const grow = ease((scroll.distance / tuning.scrollSpan - .2) / .8);
+    return {
+      x: mix(x, mix(from.x, to.x, handoff), spread) + (index % 2 ? 1 : -1) * layout.width * exit * 1.2,
+      y: mix(y, mix(from.y, to.y, handoff), spread) + exit * layout.height * .22,
+      scale: mix(1, mix(from.scale, to.scale, handoff), grow),
+      rx: mix(from.rx, to.rx, handoff) * spread,
+      ry: mix(from.ry, to.ry, handoff) * spread,
+      rz: mix(angle, mix(from.rz, to.rz, handoff), spread) + exit * tuning.phoneTurn,
+    };
+  }
 
   const chapter = Math.max(0, Math.min(5, scroll.chapter));
   const active = Math.floor(chapter);

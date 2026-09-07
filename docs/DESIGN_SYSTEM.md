@@ -1,4 +1,4 @@
-# mrvayn.live design system (v6.7, continuous editorial scroll)
+# mrvayn.live design system (v6.8, portrait scroll choreography)
 
 ## Direction
 
@@ -14,7 +14,8 @@ Code / Play typography and cobalt field. The latest request explicitly says dark
 subtle. The new sculpture is an explicit owner choice, not a return to the earlier
 wordmark/arch layout. Sevarog's source and media are retained locally, but it is not
 mounted. The hero plan is in `HERO_SCROLL_DIRECTION.md`; the whole-site polish is
-in `SITE_POLISH_DIRECTION.md`. The owner explicitly
+in `SITE_POLISH_DIRECTION.md`. The mobile refinement is in `MOBILE_DIRECTION.md`.
+The owner explicitly
 corrected v6.5's pointer-only behaviour: the reference must be studied by scrolling.
 
 The user's September 2026 boundary is explicit: do not change the stickman cinematic
@@ -61,7 +62,8 @@ hero has an asymmetric two-row wordmark on desktop, and three two-letter rows on
 phone. A compact identity and normal Work link anchor its lower edge. The sculpture
 is viewport-pinned during normal scrolling. Individual letters separate, enlarge,
 rotate and move to the edges as existing content passes in front. Phone letters
-rise out of the reading viewport. The sculpture is decorative to assistive
+now hold at the edges too, with width-based scale and a slow scroll-driven roll.
+The sculpture is decorative to assistive
 technology; a native h1 exposes MRVAYN once.
 
 Desktop opening:
@@ -111,15 +113,19 @@ available through native details controls.
   visible until the lazy WebGL renderer draws, and returns on context loss.
 - Scroll position drives a reversible six-letter choreography, not a triggered
   autoplay. Work, About, Impact, Showreel, Skills and Journey define the successive
-  large-letter holds. Contact clears the geometry. Existing alternate section
-  backgrounds remain above the decorative layer. No added scroll runway or pinning
-  of the actual content. Phones use upward exit paths, not background letter holds.
-- The sculpture also retains a restrained pointer response. Touch has a smaller
-  response, with passive listeners and native vertical scrolling. No pointer
+  large-letter holds on desktop. Phone anchors are Work, Antarya, SAO-X, About,
+  Skills and Journey, giving the longer selected-work layout its own transitions.
+  Both use the 18% reading opacity. Contact clears the geometry. Sections remain
+  transparent above the decorative layer. No added scroll runway or content pinning.
+- The sculpture also retains a restrained pointer response. Touch responds directly
+  inside the hero, with passive listeners and native vertical scrolling. Touching
+  controls does not tilt the sculpture; release or native-scroll cancellation resets
+  the response. No pointer
   capture, drag lock or orientation permission. Canvas never intercepts links.
 - The renderer draws on changes only, pauses offscreen and in hidden tabs, and caps
   the pixel budget. Reduced motion keeps it still. The development-only DialKit Hero
-  group tunes pointer response plus scroll span, turn, stiffness and damping.
+  group tunes pointer response plus scroll span, turn, stiffness and damping. Its
+  Mobile group exposes scale, turn and touch strength, with stable production defaults.
   Reduced motion restores an ordinary, non-pinned still hero. Production does not
   subscribe to the development tuning event.
 - The cinematic is unchanged; the new hero is immediately visible after it ends.
@@ -158,6 +164,7 @@ Check the protected file hashes before handing off:
 
 ## Delivery state
 
-This revision is a local design preview. It is not committed or deployed. The live
-Vercel website remains on the previously published version until the owner chooses
-to replace it. Keep the existing GitHub/Vercel hosting workflow, not a new host.
+The v6.7 design was published as `9e31a28`. The owner approved publishing this
+tested v6.8 mobile refinement on 8 September 2026 for physical-phone review.
+Keep the existing GitHub/Vercel hosting workflow. Confirm the release status and
+public domain after publishing; the preview checks are in `MOBILE_VERIFICATION.md`.
