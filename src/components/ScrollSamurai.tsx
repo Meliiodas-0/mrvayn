@@ -9,8 +9,8 @@ import { ROG_OFFSETS, ROG_OFFSET_MEAN } from "@/data/rogOffsets";
  * glitch, no pulses, just the eased frame scrub at a UNIFORM faint opacity so he
  * reads as the same quiet ink figure from the hero to the footer.
  * The ink treatment is baked into the frames (scripts/rog_pipeline.py), so the
- * canvas runs no CSS filter. Frames load lazily around the scrub position and
- * fill in during idle time. prefers-reduced-motion: static poster frame.
+ * canvas runs no CSS filter. Frames load hero-first, then keyframes, then the
+ * full set within about half a second (nearest to the scrub first). prefers-reduced-motion: static poster frame.
  */
 const FRAMES = 200;
 const HERO_IDX = 0;
@@ -72,8 +72,8 @@ export function ScrollSamurai() {
     const lead = phone ? 9 : 0;
 
     let target = 0, cur = 0, raf = 0, running = false, lastI = -1;
-    // Lazy frame slots: the hero frame first (high priority), then every 10th as
-    // keyframes, then a window around the scrub position, then the rest on idle.
+    // Frame slots: hero first (high priority), every 5th as keyframes, a window
+    // around the scrub position, then the full set (fillStep below).
     const imgs: (HTMLImageElement | null)[] = Array(N).fill(null);
     const loaded = (k: number) => { const im = imgs[k]; return im && im.complete && im.naturalWidth ? im : null; };
     const repaint = () => { lastI = -1; draw(cur); };
@@ -83,7 +83,7 @@ export function ScrollSamurai() {
       im.onload = () => { if (!running) repaint(); };
       imgs[k] = im;
     };
-    // nearest loaded frame to i (worst case with 10-frame keyframes: 5 frames off)
+    // nearest loaded frame to i (worst case with 5-frame keyframes: 2 frames off)
     const nearest = (i: number) => {
       for (let d = 0; d <= 10; d++) {
         const a = loaded(i - d); if (a) return a;
@@ -99,27 +99,23 @@ export function ScrollSamurai() {
       paint(nearest(i));
     }
     ensure(HERO_IDX, "high");
-    for (let k = 10; k < N; k += 10) ensure(k);
+    for (let k = 5; k < N; k += 5) ensure(k);
     window.addEventListener("resize", repaint);
 
-    // fill the rest after load, nearest-to-scrub first, in idle time (skips Save-Data)
+    // Fill the rest right away, nearest-to-scrub first, 24 frames every 40ms (the
+    // whole set is requested within ~0.4s so an early scroll never steps). Only
+    // Save-Data connections stay on the keyframes + scrub window.
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
-    const fillRest = () => {
-      if (saveData) return;
-      const w = window as Window & { requestIdleCallback?: (cb: () => void) => number };
-      const idle = (cb: () => void) => (w.requestIdleCallback ? w.requestIdleCallback(cb) : window.setTimeout(cb, 200));
-      const step = () => {
-        const pending: number[] = [];
-        for (let k = 0; k < N; k++) if (!imgs[k]) pending.push(k);
-        if (!pending.length) return;
-        pending.sort((a, b) => Math.abs(a - cur) - Math.abs(b - cur));
-        pending.slice(0, 16).forEach((k) => ensure(k));
-        idle(step);
-      };
-      idle(step);
+    let fillTimer = 0;
+    const fillStep = () => {
+      const pending: number[] = [];
+      for (let k = 0; k < N; k++) if (!imgs[k]) pending.push(k);
+      if (!pending.length) return;
+      pending.sort((a, b) => Math.abs(a - cur) - Math.abs(b - cur));
+      pending.slice(0, 24).forEach((k) => ensure(k));
+      fillTimer = window.setTimeout(fillStep, 40);
     };
-    if (document.readyState === "complete") fillRest();
-    else window.addEventListener("load", fillRest, { once: true });
+    if (!saveData) fillTimer = window.setTimeout(fillStep, 0);
 
     const tick = () => {
       cur += (target - cur) * ease;
@@ -147,7 +143,7 @@ export function ScrollSamurai() {
       window.removeEventListener("scroll", compute);
       window.removeEventListener("resize", resize);
       window.removeEventListener("resize", repaint);
-      window.removeEventListener("load", fillRest);
+      window.clearTimeout(fillTimer);
       document.removeEventListener("visibilitychange", onVis);
     };
   }, []);
