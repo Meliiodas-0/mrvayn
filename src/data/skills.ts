@@ -37,6 +37,7 @@ export const skillGroups: SkillGroup[] = [
       "Next.js 14",
       "React 19",
       "Capacitor (Android / iOS / PWA)",
+      "Web3 Development",
       "Tailwind CSS",
       "HTML",
       "CSS",
