@@ -5,6 +5,7 @@ import { DialRoot, useDialKit, type DialConfig } from "dialkit";
 import { motion, useScroll, useSpring, useReducedMotion } from "motion/react";
 import "dialkit/styles.css";
 import { HERO_MOTION, HERO_TUNING_EVENT } from "@/lib/heroMotion";
+import { NAV_MOTION, NAV_TUNING_EVENT } from "@/lib/navMotion";
 
 const MOTION_CONTROLS = {
   Hero: {
@@ -22,6 +23,11 @@ const MOTION_CONTROLS = {
     scale: [HERO_MOTION.phoneScale, .22, .36, .01] as [number, number, number, number],
     turn: [HERO_MOTION.phoneTurn, .1, .55, .01] as [number, number, number, number],
     touch: [HERO_MOTION.phoneTouch, 0, 3, .1] as [number, number, number, number],
+  },
+  Navigation: {
+    stiffness: [NAV_MOTION.stiffness, 160, 480, 10] as [number, number, number, number],
+    damping: [NAV_MOTION.damping, 20, 50, 1] as [number, number, number, number],
+    inset: [NAV_MOTION.inset, 6, 20, 1] as [number, number, number, number],
   },
   Progress: {
     stiffness: [170, 60, 360, 5] as [number, number, number, number],
@@ -68,6 +74,14 @@ export function DevMotionTuner() {
       },
     }));
   }, [tuning.Hero.stiffness, tuning.Hero.damping, tuning.Hero.rotation, tuning.Hero.lightTravel, tuning.Hero.scrollSpan, tuning.Hero.scrollTurn, tuning.Hero.scrollStiffness, tuning.Hero.scrollDamping, tuning.Hero.readingOpacity, tuning.Mobile.scale, tuning.Mobile.turn, tuning.Mobile.touch]);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent(NAV_TUNING_EVENT, { detail: {
+      stiffness: tuning.Navigation.stiffness,
+      damping: tuning.Navigation.damping,
+      inset: tuning.Navigation.inset,
+    } }));
+  }, [tuning.Navigation.stiffness, tuning.Navigation.damping, tuning.Navigation.inset]);
 
   useEffect(() => {
     const root = document.getElementById("content");

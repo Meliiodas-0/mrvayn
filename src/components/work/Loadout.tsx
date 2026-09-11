@@ -5,13 +5,10 @@ import type { Project } from "@/data/projects";
 import { editorial } from "@/data/editorial";
 import { ProjectTile } from "@/components/ui/ProjectTile";
 import { ProjectDetail } from "@/components/work/ProjectDetail";
-import { ProjectSpotlight } from "@/components/work/ProjectSpotlight";
 import { SelectedProject } from "@/components/work/SelectedProject";
 
 export function Loadout({ featured, others }: { featured: Project[]; others: Project[] }) {
   const [selected, setSelected] = useState<Project | null>(null);
-  const leadProjects = featured.filter(p => p.spotlight);
-  const selectedProjects = featured.filter(p => !p.spotlight);
   const more = others.filter(p => !p.archive);
   const archive = others.filter(p => p.archive);
   const selectProject = (project: Project) => {
@@ -20,9 +17,8 @@ export function Loadout({ featured, others }: { featured: Project[]; others: Pro
   };
   return (
     <>
-      {leadProjects.map(p => <ProjectSpotlight key={p.id} project={p} onSelect={() => selectProject(p)} />)}
       <div className="selected-spreads">
-        {selectedProjects.map(p => <SelectedProject key={p.id} project={p} onSelect={() => selectProject(p)} />)}
+        {featured.map(p => <SelectedProject key={p.id} project={p} onSelect={() => selectProject(p)} />)}
       </div>
       <div className="workshop-heading"><h3>{editorial.moreTitle}</h3><span>{more.length} projects</span></div>
       <div className="workshop-grid">

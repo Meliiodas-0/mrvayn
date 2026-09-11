@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/cn";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { profile } from "@/data/profile";
 import { socials } from "@/data/socials";
 import { SECTIONS } from "@/data/sections";
-import { BevelButton } from "@/components/ui/BevelButton";
+import { editorial } from "@/data/editorial";
+import { SectionIndex } from "./SectionIndex";
 import { lenisRef } from "@/components/fx/SmoothScroll";
 import { activeSection, type SectionAnchor } from "@/lib/sectionNavigation";
 
 const items = SECTIONS.filter((s) => s.nav);
+const contact = items.find(item => item.id === "contact")!;
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -96,47 +97,24 @@ export function Nav() {
     <>
       <header
         data-solid
-        className={cn(
-          "portfolio-theme folio-nav fixed inset-x-0 top-0 z-nav transition-[background-color,box-shadow] duration-300",
-          !scrolled && "backdrop-blur-md",
-          scrolled && "shadow-[0_14px_40px_var(--ink-dim)]",
-        )}
-        // Opaque while reading so text cannot ghost through the navigation.
-        style={{ backgroundColor: scrolled || open ? "rgb(var(--void))" : "rgb(var(--void) / 0.72)" }}
+        data-scrolled={scrolled}
+        data-menu-open={open}
+        className="portfolio-theme folio-nav fixed inset-x-0 top-0 z-nav"
       >
-        <nav className="mv-col flex items-center justify-between py-4" aria-label="Primary">
-          <a href="#hero" className="group flex items-center gap-2.5">
-            <span className="nav-wordmark" aria-label="MrVayn, home">mv.</span>
+        <nav className="mv-col nav-masthead" aria-label="Primary">
+          <a href="#hero" className="nav-home" aria-label="MrVayn, home" onClick={() => setOpen(false)}>
+            <span className="nav-wordmark" aria-hidden>mv.</span>
           </a>
 
-          <div className="hidden items-center gap-7 md:flex">
-            {items.filter((i) => i.id !== "contact").map((item) => (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                aria-current={active === item.id ? "location" : undefined}
-                className={cn(
-                  "relative inline-flex items-center gap-2 font-mono text-xs uppercase transition-colors duration-200 ease-snap",
-                  active === item.id ? "text-bone" : "text-volt hover:text-bone",
-                )}
-              >
-                {/* Active section uses both a marker and a semantic state. */}
-                <span
-                  aria-hidden
-                  className={cn("h-1.5 w-1.5 rounded-full bg-ion transition-opacity duration-200", active === item.id ? "opacity-100" : "opacity-0")}
-                />
-                {item.label}
-              </a>
-            ))}
+          <div className="nav-desktop">
+            <SectionIndex active={active} />
             <a
               href="#contact"
               aria-current={active === "contact" ? "location" : undefined}
-              className={cn(
-                "rounded border px-4 py-2 font-mono text-xs uppercase text-bone transition-colors duration-200 ease-snap hover:border-surge",
-                active === "contact" ? "border-surge" : "border-line2",
-              )}
+              className="nav-contact"
             >
-              Contact
+              {contact.label}
+              <span className="nav-contact-icon" aria-hidden><ArrowDownRight size={19} /></span>
             </a>
           </div>
 
@@ -146,9 +124,10 @@ export function Nav() {
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-menu"
-            className="-mr-1 grid h-11 w-11 place-items-center text-bone md:hidden"
+            className="nav-menu-toggle"
           >
-            {open ? <X aria-hidden className="h-5 w-5" /> : <Menu aria-hidden className="h-5 w-5" />}
+            <span>{open ? editorial.navClose : editorial.navMenu}</span>
+            <span className="nav-menu-glyph" aria-hidden><span /><span /></span>
           </button>
         </nav>
       </header>
@@ -159,37 +138,39 @@ export function Nav() {
           data-lenis-prevent
           ref={menuRef}
           aria-label="Menu"
-          className="portfolio-theme folio-menu fixed inset-0 z-hud flex flex-col overflow-y-auto overscroll-contain bg-void px-6 pb-10 pt-24 md:hidden"
+          className="portfolio-theme folio-menu fixed inset-0 z-hud overflow-y-auto overscroll-contain bg-void"
         >
-          <div className="mt-auto">
-            {items.map((item) => (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                onClick={() => setOpen(false)}
-                aria-current={active === item.id ? "true" : undefined}
-                className="flex items-baseline gap-4 border-b border-steel/60 py-4 font-display text-[2.25rem] font-semibold uppercase text-bone"
-              >
-                {item.label}
-                <span aria-hidden className={cn("ml-auto h-1.5 w-1.5 rounded-full bg-ion", active === item.id ? "opacity-100" : "opacity-0")} />
-              </a>
-            ))}
-            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-1 font-mono text-xs uppercase text-mist">
+          <div className="menu-content">
+            <div className="menu-index">
+              {items.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  onClick={() => setOpen(false)}
+                  aria-current={active === item.id ? "location" : undefined}
+                >
+                  {item.label}
+                  <ArrowDownRight aria-hidden size={25} />
+                </a>
+              ))}
+            </div>
+            <div className="menu-socials">
               {socials.map((s) =>
                 s.href ? (
-                  <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center hover:text-surge">
+                  <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer">
                     {s.name}
                   </a>
                 ) : (
-                  <span key={s.name} className="inline-flex min-h-10 items-center">
-                    {s.name}: <span className="ml-1 normal-case text-bone">{s.handle}</span>
+                  <span key={s.name} className="menu-handle">
+                    {s.name}: <span>{s.handle}</span>
                   </span>
                 ),
               )}
             </div>
-            <BevelButton href={profile.emailHref} variant="ghost" className="mt-6 w-full" onClick={() => setOpen(false)}>
-              Email me
-            </BevelButton>
+            <a href={profile.emailHref} className="menu-email" onClick={() => setOpen(false)}>
+              <span><span>{editorial.contactEmail}</span><small>{profile.email}</small></span>
+              <span className="nav-contact-icon" aria-hidden><ArrowUpRight size={21} /></span>
+            </a>
           </div>
         </nav>
       )}

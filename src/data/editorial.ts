@@ -1,6 +1,9 @@
 // Public-facing editorial copy, separate from the project evidence.
 export const editorial = {
+  navMenu: "Menu",
+  navClose: "Close",
   heroWordmark: "MRVAYN",
+  heroHeading: "Aayush (MrVayn), Unreal Engine & full-stack developer",
   heroSignature: "Aayush / MrVayn",
   heroDiscipline: "Unreal Engine & full-stack development",
   heroSculptureLink: "View work",

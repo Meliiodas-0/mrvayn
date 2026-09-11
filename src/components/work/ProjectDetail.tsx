@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, ArrowUpRight, Lock, Play } from "lucide-react";
-import type { Project } from "@/data/projects";
+import { hasCaseStudy, projectPath, projectUi, type Project } from "@/data/projects";
 import { reelFrames } from "@/data/showreel";
 import { driveEmbed, driveThumb } from "@/lib/drive";
 import { lenisRef } from "@/components/fx/SmoothScroll";
@@ -39,7 +39,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
     (primaryHref ? driveThumb(primaryHref, 1280) : null);
   // All media starts on demand. Local clips use the same player as the cards.
   const [playing, setPlaying] = useState(false);
-  const caption = project.spotlight?.previewCaption ?? project.selection?.caption;
+  const caption = project.mediaCaption ?? project.spotlight?.previewCaption ?? project.selection?.caption;
   const facts = project.spotlight?.facts ?? project.selection?.facts;
 
   // Freeze Lenis while the dialog is open (mount-only, so re-renders never churn it);
@@ -158,7 +158,7 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
           ) : embed ? (
             <PosterButton image={image} title={project.title} onPlay={() => setPlaying(true)} />
           ) : image ? (
-            <Thumb src={image} alt={`${project.title} preview`} />
+            <Thumb src={image} alt={project.mediaAlt ?? `${project.title} preview`} />
           ) : (
             <div className="media-fallback grid h-full w-full place-items-center">
               <span className="font-mono text-xs uppercase text-bone/70">Open the link below</span>
@@ -181,6 +181,8 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
         )}
 
         <p className="mt-5 font-sans leading-relaxed text-mist">{project.summary}</p>
+
+        {hasCaseStudy(project) && <a className="folio-link mt-4" href={projectPath(project)}>{projectUi.readCaseStudy}<ArrowUpRight aria-hidden size={18} /></a>}
 
         {facts && (
           <dl className="mt-6 grid grid-cols-3 gap-3 border-y border-steel py-5">

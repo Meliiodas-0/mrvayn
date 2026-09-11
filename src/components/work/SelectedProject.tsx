@@ -3,6 +3,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { projectUi, type Project } from "@/data/projects";
 import { ClipPreview } from "@/components/ui/ClipPreview";
+import { ProjectEntryLink } from "@/components/work/ProjectEntryLink";
 
 export function SelectedProject({ project, onSelect }: { project: Project; onSelect: () => void }) {
   const details = project.selection;
@@ -19,11 +20,11 @@ export function SelectedProject({ project, onSelect }: { project: Project; onSel
         {project.clip ? (
           <ClipPreview src={project.clip} poster={project.media} title={project.title} label={details.previewLabel} posterAlt={details.posterAlt} describedBy={`${project.id}-caption`} />
         ) : (
-          <button onClick={onSelect} aria-label={`${details.previewLabel}: ${project.title}`} className="print-image-button">
+          <ProjectEntryLink project={project} onSelect={onSelect} label={`${details.previewLabel}: ${project.title}`} className="print-image-button">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={project.media} alt={details.posterAlt} width={1280} height={720} loading="lazy" />
             <span className="image-open" aria-hidden><ArrowUpRight size={25} /></span>
-          </button>
+          </ProjectEntryLink>
         )}
         <figcaption id={`${project.id}-caption`} className="media-caption">{details.caption}</figcaption>
       </figure>
@@ -31,7 +32,7 @@ export function SelectedProject({ project, onSelect }: { project: Project; onSel
         <p className="project-summary">{project.summary}</p>
         <p className="project-tools">{project.tech.slice(0, 4).join(" / ")}</p>
         <div className="project-actions">
-          <button className="folio-link" onClick={onSelect}>{projectUi.viewProject}<ArrowUpRight aria-hidden size={18} /></button>
+          <ProjectEntryLink project={project} className="folio-link" onSelect={onSelect} label={`${projectUi.viewProject}: ${project.title}`}>{projectUi.viewProject}<ArrowUpRight aria-hidden size={18} /></ProjectEntryLink>
           {primary && <a className="quiet-link" href={primary.href} target="_blank" rel="noopener noreferrer">{primary.label}</a>}
         </div>
       </div>

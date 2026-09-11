@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="720" viewBox="0 0 960 720" fill="none">
+  <title>UE MCP Conductor routing overview</title>
+  <desc>A request passes through Conductor to a connected tool for Unreal Engine 5.8, Unreal Engine 5.6 or Blender.</desc>
+  <rect width="960" height="720" fill="#11151F"/>
+  <g stroke="#35435C" stroke-width="2">
+    <path d="M156 90H804M156 634H804"/>
+    <path d="M156 82V98M804 82V98M156 626V642M804 626V642"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="480" y="169" fill="#ADB6C2" font-size="32">Your request</text>
+    <path d="M480 194V248" stroke="#A9B7FF" stroke-width="4"/>
+    <path d="M470 235L480 248L490 235" stroke="#A9B7FF" stroke-width="3"/>
+    <rect x="249" y="264" width="462" height="126" rx="10" stroke="#A9B7FF" stroke-width="3" fill="#1A2440"/>
+    <text x="480" y="313" fill="#A9B7FF" font-size="23" letter-spacing="3">MCP</text>
+    <text x="480" y="364" fill="#EFF2F6" font-size="46">Conductor</text>
+    <g stroke="#758FD0" stroke-width="4" stroke-linejoin="round">
+      <path d="M480 392V444H238V506M480 444V506M480 444H722V506"/>
+      <path d="M228 493L238 506L248 493M470 493L480 506L490 493M712 493L722 506L732 493"/>
+    </g>
+    <circle cx="480" cy="444" r="7" fill="#A9B7FF"/>
+    <g fill="#EFF2F6" font-size="29">
+      <text x="238" y="551">Unreal 5.8</text>
+      <text x="480" y="551">Unreal 5.6</text>
+      <text x="722" y="551">Blender</text>
+    </g>
+    <text x="480" y="595" fill="#96A0AF" font-size="22">Version-aware tool routing</text>
+  </g>
+</svg>

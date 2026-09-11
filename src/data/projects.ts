@@ -22,6 +22,10 @@ export interface Project {
   shipped?: boolean;
   /** Path under /public, TODO(MrVayn): replace placeholder media. */
   media?: string;
+  mediaAlt?: string;
+  mediaCaption?: string;
+  /** Concise, factual description for this project's search result. */
+  seoDescription?: string;
   /** Optional local video clip (under /public), plays in the detail panel. */
   clip?: string;
   /** Editorial details for the selected-work presentations. */
@@ -54,30 +58,26 @@ export interface Project {
 export const projects: Project[] = [
   {
     id: "cricket-broadcast",
-    title: "Cricket Broadcast Lab",
+    title: "Broadcast & Camera Systems",
     role: "Creator, camera & broadcast systems",
     year: "2026",
     summary:
-      "A cricket camera and broadcast framework in Unreal Engine 5.8. Live ball tracking flows into slow-motion replays with trails, backed by an operator desk for replay inspection, camera preview and take, and lighting looks.",
+      "A real-time broadcast and camera system in Unreal Engine 5.8, demonstrated through cricket coverage. State-driven cameras track play, hand off to slow-motion replays, and give an operator control over camera preview, take and replay inspection.",
+    seoDescription: "Unreal Engine broadcast and camera systems by Aayush (MrVayn): ball tracking, camera switching, slow-motion replays and an operator desk.",
     tech: ["Unreal Engine 5.8", "C++", "Blueprints", "Camera Systems", "Replay Tools", "Cinematic Presentation"],
     links: [{ label: "Watch full film", href: "https://drive.google.com/file/d/1G-xUExs9pRnRpInMRkHpyMEIHtdcoBwh/view?usp=sharing" }],
-    badge: "PRODUCTION TEST 03",
     featured: true,
     media: "/projects/cricket-broadcast.jpg",
     clip: "/projects/cricket-broadcast-preview.mp4",
-    spotlight: {
-      label: "Latest showcase",
+    selection: {
+      category: "Real-time broadcast tools",
       previewLabel: "Play 21s preview",
-      previewTitle: "21s preview / Live + replay",
-      previewCaption:
-        "A live six followed by its complete slow replay with ball trails. Silent preview; the full film includes sound.",
-      posterAlt: "Cricket Broadcast Lab, the batsman and ball during a six replay",
-      videoLabel: "Cricket Broadcast Lab: live six and trail replay",
-      detailLabel: "View project",
+      caption: "Cricket coverage from the working camera system: a live six followed by a slow replay with ball trails. Silent 21s preview; the full 3:02 film includes sound and an operator-tools walkthrough.",
+      posterAlt: "Cricket camera system tracking a batsman and ball during a six replay",
       facts: [
-        { value: "06", label: "Shot + replay pairs" },
-        { value: "4K / 60", label: "Full film quality" },
-        { value: "3:02", label: "Full film runtime" },
+        { value: "Live", label: "Camera tracking" },
+        { value: "Replay", label: "Inspection tools" },
+        { value: "Preview / take", label: "Operator control" },
       ],
     },
     problem:
@@ -89,6 +89,7 @@ export const projects: Project[] = [
   },
   {
     id: "antarya",
+    seoDescription: "Aayush (MrVayn)'s Unreal Engine gameplay architecture for Antarya at Magadha Studios: modular systems, multiplayer foundations and Niagara VFX.",
     title: "Antarya",
     role: "CTO, Magadha Studios",
     year: "2024-Present",
@@ -120,6 +121,7 @@ export const projects: Project[] = [
   },
   {
     id: "ue-mcp",
+    seoDescription: "UE MCP Conductor by Aayush (MrVayn): version-aware AI tool routing for Unreal Engine 5.8 and 5.6, with connected MCP servers and Blender workflows.",
     title: "UE MCP Conductor",
     role: "Creator, autonomous AI tooling",
     year: "2026",
@@ -128,7 +130,9 @@ export const projects: Project[] = [
     tech: ["AI Agents", "MCP", "TypeScript", "Python", "Unreal Engine 5.8 / 5.6", "Blender"],
     links: [],
     badge: "IN DEV",
-    media: "/projects/ue-mcp.webp", // owner's screenshot of the branded app
+    media: "/projects/ue-mcp-routing.svg",
+    mediaAlt: "UE MCP Conductor routing a request through connected tools to Unreal Engine 5.8, Unreal Engine 5.6 and Blender",
+    mediaCaption: "Routing overview: Conductor selects a connected tool for the target engine or DCC workflow. This is a system diagram, not an application screenshot.",
     problem:
       "No single MCP server covers all of Unreal, and picking the right one per task (and per engine version) by hand is slow and error-prone. One wrong tool call can corrupt a live editor session.",
     approach:
@@ -136,10 +140,27 @@ export const projects: Project[] = [
     result:
       "One command surface over the whole engine: 70+ tools and 23 workflow recipes, turning hours of editor busywork into minutes and driving real day-to-day work.",
   },
+  {
+    id: "frame-lab",
+    title: "Frame Lab",
+    role: "Creator, camera direction systems",
+    year: "2026",
+    summary: "An automatic camera director for Unreal Engine 5.6. Eight fixed cameras follow three walking subjects, checking visibility and facing direction before composing the shot and blending to the next view.",
+    seoDescription: "Frame Lab by Aayush (MrVayn): an Unreal Engine 5.6 camera director with visibility scoring, directional look room, blended handoffs and top-view inspection.",
+    tech: ["Unreal Engine 5.6", "C++", "Blueprints", "Camera Direction", "Data Assets"],
+    links: [{ label: "View project files", href: "https://drive.google.com/drive/folders/1iP8gqE2XRlc6S8H8Acht5J_xFXvm8Xpv?usp=sharing" }],
+    media: "/projects/frame-lab.webp",
+    mediaAlt: "Frame Lab top-view inspection showing eight camera positions, three walking paths and the active camera feed",
+    mediaCaption: "Actual Frame Lab inspection view with camera positions, subject paths, the selected feed and lens details. Character bases and walking animation are adapted from Quaternius CC0 assets.",
+    problem: "Choose a clear, front-facing view of a moving subject without moving the camera anchors. Obstacles, changing face angles and other walkers can make a previously good view unsuitable.",
+    approach: "Built visibility and facing checks in C++, with a Blueprint scoring policy for eligible cameras and a Data Asset for 27 global tuning parameters. Directional look room adjusts composition, while fixed-view image dissolves preserve continuity between camera selections. A top-down inspection mode exposes the active feed, lens details and candidate scores.",
+    result: "A prepared Unreal Engine 5.6 project and packaged Windows application with three animated subjects, eight fixed cameras, subject switching and a live inspection view. The same director and settings work in editor preview and at runtime.",
+  },
   { id: "ai-therapist", title: "Virtual AI Therapist", role: "Developer", year: "2023", summary: "A conversational AI prototype combining real-time dialogue, sentiment analysis and retrieval-augmented responses.", media: "/showreel/ai-therapist.webp", tech: ["AI", "LangChain", "RAG", "Prototype"], links: [{ label: "View", href: "https://drive.google.com/file/d/1WV2xYvS9aCd0mrpUbshdrsm8rcOFGNf8/view?usp=drive_link" }] },
   { id: "unreal-horror", title: "Unreal Horror Game", role: "Developer", year: "2023", summary: "An atmospheric horror prototype in Unreal Engine 5.", tech: ["Unreal Engine 5", "Horror"], archive: true, links: [{ label: "Watch", href: "https://drive.google.com/file/d/1X1QuGVAsIcP6mcX-Q5LFw_Sr0XxBt8Xb/view?usp=sharing" }] },
   {
     id: "multiplayer-tba",
+    seoDescription: "SAO-X, Aayush (MrVayn)'s multiplayer action RPG in Unreal Engine: GAS combat, dedicated servers, inventory, trading and persistent player data.",
     title: "SAO-X · Skill Art Online",
     displayTitle: "SAO-X",
     role: "Solo build, personal",
@@ -173,6 +194,7 @@ export const projects: Project[] = [
   },
   {
     id: "magviz",
+    seoDescription: "MagViz by Aayush (MrVayn): a commercial Unreal Engine architectural visualization app with apartment pricing, floor isolation and real-time lighting.",
     title: "MagViz",
     role: "Creator, Vayn Studios (commercial)",
     year: "2026",
@@ -211,6 +233,7 @@ export const projects: Project[] = [
   { id: "glazer-site", title: "Glazer Games Website", role: "Web Developer", year: "2023", summary: "Production website for Glazer Games.", tech: ["Web", "Frontend"], archive: true, links: [{ label: "Visit", href: "https://www.glazer.games" }], media: "/projects/glazer-site.webp" },
   {
     id: "grannyspot",
+    seoDescription: "Grannyspot, a full-stack e-commerce build by Aayush (MrVayn), with Next.js, product catalog, Razorpay checkout and a role-secured admin panel.",
     title: "Grannyspot",
     role: "Full-stack, Solo build",
     year: "2025",
@@ -231,6 +254,7 @@ export const projects: Project[] = [
   },
   {
     id: "couragely",
+    seoDescription: "Couragely, a solo Roblox horror game by Aayush (MrVayn), built in seven days with Luau and refined through live-ops tuning.",
     title: "Couragely",
     role: "Solo build, Roblox horror",
     year: "2025",
@@ -250,11 +274,25 @@ export const projects: Project[] = [
   },
 ];
 
-export const featuredProjects = projects.filter((p) => p.featured);
+const selectedOrder = ["antarya", "multiplayer-tba", "magviz", "cricket-broadcast"];
+export const featuredProjects = projects.filter((p) => p.featured).sort((a, b) => {
+  const rank = (id: string) => selectedOrder.includes(id) ? selectedOrder.indexOf(id) : selectedOrder.length;
+  return rank(a.id) - rank(b.id);
+});
 export const otherProjects = projects.filter((p) => !p.featured);
+export const hasCaseStudy = (project: Project) => Boolean(project.problem && project.approach && project.result);
+export const caseStudyProjects = projects.filter(hasCaseStudy);
+export const projectPath = (project: Project) => `/work/${project.id}`;
 
 export const projectUi = {
   viewProject: "View project",
+  readCaseStudy: "Read case study",
+  backToWork: "Back to selected work",
+  portfolio: "Portfolio",
+  problem: "The problem",
+  approach: "The approach",
+  result: "The result",
+  techStack: "Built with",
   playPreview: "Play preview",
   previewUnavailable: "Preview unavailable. Open the full project using the link below.",
 } as const;

@@ -1,4 +1,4 @@
-# mrvayn.live design system (v6.8, portrait scroll choreography)
+# mrvayn.live design system (v6.9, navigation refinement)
 
 ## Direction
 
@@ -39,8 +39,9 @@ remains on `:root`, because `src/lib/themeColors.ts` reads those properties dire
 Do not replace the root tokens to recolour the page.
 
 The hero letterforms are original paths cast into continuous rounded geometry.
-Inter remains the reading and navigation voice, in sentence case. Barlow Condensed
-500/600 carries project titles, section headings and footer. No font or media assets were added for this hero.
+Inter remains the reading voice and small-control type, in sentence case. Barlow
+Condensed 500/600 carries project titles, section headings, footer and the new
+desktop section index. No font or media assets were added for this hero.
 Three.js is lazy-loaded for its geometry and renderer; Motion drives the response.
 The original Space Grotesk and JetBrains Mono variables remain unchanged for the
 protected canvases.
@@ -54,6 +55,13 @@ Phone workshop items use a readable single-column editorial list. Body copy is 1
 secondary descriptions 13-14px and media captions 12px. Narrow screens use native
 scrolling, including when resizing from desktop. Navigation uses cached section
 positions and exposes its active state to assistive technology.
+
+The v6.9 navigation is a compact masthead: 24px display-type section links, a
+single spring-driven underline, and a separate Contact link with a light circular
+arrow. Hover/focus preview does not change aria-current. A labeled Menu/Close
+toggle opens the phone menu. See `NAV_DIRECTION.md`. The 80px desktop and 64px
+phone navigation rows remain, with a 1px header boundary. Existing section links
+and scroll offsets are preserved.
 
 ## Composition
 
@@ -168,3 +176,5 @@ The v6.7 design was published as `9e31a28`. The owner approved publishing this
 tested v6.8 mobile refinement on 8 September 2026 for physical-phone review.
 Keep the existing GitHub/Vercel hosting workflow. Confirm the release status and
 public domain after publishing; the preview checks are in `MOBILE_VERIFICATION.md`.
+Web3 Development was subsequently published in `924a09f`. The v6.9 navigation is
+a local preview only, not committed or published.

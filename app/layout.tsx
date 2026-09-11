@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono, Barlow_Condensed } from "next/font/google";
-import { socials } from "@/data/socials";
+import { site, identityStructuredData, serializeStructuredData } from "@/data/site";
 import "./globals.css";
 
 // Three voices: Space Grotesk 500/600 (all display type: h1-h3, tiles, stats, wordmark),
@@ -11,10 +11,9 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], weight: ["400"], variable
 // A separate display voice leaves the cinematic font tokens unchanged.
 const headline = Barlow_Condensed({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-headline", display: "swap" });
 
-const SITE = "https://mrvayn.live";
-const TITLE = "MrVayn | Unreal Engine & Full-Stack Developer";
-const DESCRIPTION =
-  "MrVayn builds AAA-caliber game feel in Unreal Engine 5 (gameplay systems, Niagara VFX, multiplayer & netcode) and ships full-stack web apps with Next.js, TypeScript, and Postgres. CTO at a 20-person studio; showcased at IGDC 2025.";
+const SITE = site.url;
+const TITLE = site.title;
+const DESCRIPTION = site.description;
 
 
 export const metadata: Metadata = {
@@ -24,21 +23,7 @@ export const metadata: Metadata = {
     template: "%s | MrVayn",
   },
   description: DESCRIPTION,
-  keywords: [
-    "MrVayn",
-    "Unreal Engine developer",
-    "Unreal Engine 5",
-    "UE5 developer",
-    "Niagara VFX",
-    "multiplayer netcode",
-    "gameplay systems",
-    "game developer portfolio",
-    "full-stack developer",
-    "Next.js developer",
-    "TypeScript",
-    "React",
-  ],
-  authors: [{ name: "MrVayn", url: SITE }],
+  authors: [{ name: "Aayush (MrVayn)", url: SITE }],
   creator: "MrVayn",
   alternates: { canonical: "/" },
   openGraph: {
@@ -71,37 +56,6 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: "MrVayn", statusBarStyle: "black-translucent" },
 };
 
-// Structured data: tells Google who MrVayn is + links his profiles (rich results).
-const structuredData = [
-  {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: "MrVayn",
-    url: SITE,
-    jobTitle: "Unreal Engine & Full-Stack Developer",
-    description: DESCRIPTION,
-    knowsAbout: [
-      "Unreal Engine 5",
-      "Niagara VFX",
-      "Multiplayer & Netcode",
-      "Gameplay Systems",
-      "C++",
-      "Next.js",
-      "TypeScript",
-      "React",
-      "PostgreSQL",
-      "LangChain & RAG",
-    ],
-    sameAs: socials.flatMap((s) => (s.href ? [s.href] : [])),
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "MrVayn",
-    url: SITE,
-  },
-];
-
 export const viewport: Viewport = {
   themeColor: "#07080B",
   colorScheme: "dark",
@@ -121,7 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+          dangerouslySetInnerHTML={{ __html: serializeStructuredData(identityStructuredData) }}
         />
       </body>
     </html>

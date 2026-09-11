@@ -4,7 +4,7 @@ import { editorial } from "@/data/editorial";
 export function Hero() {
   return (
     <section id="hero" className="sculpture-hero" aria-labelledby="hero-heading">
-      <h1 id="hero-heading" className="sr-only">{editorial.heroWordmark}</h1>
+      <h1 id="hero-heading" className="sr-only">{editorial.heroHeading}</h1>
       <div className="sculpture-caption" data-solid>
         <div className="sculpture-identity">
           <p>{editorial.heroSignature}</p>
