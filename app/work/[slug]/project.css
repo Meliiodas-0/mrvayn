@@ -15,6 +15,10 @@
 .case-body h2 { font-family: var(--font-headline), sans-serif; font-size: 30px; font-weight: 500; line-height: 1.25; }
 .case-body p { font-size: 17px; color: rgb(var(--mist)); line-height: 1.85; max-width: 66ch; }
 .case-tech ul { display: flex; flex-wrap: wrap; gap: 12px 24px; color: rgb(var(--volt)); font-size: 16px; line-height: 1.7; }
+.case-features ul { display: grid; gap: 24px; }
+.case-features h3 { font-size: 17px; line-height: 1.5; margin-bottom: 6px; }
+.case-body .case-note { border-top: 1px solid rgb(var(--steel)); padding-top: 24px; font-size: 14px; color: rgb(var(--volt)); }
+.case-inquiry { margin-top: 24px; }
 .case-footer { padding-block: 30px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid rgb(var(--steel)); }
 .case-footer > span { font-size: 14px; color: rgb(var(--volt)); }
 .case-page :is(a, button, video):focus-visible { outline: 2px solid rgb(var(--surge)); outline-offset: 6px; }

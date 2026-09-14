@@ -203,11 +203,22 @@ function DetailPanel({ project, onClose }: { project: Project; onClose: () => vo
           </dl>
         )}
 
+        {project.features && <div className="mt-6 border-t border-steel pt-5">
+          <h4 className="font-display text-lg text-bone">{projectUi.features}</h4>
+          <dl className="mt-4 space-y-4">{project.features.map(feature => <div key={feature.title}>
+            <dt className="text-sm font-medium text-bone">{feature.title}</dt>
+            <dd className="mt-1 text-sm leading-relaxed text-mist">{feature.description}</dd>
+          </div>)}</dl>
+        </div>}
+
         <div className="mt-6 flex flex-wrap gap-1.5">
           {project.tech.map((t) => (
             <Tag key={t}>{t}</Tag>
           ))}
         </div>
+
+        {project.note && <p className="mt-5 border-t border-steel pt-4 text-sm leading-relaxed text-volt">{project.note}</p>}
+        {project.callToAction && <a className="folio-link mt-4" href={project.callToAction.href} onClick={onClose}>{project.callToAction.label}<ArrowUpRight aria-hidden size={18} /></a>}
 
         {project.locked && (
           <div className="mt-6 flex flex-wrap gap-3">

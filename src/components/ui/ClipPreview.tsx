@@ -6,13 +6,16 @@ import { projectUi } from "@/data/projects";
 
 /** On-demand media shared by the selected cards and case studies. No MP4 request
  * before a visitor presses Play. Only one preview can play at a time. */
-export function ClipPreview({ src, poster, title, label = projectUi.playPreview, posterAlt, describedBy }: {
+export function ClipPreview({ src, poster, title, label = projectUi.playPreview, posterAlt, describedBy, startMuted = true, videoLabel, captions }: {
   src: string;
   poster?: string;
   title: string;
   label?: string;
   posterAlt?: string;
   describedBy?: string;
+  startMuted?: boolean;
+  videoLabel?: string;
+  captions?: { src: string; label: string; language: string };
 }) {
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -49,24 +52,26 @@ export function ClipPreview({ src, poster, title, label = projectUi.playPreview,
   return (
     <div className="relative aspect-video w-full overflow-hidden bg-void">
       {playing ? (
-        // Existing previews contain no speech; adjacent captions describe the action.
+        // Silent previews use adjacent descriptions. Full films may provide timed captions.
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <video
           ref={videoRef}
           src={src}
           poster={poster}
-          aria-label={`${title} preview`}
+          aria-label={videoLabel ?? `${title} preview`}
           aria-describedby={describedBy}
           tabIndex={0}
           controls
           autoPlay
-          muted
+          muted={startMuted}
           playsInline
           preload="none"
           onPlay={(event) => document.dispatchEvent(new CustomEvent("portfolio:preview-play", { detail: event.currentTarget }))}
           onError={() => setFailed(true)}
           className="h-full w-full object-contain"
-        />
+        >
+          {captions && <track kind="captions" src={captions.src} srcLang={captions.language} label={captions.label} />}
+        </video>
       ) : (
         <button onClick={() => setPlaying(true)} aria-label={`${label}: ${title}`} className="group relative block h-full w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}

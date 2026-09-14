@@ -39,6 +39,6 @@ export const reelFrames: ReelFrame[] = REEL.map(({ id, tag, project }) => {
     tag,
     year: p.year,
     href: p.links[0]?.href ?? "#work",
-    img: id === "cricket-broadcast" && p.media ? p.media : `/showreel/${id}.webp`,
+    img: (id === "cricket-broadcast" || id === "magviz") && p.media ? p.media : `/showreel/${id}.webp`,
   };
 });

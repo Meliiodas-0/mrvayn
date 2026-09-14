@@ -32,7 +32,10 @@ export async function generateMetadata({ params }: Props, parent: ResolvingMetad
 export default function ProjectPage({ params }: Props) {
   const project = caseStudyProjects.find(item => item.id === params.slug);
   if (!project) notFound();
-  const caption = project.mediaCaption ?? project.selection?.caption;
+  const film = project.fullFilm;
+  const clip = film?.src ?? project.clip;
+  const caption = film?.caption ?? project.mediaCaption ?? project.selection?.caption;
+  const outwardLinks = project.links.filter(link => !film || link.href !== `${projectPath(project)}#full-tour`);
   const alt = project.mediaAlt ?? project.selection?.posterAlt ?? `${project.title} preview`;
   const url = `${site.url}${projectPath(project)}`;
   const structuredData = {
@@ -77,9 +80,9 @@ export default function ProjectPage({ params }: Props) {
             <p className="case-intro">{project.summary}</p>
           </header>
           {project.media && (
-            <figure className="case-media" data-solid>
-              {project.clip ? (
-                <ClipPreview src={project.clip} poster={project.media} title={project.title} label={project.selection?.previewLabel} posterAlt={alt} describedBy={caption ? "case-caption" : undefined} />
+            <figure className="case-media" id={film ? "full-tour" : undefined} data-solid>
+              {clip ? (
+                <ClipPreview src={clip} poster={project.media} title={project.title} label={film?.label ?? project.selection?.previewLabel} posterAlt={alt} describedBy={caption ? "case-caption" : undefined} startMuted={!film} videoLabel={film ? `${project.title} full tour` : undefined} captions={film?.captions} />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={project.media} alt={alt} width={1440} height={810} fetchPriority="high" />
@@ -87,14 +90,19 @@ export default function ProjectPage({ params }: Props) {
               {caption && <figcaption id="case-caption">{caption}</figcaption>}
             </figure>
           )}
-          {project.links.length > 0 && <div className="case-links" data-solid>{project.links.map(link => (
+          {outwardLinks.length > 0 && <div className="case-links" data-solid>{outwardLinks.map(link => (
             <a className="folio-link" key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}<ArrowUpRight aria-hidden size={18} /></a>
           ))}</div>}
           <div className="case-body" data-solid>
             {[[projectUi.problem, project.problem], [projectUi.approach, project.approach], [projectUi.result, project.result]].map(([label, value]) => (
               <section key={label}><h2>{label}</h2><p>{value}</p></section>
             ))}
+            {project.features && <section className="case-features"><h2>{projectUi.features}</h2><ul>{project.features.map(feature => (
+              <li key={feature.title}><h3>{feature.title}</h3><p>{feature.description}</p></li>
+            ))}</ul></section>}
             <section className="case-tech"><h2>{projectUi.techStack}</h2><ul>{project.tech.map(tech => <li key={tech}>{tech}</li>)}</ul></section>
+            {project.note && <p className="case-note">{project.note}</p>}
+            {project.callToAction && <a className="folio-link case-inquiry" href={project.callToAction.href}>{project.callToAction.label}<ArrowUpRight aria-hidden size={18} /></a>}
           </div>
         </article>
       </main>

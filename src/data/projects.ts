@@ -28,6 +28,16 @@ export interface Project {
   seoDescription?: string;
   /** Optional local video clip (under /public), plays in the detail panel. */
   clip?: string;
+  /** Optional full film, loaded only after an explicit play action. */
+  fullFilm?: {
+    src: string;
+    label: string;
+    caption: string;
+    captions: { src: string; label: string; language: string };
+  };
+  features?: { title: string; description: string }[];
+  note?: string;
+  callToAction?: ProjectLink;
   /** Editorial details for the selected-work presentations. */
   selection?: {
     category: string;
@@ -194,36 +204,52 @@ export const projects: Project[] = [
   },
   {
     id: "magviz",
-    seoDescription: "MagViz by Aayush (MrVayn): a commercial Unreal Engine architectural visualization app with apartment pricing, floor isolation and real-time lighting.",
+    seoDescription: "MagViz by Aayush (MrVayn): interactive Unreal Engine architecture with location hotspots, unit filters, 3D floor plans and furnished walkthroughs.",
     title: "MagViz",
     role: "Creator, Vayn Studios (commercial)",
     year: "2026",
     summary:
-      "An architect's CAD model becomes an interactive sales experience. Explore the building, check apartment pricing and availability, isolate floors, and change finishes or daylight in a standalone offline app.",
-    tech: ["Unreal Engine 5.8", "C++", "Datasmith / FBX", "Lumen GI", "UMG", "Windows Build"],
-    links: [{ label: "Watch full video", href: "https://drive.google.com/file/d/1bimzCoh5DpLQ7v1hIzspsM90RO6XA6IX/view?usp=drive_link" }],
+      "Turn an architectural model into a project clients and investors can explore. MagViz connects location hotspots, unit availability, size and budget filters, 3D floor plans and furnished walkthroughs for builders, developers and architects.",
+    tech: ["Unreal Engine 5.8", "C++", "Interactive ArchViz", "Inventory Integration", "Blueprints", "UMG"],
+    links: [{ label: "Watch full tour / 1:52", href: "/work/magviz#full-tour" }],
     badge: "SHIPPED",
     featured: true,
     shipped: true,
-    media: "/projects/magviz.webp", // hero still: dusk aerial with the live tool UI (own capture)
-    clip: "/projects/magviz-sections.mp4", // ~11s: green unit/section blocks, floor-isolation cut, night-to-dawn weather sweep
+    media: "/projects/magviz/v9/poster.webp",
+    clip: "/projects/magviz/v9/preview-20s.mp4",
+    fullFilm: {
+      src: "/projects/magviz/v9/showcase-1080p.mp4",
+      label: "Play full tour / 1:52",
+      caption: "FiveStar, the example project inside MagViz. The 1:52 tour follows location hotspots, unit selection, 3D plans and furnished interiors, then daylight, weather and presentation tools. Includes music and UI sound effects; scene-description captions are available in the player.",
+      captions: { src: "/projects/magviz/v9/showcase-captions.vtt", label: "Scene descriptions (English)", language: "en" },
+    },
     selection: {
-      category: "Commercial real-time architecture",
-      previewLabel: "Play 11s preview",
-      caption: "The working sales tool: unit and section views, floor isolation, and a night-to-dawn lighting sweep. Captured directly from the app.",
-      posterAlt: "MagViz, a coastal apartment development with interactive pricing, section and lighting controls",
+      category: "Interactive architecture / Unreal Engine",
+      previewLabel: "Play 20s preview",
+      caption: "Reserved, Sold, Available. Filter by size and budget, select a unit, explore its 3D plan, then step inside. Silent 20s preview; the full tour includes sound.",
+      posterAlt: "MagViz's FiveStar example project, showing a furnished waterfront building, pool and landscaped site",
       facts: [
-        { value: "Shipped", label: "Commercial release" },
-        { value: "Offline", label: "Standalone app" },
-        { value: "Lumen", label: "Real-time lighting" },
+        { value: "140", label: "Demo units" },
+        { value: "5", label: "Location hotspots" },
+        { value: "3", label: "Authored suite types" },
       ],
     },
     problem:
-      "Selling an unbuilt development off static renders and a PDF price list is flat: buyers can't explore the building, see what's still available, or picture it at a different time of day.",
+      "Static renders and separate unit lists leave clients to connect the architecture with what is available. Builders, developers and architects need a presentation that moves naturally from the whole development to a particular unit and its interior.",
     approach:
-      "A real-time UE 5.8 + C++ app: Datasmith/FBX ingest of the architect's model, dynamic Lumen GI, and a UMG layer for fly-through/walk, clickable per-unit pricing and availability, section cuts, finish swaps, and time-of-day, packaged as a standalone Windows build that runs offline.",
+      "Built a connected Unreal Engine 5.8 and C++ experience with location hotspots, combined category, area and budget filters, selected-unit information, 3D floor plans and furnished walkthroughs. Daylight, weather and saved views support presentations. An authenticated HTTPS inventory connector reads project information, with a cached offline fallback and a separate management dashboard.",
     result:
-      "An interactive sales tool a developer can hand a buyer on a laptop with no internet, sold commercially through Vayn Studios.",
+      "MagViz brings the building, its spaces and unit information into one interactive presentation. FiveStar demonstrates 140 demo units, five location hotspots and three authored suite types, taking a client from exploring the site to inspecting a unit and walking through its furnished interior.",
+    features: [
+      { title: "Explore the site", description: "Use five location hotspots or free-camera exploration to guide a presentation around the example development." },
+      { title: "Find the right unit", description: "Compare Available, Reserved and Sold states, then combine category, area and budget filters." },
+      { title: "From plan to room", description: "Keep the selected unit in context as you open its 3D floor plan and enter a furnished walkthrough. Interiors are authored, with three suite types." },
+      { title: "Change the atmosphere", description: "Explore the project with adjustable daylight and weather presets." },
+      { title: "Prepare a presentation", description: "Save viewpoints, use location shortcuts and capture high-resolution photos." },
+      { title: "Connect project information", description: "Read inventory through an authenticated HTTPS connector, with cached data available as an offline fallback." },
+    ],
+    note: "FiveStar is an example architectural project with demonstration inventory, not a verified live sales inventory. The film is an edited presentation of the application, not an uncut screen recording.",
+    callToAction: { label: "Have a building to present? Let's talk.", href: "/#contact" },
   },
   { id: "sasta-minecraft", title: "Sasta Minecraft", role: "Developer", year: "2023", summary: "A voxel sandbox experiment.", tech: ["Unreal Engine 5", "Systems"], archive: true, links: [{ label: "Watch", href: "https://drive.google.com/file/d/1BkugwIClcTx4aLtK-34aaelw40YbYxDk/view?usp=drive_link" }] },
   { id: "env-design-2", title: "Environment Design", role: "Environment Artist", year: "2023", summary: "Real-time UE5 environment art: two pieces built under tight deadlines.", tech: ["Unreal Engine 5", "Environment"], archive: true, links: [{ label: "View 2.0", href: "https://drive.google.com/file/d/1hwlbVTwMOzlgakO_T6ooHetDxh7mE4JC/view?usp=drive_link" }, { label: "View 1.0", href: "https://drive.google.com/file/d/1Io3zeGNmbGLYUTxSnldVEFKCwFcjmO5p/view?usp=drive_link" }] },
@@ -293,6 +319,7 @@ export const projectUi = {
   approach: "The approach",
   result: "The result",
   techStack: "Built with",
+  features: "Inside the project",
   playPreview: "Play preview",
   previewUnavailable: "Preview unavailable. Open the full project using the link below.",
 } as const;
