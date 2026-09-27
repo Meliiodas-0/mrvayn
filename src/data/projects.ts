@@ -2,6 +2,8 @@
 // TODO(MrVayn): add media (trailer/gif/thumbnail) per project, fill the
 // problem/approach/result case-study fields, and confirm years/tech tags.
 
+import { systemsProjects } from "./systemsProjects";
+
 export interface ProjectLink {
   label: string;
   href: string;
@@ -22,6 +24,9 @@ export interface Project {
   shipped?: boolean;
   /** Path under /public, TODO(MrVayn): replace placeholder media. */
   media?: string;
+  mediaWidth?: number;
+  mediaHeight?: number;
+  gallery?: { src: string; alt: string; caption: string; width: number; height: number }[];
   mediaAlt?: string;
   mediaCaption?: string;
   /** Concise, factual description for this project's search result. */
@@ -33,7 +38,7 @@ export interface Project {
     src: string;
     label: string;
     caption: string;
-    captions: { src: string; label: string; language: string };
+    captions?: { src: string; label: string; language: string };
   };
   features?: { title: string; description: string }[];
   note?: string;
@@ -66,6 +71,7 @@ export interface Project {
 }
 
 export const projects: Project[] = [
+  ...systemsProjects,
   {
     id: "cricket-broadcast",
     title: "Broadcast & Camera Systems",
@@ -211,22 +217,22 @@ export const projects: Project[] = [
     summary:
       "Turn an architectural model into a project clients and investors can explore. MagViz connects location hotspots, unit availability, size and budget filters, 3D floor plans and furnished walkthroughs for builders, developers and architects.",
     tech: ["Unreal Engine 5.8", "C++", "Interactive ArchViz", "Inventory Integration", "Blueprints", "UMG"],
-    links: [{ label: "Watch full tour / 1:52", href: "/work/magviz#full-tour" }],
+    links: [{ label: "Watch full tour / 1:59", href: "/work/magviz#full-tour" }],
     badge: "SHIPPED",
     featured: true,
     shipped: true,
-    media: "/projects/magviz/v9/poster.webp",
-    clip: "/projects/magviz/v9/preview-20s.mp4",
+    media: "/projects/magviz/v14/poster.jpg",
+    clip: "/projects/magviz/v14/preview-40s.mp4",
     fullFilm: {
-      src: "/projects/magviz/v9/showcase-1080p.mp4",
-      label: "Play full tour / 1:52",
-      caption: "FiveStar, the example project inside MagViz. The 1:52 tour follows location hotspots, unit selection, 3D plans and furnished interiors, then daylight, weather and presentation tools. Includes music and UI sound effects; scene-description captions are available in the player.",
-      captions: { src: "/projects/magviz/v9/showcase-captions.vtt", label: "Scene descriptions (English)", language: "en" },
+      src: "/projects/magviz/v14/showcase-1080p.mp4",
+      label: "Play full tour / 1:59",
+      caption: "FiveStar, the example project inside MagViz. The complete 1:59 tour follows hotspots, normal-speed status and filter steps, 3D plans and a continuous B-400 walkthrough, plus Junior and Presidential suites, daylight, weather and presentation tools. Includes music, UI sound effects and updated scene-description captions.",
+      captions: { src: "/projects/magviz/v14/showcase-captions.vtt", label: "Scene descriptions (English)", language: "en" },
     },
     selection: {
       category: "Interactive architecture / Unreal Engine",
-      previewLabel: "Play 20s preview",
-      caption: "Reserved, Sold, Available. Filter by size and budget, select a unit, explore its 3D plan, then step inside. Silent 20s preview; the full tour includes sound.",
+      previewLabel: "Play 40s preview",
+      caption: "Reserved, Sold, Available. Filter by size and budget, select a unit, explore its 3D plan, then follow a continuous B-400 interior walkthrough. Complete silent 40s preview; the full 1:59 tour includes sound.",
       posterAlt: "MagViz's FiveStar example project, showing a furnished waterfront building, pool and landscaped site",
       facts: [
         { value: "140", label: "Demo units" },
@@ -300,7 +306,7 @@ export const projects: Project[] = [
   },
 ];
 
-const selectedOrder = ["antarya", "multiplayer-tba", "magviz", "cricket-broadcast"];
+const selectedOrder = ["antarya", "multiplayer-tba", "magviz", "cricket-broadcast", "weave-runtime", "studio-relay"];
 export const featuredProjects = projects.filter((p) => p.featured).sort((a, b) => {
   const rank = (id: string) => selectedOrder.includes(id) ? selectedOrder.indexOf(id) : selectedOrder.length;
   return rank(a.id) - rank(b.id);

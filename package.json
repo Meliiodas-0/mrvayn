@@ -3,6 +3,7 @@
   "private": true,
   "version": "2.0.0",
   "scripts": {
+    "prebuild": "node scripts/prepare-media.mjs",
     "dev": "next dev -p 4550",
     "build": "next build",
     "start": "next start -p 8080",

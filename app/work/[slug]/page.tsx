@@ -69,7 +69,7 @@ export default function ProjectPage({ params }: Props) {
       <StickCursor />
       <a href="#case-content" className="case-skip">Skip to content</a>
       <header className="case-masthead" data-solid>
-        <a className="case-brand" href="/#hero" aria-label={`${site.name}, home`}>{site.name}</a>
+        <div className="nav-identity"><a className="case-brand" href="/#hero" aria-label={`${site.name}, home`}>{site.name}</a><span id="cursor-control-slot" /></div>
         <a className="quiet-link" href="/#work"><ArrowLeft aria-hidden size={18} />{projectUi.backToWork}</a>
       </header>
       <main id="case-content">
@@ -100,6 +100,11 @@ export default function ProjectPage({ params }: Props) {
             {project.features && <section className="case-features"><h2>{projectUi.features}</h2><ul>{project.features.map(feature => (
               <li key={feature.title}><h3>{feature.title}</h3><p>{feature.description}</p></li>
             ))}</ul></section>}
+            {project.gallery && <section><h2>Project captures</h2>{project.gallery.map(item => <figure key={item.src} className="my-8">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" className="h-auto w-full" />
+              <figcaption className="mt-3 text-sm leading-relaxed text-volt">{item.caption}</figcaption>
+            </figure>)}</section>}
             <section className="case-tech"><h2>{projectUi.techStack}</h2><ul>{project.tech.map(tech => <li key={tech}>{tech}</li>)}</ul></section>
             {project.note && <p className="case-note">{project.note}</p>}
             {project.callToAction && <a className="folio-link case-inquiry" href={project.callToAction.href}>{project.callToAction.label}<ArrowUpRight aria-hidden size={18} /></a>}

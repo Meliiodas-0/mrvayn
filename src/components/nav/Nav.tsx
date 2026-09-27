@@ -102,9 +102,9 @@ export function Nav() {
         className="portfolio-theme folio-nav fixed inset-x-0 top-0 z-nav"
       >
         <nav className="mv-col nav-masthead" aria-label="Primary">
-          <a href="#hero" className="nav-home" aria-label="MrVayn, home" onClick={() => setOpen(false)}>
+          <div className="nav-identity"><a href="#hero" className="nav-home" aria-label="MrVayn, home" onClick={() => setOpen(false)}>
             <span className="nav-wordmark" aria-hidden>mv.</span>
-          </a>
+          </a><span id="cursor-control-slot" /></div>
 
           <div className="nav-desktop">
             <SectionIndex active={active} />

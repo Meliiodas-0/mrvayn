@@ -22,7 +22,7 @@ export function SelectedProject({ project, onSelect }: { project: Project; onSel
         ) : (
           <ProjectEntryLink project={project} onSelect={onSelect} label={`${details.previewLabel}: ${project.title}`} className="print-image-button">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={project.media} alt={details.posterAlt} width={1280} height={720} loading="lazy" />
+            <img src={project.media} alt={details.posterAlt} width={project.mediaWidth ?? 1280} height={project.mediaHeight ?? 720} loading="lazy" />
             <span className="image-open" aria-hidden><ArrowUpRight size={25} /></span>
           </ProjectEntryLink>
         )}
@@ -34,6 +34,7 @@ export function SelectedProject({ project, onSelect }: { project: Project; onSel
         <div className="project-actions">
           <ProjectEntryLink project={project} className="folio-link" onSelect={onSelect} label={`${projectUi.viewProject}: ${project.title}`}>{projectUi.viewProject}<ArrowUpRight aria-hidden size={18} /></ProjectEntryLink>
           {primary && <a className="quiet-link" href={primary.href} target="_blank" rel="noopener noreferrer">{primary.label}</a>}
+          {project.fullFilm && !primary && <a className="quiet-link" href={`/work/${project.id}#full-tour`}>{project.fullFilm.label}</a>}
         </div>
       </div>
     </article>

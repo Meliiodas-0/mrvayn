@@ -32,6 +32,22 @@
    (a div with cursor-pointer) keeps its hand. */
 html[data-stick] :is(a, button, [role="button"], video, summary) { cursor: none; }
 
+/* A desktop score tucked into existing chrome, never laid over portfolio media. */
+.nav-identity { display: flex; align-items: center; gap: 22px; }
+.cursor-console { display: flex; align-items: center; gap: 12px; }
+.cursor-effects-toggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; min-height: 44px; padding: 0; border: 0; background: transparent; color: #ADB6C2; touch-action: manipulation; }
+.cursor-effects-toggle:hover { color: #EFF2F6; }
+.cursor-effects-toggle:focus-visible { outline: 2px solid #CD8B93; outline-offset: 2px; border-radius: 4px; }
+.cursor-effects-toggle[aria-pressed="false"] { color: #7D8795; }
+.cursor-score { display: flex; align-items: center; gap: 22px; padding-left: 18px; border-left: 1px solid #2D333D; font-family: var(--font-inter), sans-serif; white-space: nowrap; }
+.cursor-score > span { display: grid; justify-items: start; gap: 3px; }
+.cursor-score small { color: #ADB6C2; font-size: 11px; font-weight: 400; line-height: 1.2; }
+.cursor-score b { min-width: 3ch; color: #EFF2F6; font-family: var(--font-headline), sans-serif; font-size: 25px; line-height: 1; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: .015em; }
+.cursor-score .cursor-best b { color: #ADB6C2; font-size: 22px; }
+html[data-modal] .cursor-console { visibility: hidden; }
+@media (max-width: 1100px) { .cursor-score .cursor-best { display: none; } .nav-identity { gap: 10px; } }
+@media (max-width: 1023px), (pointer: coarse), (prefers-reduced-motion: reduce) { .cursor-console { display: none; } }
+
 /* Load reveal (modal panel), PURE CSS so content can never be left hidden: the base
    state is visible and the keyframe only ever animates TOWARD it. */
 .mv-reveal { opacity: 1; }
@@ -292,7 +308,7 @@ html[data-modal] .mv-marquee { animation-play-state: paused; }
 @layer utilities {
   /* The one content column: nav row, sections, ticker and footer all sit on it. */
   .mv-col {
-    width: min(1440px, 100% - clamp(32px, 6vw, 128px));
+    width: var(--folio-width, min(1440px, 100% - clamp(32px, 6vw, 128px)));
     margin-inline: auto;
   }
   /* Branded fallback when a media thumbnail cannot load. */
@@ -393,7 +409,7 @@ html { color-scheme: dark; }
 .folio-link:hover svg { transform: translate(2px, -2px); }
 .folio-section { padding-block: clamp(80px, 8vw, 132px); scroll-margin-top: 76px; }
 .folio-section-alt { background: transparent; }
-.folio-section:not(#work)::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: min(1440px, 100% - clamp(32px, 6vw, 128px)); height: 1px; background: rgb(var(--steel) / .6); pointer-events: none; }
+.folio-section:not(#work)::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: var(--folio-width, min(1440px, 100% - clamp(32px, 6vw, 128px))); height: 1px; background: rgb(var(--steel) / .6); pointer-events: none; }
 .section-heading { margin-bottom: 52px; }
 .section-heading h2, .workshop-heading h3 { font-family: var(--font-headline), sans-serif; font-weight: 500; font-size: clamp(48px, 6vw, 88px); line-height: 1; letter-spacing: -.015em; }
 #work { padding-top: 70px; }
@@ -419,6 +435,7 @@ html { color-scheme: dark; }
 .selected-spreads { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 6%; row-gap: 110px; margin-top: 60px; }
 .selected-print { scroll-margin-top: 110px; min-width: 0; }
 .selected-print-antarya { grid-column: span 7; }
+.selected-print-weave-runtime, .selected-print-studio-relay { grid-column: span 6; width: 100%; max-width: 960px; justify-self: center; }
 .selected-print-multiplayer-tba { grid-column: span 5; padding-top: 150px; }
 .print-heading { margin-bottom: 22px; }
 .print-heading h3 { font-family: var(--font-headline), sans-serif; font-size: clamp(58px, 6.5vw, 96px); font-weight: 500; line-height: .98; letter-spacing: -.015em; }
@@ -569,6 +586,55 @@ html { color-scheme: dark; }
 .footer-bottom a { display: inline-flex; min-height: 44px; gap: 18px; align-items: center; }
 .footer-bottom { padding-bottom: env(safe-area-inset-bottom); }
 .portfolio-theme :is(a, button, summary, video) { scroll-margin-block: 104px 24px; }
+/* Large displays get an image-led gallery frame, not longer reading lines.
+   Below 1600px the established laptop and phone layouts remain unchanged. */
+@media (min-width: 1600px) {
+  :root { --folio-width: min(3200px, 90vw); }
+  .portfolio-theme {
+    --wide-body: clamp(15px, calc(10px + .3125vw), 22px);
+    --wide-small: clamp(13px, calc(8px + .3125vw), 20px);
+  }
+  .sculpture-caption { inset-inline: max(5vw, calc((100% - 3200px) / 2)); bottom: clamp(30px, 2vw, 72px); }
+  .sculpture-identity, .sculpture-work-link { font-size: var(--wide-small); }
+  .folio-nav nav { min-height: clamp(80px, 4.5vw, 128px); }
+  .nav-index-link { font-size: clamp(24px, 1.35vw, 40px); padding-inline: clamp(18px, 1.2vw, 42px); }
+  .nav-contact { font-size: var(--wide-small); }
+  .nav-wordmark { font-size: clamp(40px, 2.2vw, 68px); }
+  .cursor-score small { font-size: clamp(11px, .65vw, 18px); }
+  .cursor-score b { font-size: clamp(25px, 1.45vw, 44px); }
+  .cursor-score .cursor-best b { font-size: clamp(22px, 1.25vw, 38px); }
+  .folio-section { padding-block: clamp(132px, 7vw, 240px); scroll-margin-top: 140px; }
+  .section-heading h2 { font-size: clamp(88px, 5vw, 160px); }
+  .work-intro { font-size: var(--wide-body); margin-bottom: clamp(70px, 4vw, 140px); }
+  .selected-spreads { column-gap: 5%; row-gap: clamp(110px, 6vw, 220px); }
+  .selected-print { scroll-margin-top: 150px; }
+  .selected-print-multiplayer-tba { padding-top: clamp(150px, 9vw, 300px); }
+  .print-heading h3 { font-size: clamp(96px, 5.5vw, 176px); }
+  .selected-print-cricket-broadcast .print-heading h3 { font-size: clamp(60px, 3.5vw, 120px); }
+  .selected-print-magviz { grid-template-columns: 1.55fr 1fr; column-gap: 6%; }
+  .selected-print-magviz, .selected-print-cricket-broadcast { grid-template-rows: auto 1fr; }
+  .project-summary, .about-copy, .workshop-summary, .career-summary,
+  .skill-row p, .contact-body { font-size: var(--wide-body); max-width: 62ch; }
+  .project-category, .project-role, .project-tools, .media-caption,
+  .workshop-meta, .career-year, .career-org, .folio-link, .quiet-link,
+  .workshop-heading > span, .about-copy ul, .education-notes > p,
+  .education-notes h3, .education-notes li, .contact-channels a,
+  .contact-intro > p, .contact-channels h3, .footer-bottom { font-size: var(--wide-small); }
+  .project-actions { margin-top: clamp(22px, 1.5vw, 50px); }
+  .print-heading { margin-bottom: clamp(22px, 1.6vw, 56px); }
+  .print-notes { margin-top: clamp(22px, 1.5vw, 48px); }
+  .workshop-heading { margin-top: clamp(110px, 6vw, 220px); }
+  .workshop-heading h3 { font-size: clamp(54px, 3vw, 100px); }
+  .workshop-grid { gap: clamp(48px, 3vw, 96px); }
+  .workshop-title h3, .career-list h3 { font-size: clamp(32px, 1.8vw, 60px); }
+  .about-thesis { font-size: clamp(72px, 4.5vw, 144px); }
+  .skill-row { padding-block: clamp(30px, 2vw, 64px); }
+  .skill-row h3 { font-size: clamp(34px, 2vw, 68px); }
+  .career-list li { grid-template-columns: clamp(110px, 7vw, 240px) 1fr; padding-block: clamp(28px, 2vw, 64px); }
+  .contact-intro h2 { font-size: clamp(180px, 10vw, 320px); }
+  .contact-email { font-size: clamp(32px, 1.8vw, 60px); }
+  .footer-wordmark { font-size: clamp(375px, 24vw, 820px); }
+}
 @media (max-width: 1023.98px) {
   .selected-spreads { column-gap: 5%; }
   .selected-print-multiplayer-tba { padding-top: 150px; }
@@ -672,3 +738,7 @@ html { color-scheme: dark; }
   .portfolio-theme *, .portfolio-theme *::before, .portfolio-theme *::after { scroll-behavior: auto; animation: none !important; transition: none !important; }
   .portfolio-theme .folio-link:hover svg, .portfolio-theme .print-image-button:hover .image-open, .portfolio-theme .workshop-project:hover img { transform: none; }
 }
+
+/* Paired systems demos: quiet titles and bounded, uncropped video frames. */
+.selected-print-weave-runtime .print-heading h3,
+.selected-print-studio-relay .print-heading h3 { font-size: clamp(42px, 3.5vw, 80px); }

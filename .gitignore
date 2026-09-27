@@ -19,6 +19,9 @@ next-env.d.ts
 *.tsbuildinfo
 .vercel
 
+# Exact full-quality film reconstructed from versioned binary parts before build.
+/public/projects/magviz/v14/showcase-1080p.mp4
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
