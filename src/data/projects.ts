@@ -166,7 +166,6 @@ export const projects: Project[] = [
     tech: ["Unreal Engine 5.6", "C++", "Blueprints", "Camera Direction", "Data Assets"],
     links: [
       { label: "Watch showcase", href: "/work/frame-lab#full-tour" },
-      { label: "View project files", href: "https://drive.google.com/drive/folders/1iP8gqE2XRlc6S8H8Acht5J_xFXvm8Xpv?usp=sharing" },
     ],
     clip: "/projects/frame-lab/v1/preview-12s.mp4",
     fullFilm: {

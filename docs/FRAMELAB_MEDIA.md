@@ -1,8 +1,8 @@
 # Frame Lab showcase
 
 Published media lives in `public/projects/frame-lab/v1/`. The project data connects
-the portfolio preview to the full film at `/work/frame-lab#full-tour`. The Drive
-folder remains available separately as **View project files**.
+the portfolio preview to the full film at `/work/frame-lab#full-tour`. The public
+page and project dialog link to the showcase only.
 
 ## Capture and edit
 
