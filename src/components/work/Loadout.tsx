@@ -25,7 +25,7 @@ export function Loadout({ featured, others }: { featured: Project[]; others: Pro
         {more.map(p => <ProjectTile key={p.id} project={p} onSelect={() => selectProject(p)} />)}
       </div>
       {archive.length > 0 && (
-        <details className="work-archive">
+        <details className="work-archive" open>
           <summary>{editorial.archiveTitle}<span>{archive.length}<span className="archive-plus" aria-hidden>+</span></span></summary>
           <div className="archive-list">{archive.map(p => <ProjectTile key={p.id} project={p} onSelect={() => selectProject(p)} />)}</div>
         </details>
