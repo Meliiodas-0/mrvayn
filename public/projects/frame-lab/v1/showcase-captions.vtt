@@ -1,0 +1,37 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:07.000
+Eight fixed camera anchors. Three subjects. Unreal Engine 5.6.
+
+00:00:07.000 --> 00:00:14.000
+Tracking changes yaw, pitch and lens framing at a fixed position.
+
+00:00:14.000 --> 00:00:20.000
+Camera handoffs blend the two rendered views.
+
+00:00:20.000 --> 00:00:27.000
+Face and torso probes check whether obstacles block the shot.
+
+00:00:27.000 --> 00:00:34.000
+Facing direction helps rank the eligible cameras.
+
+00:00:34.000 --> 00:00:40.000
+Lookroom shifts composition toward the subject's facing direction.
+
+00:00:40.000 --> 00:00:47.000
+Choose Arun, Mira or Dev with the 1, 2 and 3 controls.
+
+00:00:47.000 --> 00:00:54.000
+The same selection and framing logic follows each subject.
+
+00:00:54.000 --> 00:01:00.000
+C++ handles the director; a Blueprint policy ranks eligible shots.
+
+00:01:00.000 --> 00:01:07.000
+The green marker identifies the active camera on the layout.
+
+00:01:07.000 --> 00:01:14.000
+Inspect the live feed, focal length, FOV and fixed anchor position.
+
+00:01:14.000 --> 00:01:20.000
+Camera system by Aayush. Character bases and walk: Quaternius CC0.
