@@ -7,7 +7,7 @@
 .case-heading h1 { font-family: var(--font-headline), sans-serif; font-weight: 500; font-size: clamp(48px, 8vw, 108px); line-height: 1.05; margin-top: 22px; text-wrap: balance; }
 .case-intro { color: rgb(var(--mist)); font-size: clamp(17px, 2vw, 21px); line-height: 1.8; max-width: 66ch; margin-top: 28px; }
 .case-media { margin: 0; }
-.case-media > img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: contain; background: rgb(var(--carbon)); }
+.case-media > img { width: 100%; height: auto; object-fit: contain; background: rgb(var(--carbon)); }
 .case-media figcaption { color: rgb(var(--volt)); font-size: 14px; line-height: 1.75; margin-top: 16px; max-width: 82ch; }
 .case-links { display: flex; flex-wrap: wrap; gap: 16px 32px; margin-top: 28px; }
 .case-body { margin-block: 64px 88px; max-width: 1000px; }
@@ -19,6 +19,10 @@
 .case-features h3 { font-size: 17px; line-height: 1.5; margin-bottom: 6px; }
 .case-body .case-note { border-top: 1px solid rgb(var(--steel)); padding-top: 24px; font-size: 14px; color: rgb(var(--volt)); }
 .case-inquiry { margin-top: 24px; }
+.case-render-details dl { display: grid; gap: 20px; }
+.case-render-details dt { color: rgb(var(--volt)); font-size: 13px; margin-bottom: 6px; }
+.case-render-details dd { font-size: 16px; line-height: 1.7; color: rgb(var(--bone)); }
+.case-body .case-study-gallery { display: block; }
 .case-footer { padding-block: 30px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid rgb(var(--steel)); }
 .case-footer > span { font-size: 14px; color: rgb(var(--volt)); }
 .case-page :is(a, button, video):focus-visible { outline: 2px solid rgb(var(--surge)); outline-offset: 6px; }

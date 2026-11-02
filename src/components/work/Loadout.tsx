@@ -6,6 +6,7 @@ import { editorial } from "@/data/editorial";
 import { ProjectTile } from "@/components/ui/ProjectTile";
 import { ProjectDetail } from "@/components/work/ProjectDetail";
 import { SelectedProject } from "@/components/work/SelectedProject";
+import { ArchVizCollection } from "@/components/work/ArchVizCollection";
 
 export function Loadout({ featured, others }: { featured: Project[]; others: Project[] }) {
   const [selected, setSelected] = useState<Project | null>(null);
@@ -18,7 +19,7 @@ export function Loadout({ featured, others }: { featured: Project[]; others: Pro
   return (
     <>
       <div className="selected-spreads">
-        {featured.map(p => <SelectedProject key={p.id} project={p} onSelect={() => selectProject(p)} />)}
+        {featured.map(p => p.id === "magviz" ? <ArchVizCollection key="archviz" /> : <SelectedProject key={p.id} project={p} onSelect={() => selectProject(p)} />)}
       </div>
       <div className="workshop-heading"><h3>{editorial.moreTitle}</h3><span>{more.length} projects</span></div>
       <div className="workshop-grid">

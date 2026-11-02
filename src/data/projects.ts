@@ -3,6 +3,7 @@
 // problem/approach/result case-study fields, and confirm years/tech tags.
 
 import { systemsProjects } from "./systemsProjects";
+import { archvizStudies } from "./archvizProjects";
 
 export interface ProjectLink {
   label: string;
@@ -26,7 +27,10 @@ export interface Project {
   media?: string;
   mediaWidth?: number;
   mediaHeight?: number;
-  gallery?: { src: string; alt: string; caption: string; width: number; height: number }[];
+  mediaSrcSet?: string;
+  collection?: "archviz";
+  studyDetails?: { label: string; value: string }[];
+  gallery?: { src: string; alt: string; caption: string; width: number; height: number; original?: string; srcSet?: string }[];
   mediaAlt?: string;
   mediaCaption?: string;
   /** Concise, factual description for this project's search result. */
@@ -72,6 +76,7 @@ export interface Project {
 
 export const projects: Project[] = [
   ...systemsProjects,
+  ...archvizStudies,
   {
     id: "cricket-broadcast",
     title: "Broadcast & Camera Systems",
@@ -219,6 +224,7 @@ export const projects: Project[] = [
   },
   {
     id: "magviz",
+    collection: "archviz",
     seoDescription: "MagViz by Aayush (MrVayn): interactive Unreal Engine architecture with location hotspots, unit filters, 3D floor plans and furnished walkthroughs.",
     title: "MagViz",
     role: "Creator, Vayn Studios (commercial)",
@@ -313,6 +319,26 @@ export const projects: Project[] = [
     result:
       "12.2K visits · 601 favorites · 638,391 impressions · 9,432 plays in the first two weeks.",
   },
+  {
+    id: "tower-divers",
+    title: "Tower Divers",
+    role: "Developer, Roblox survival",
+    year: "2026",
+    summary: "Dive through ten spinning turbines, fight your way off the floors and race to the Core. A round-based Roblox survival game with glide controls, persistent scores and global leaderboards.",
+    seoDescription: "Tower Divers by Aayush (MrVayn): a Roblox survival game with turbine dodging, glide physics, floor combat and persistent global leaderboards, built in Luau.",
+    tech: ["Roblox", "Luau", "Multiplayer", "Physics", "DataStore"],
+    links: [{ label: "Play on Roblox", href: "https://www.roblox.com/games/89014329836390/Tower-Divers" }],
+    badge: "LIVE",
+    shipped: true,
+    media: "/projects/tower-divers-icon.png",
+    mediaWidth: 512,
+    mediaHeight: 512,
+    mediaAlt: "Tower Divers promotional artwork showing a Roblox character diving through a glowing turbine shaft",
+    mediaCaption: "Promotional artwork from the project's original Turbinefall development files, not a gameplay screenshot.",
+    problem: "Make a vertical descent feel controllable and competitive while keeping movement, hazards and scoring consistent across multiplayer rounds.",
+    approach: "Built server-authoritative round and hazard systems in Luau, with glide controls, floor combat and per-player progression. DataStore persistence backs personal records and cross-server leaderboards.",
+    result: "Published on Roblox as Tower Divers. The local project records verified round cycling, turbine collisions, per-player barriers and scores surviving a playtest restart.",
+  },
 ];
 
 const selectedOrder = ["antarya", "multiplayer-tba", "magviz", "cricket-broadcast", "weave-runtime", "studio-relay"];
@@ -320,8 +346,9 @@ export const featuredProjects = projects.filter((p) => p.featured).sort((a, b) =
   const rank = (id: string) => selectedOrder.includes(id) ? selectedOrder.indexOf(id) : selectedOrder.length;
   return rank(a.id) - rank(b.id);
 });
-export const otherProjects = projects.filter((p) => !p.featured);
-export const hasCaseStudy = (project: Project) => Boolean(project.problem && project.approach && project.result);
+export const archvizProjects = [projects.find(p => p.id === "magviz")!, ...archvizStudies];
+export const otherProjects = projects.filter((p) => !p.featured && p.collection !== "archviz");
+export const hasCaseStudy = (project: Project) => Boolean((project.problem && project.approach && project.result) || project.studyDetails?.length);
 export const caseStudyProjects = projects.filter(hasCaseStudy);
 export const projectPath = (project: Project) => `/work/${project.id}`;
 

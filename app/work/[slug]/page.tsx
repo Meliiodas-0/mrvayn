@@ -2,6 +2,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { caseStudyProjects, projectPath, projectUi } from "@/data/projects";
+import { archvizCopy } from "@/data/archvizProjects";
 import { site, serializeStructuredData } from "@/data/site";
 import { ClipPreview } from "@/components/ui/ClipPreview";
 import { StickCursor } from "@/components/StickCursor";
@@ -20,12 +21,13 @@ export async function generateMetadata({ params }: Props, parent: ResolvingMetad
   const inherited = await parent;
   const title = `${project.title} | ${site.name}`;
   const description = project.seoDescription ?? project.summary;
+  const images = project.studyDetails && project.media ? [{ url: `${site.url}${project.media}`, width: project.mediaWidth, height: project.mediaHeight, alt: project.mediaAlt }] : undefined;
   return {
     title: project.title,
     description,
     alternates: { canonical: projectPath(project) },
-    openGraph: { ...inherited.openGraph, type: "website", title, description, url: `${site.url}${projectPath(project)}` },
-    twitter: { card: "summary_large_image", title, description, images: inherited.twitter?.images ?? undefined },
+    openGraph: { ...inherited.openGraph, type: "website", title, description, url: `${site.url}${projectPath(project)}`, ...(images ? { images } : {}) },
+    twitter: { card: "summary_large_image", title, description, images: images ?? inherited.twitter?.images ?? undefined },
   };
 }
 
@@ -38,6 +40,8 @@ export default function ProjectPage({ params }: Props) {
   const outwardLinks = project.links.filter(link => !film || link.href !== `${projectPath(project)}#full-tour`);
   const alt = project.mediaAlt ?? project.selection?.posterAlt ?? `${project.title} preview`;
   const url = `${site.url}${projectPath(project)}`;
+  const backHref = project.collection === "archviz" ? "/#archviz" : "/#work";
+  const backLabel = project.collection === "archviz" ? archvizCopy.back : projectUi.backToWork;
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -70,7 +74,7 @@ export default function ProjectPage({ params }: Props) {
       <a href="#case-content" className="case-skip">Skip to content</a>
       <header className="case-masthead" data-solid>
         <div className="nav-identity"><a className="case-brand" href="/#hero" aria-label={`${site.name}, home`}>{site.name}</a><span id="cursor-control-slot" /></div>
-        <a className="quiet-link" href="/#work"><ArrowLeft aria-hidden size={18} />{projectUi.backToWork}</a>
+        <a className="quiet-link" href={backHref}><ArrowLeft aria-hidden size={18} />{backLabel}</a>
       </header>
       <main id="case-content">
         <article>
@@ -85,7 +89,7 @@ export default function ProjectPage({ params }: Props) {
                 <ClipPreview src={clip} poster={project.media} title={project.title} label={film?.label ?? project.selection?.previewLabel} posterAlt={alt} describedBy={caption ? "case-caption" : undefined} startMuted={!film} videoLabel={film ? `${project.title} full tour` : undefined} captions={film?.captions} />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={project.media} alt={alt} width={1440} height={810} fetchPriority="high" />
+                <img src={project.media} srcSet={project.mediaSrcSet} sizes="(min-width: 1168px) 1120px, calc(100vw - 48px)" alt={alt} width={project.mediaWidth ?? 1440} height={project.mediaHeight ?? 810} style={{ maxWidth: project.mediaWidth }} fetchPriority="high" />
               )}
               {caption && <figcaption id="case-caption">{caption}</figcaption>}
             </figure>
@@ -94,24 +98,26 @@ export default function ProjectPage({ params }: Props) {
             <a className="folio-link" key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}<ArrowUpRight aria-hidden size={18} /></a>
           ))}</div>}
           <div className="case-body" data-solid>
-            {[[projectUi.problem, project.problem], [projectUi.approach, project.approach], [projectUi.result, project.result]].map(([label, value]) => (
+            {project.studyDetails && <section className="case-render-details"><h2>{archvizCopy.renderDetails}</h2><dl>{project.studyDetails.map(item => <div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl></section>}
+            {[[projectUi.problem, project.problem], [projectUi.approach, project.approach], [projectUi.result, project.result]].filter(([, value]) => Boolean(value)).map(([label, value]) => (
               <section key={label}><h2>{label}</h2><p>{value}</p></section>
             ))}
             {project.features && <section className="case-features"><h2>{projectUi.features}</h2><ul>{project.features.map(feature => (
               <li key={feature.title}><h3>{feature.title}</h3><p>{feature.description}</p></li>
             ))}</ul></section>}
-            {project.gallery && <section><h2>Project captures</h2>{project.gallery.map(item => <figure key={item.src} className="my-8">
+            {project.gallery && <section className={project.studyDetails ? "case-study-gallery" : undefined}><h2>{project.studyDetails ? archvizCopy.gallery : "Project captures"}</h2><div>{project.gallery.map(item => <figure key={item.src} className="my-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" className="h-auto w-full" />
+              <img src={item.src} srcSet={item.srcSet} sizes="(min-width: 1168px) 1120px, calc(100vw - 48px)" alt={item.alt} width={item.width} height={item.height} loading="lazy" className="h-auto w-full" />
               <figcaption className="mt-3 text-sm leading-relaxed text-volt">{item.caption}</figcaption>
-            </figure>)}</section>}
+              {item.original && <a className="quiet-link" href={item.original} target="_blank" rel="noopener noreferrer">{archvizCopy.fullImage}<ArrowUpRight size={18} aria-hidden /></a>}
+            </figure>)}</div></section>}
             <section className="case-tech"><h2>{projectUi.techStack}</h2><ul>{project.tech.map(tech => <li key={tech}>{tech}</li>)}</ul></section>
             {project.note && <p className="case-note">{project.note}</p>}
             {project.callToAction && <a className="folio-link case-inquiry" href={project.callToAction.href}>{project.callToAction.label}<ArrowUpRight aria-hidden size={18} /></a>}
           </div>
         </article>
       </main>
-      <footer className="case-footer" data-solid><a className="folio-link" href="/#work"><ArrowLeft aria-hidden size={18} />{projectUi.backToWork}</a><span>{site.name}</span></footer>
+      <footer className="case-footer" data-solid><a className="folio-link" href={backHref}><ArrowLeft aria-hidden size={18} />{backLabel}</a><span>{site.name}</span></footer>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }} />
     </div>
   );

@@ -12,7 +12,7 @@ const read = async (path) => {
 const sitemap = await read("/sitemap.xml");
 const urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(match => match[1]);
 assert.equal(new Set(urls).size, urls.length, "Sitemap URLs must be unique");
-assert.equal(urls.length, 9, "Homepage and eight substantive project pages");
+assert.equal(urls.length, 13, "Homepage and twelve substantive project pages");
 assert(!sitemap.includes("<lastmod>"), "Do not report every build as a content update");
 const robots = await read("/robots.txt");
 assert(robots.includes(`Sitemap: ${canonicalOrigin}/sitemap.xml`));
@@ -49,7 +49,8 @@ for (const url of urls) {
     const graph = schemas.find(schema => schema["@graph"]?.some(node => node["@type"] === "CreativeWork"))?.["@graph"];
     assert(graph?.some(node => node["@type"] === "WebPage" && node.url === url), `${path}: project schema URL`);
     assert(graph?.some(node => node["@type"] === "BreadcrumbList"), `${path}: breadcrumbs`);
-    for (const label of ["The problem", "The approach", "The result", "Built with"]) assert(html.includes(label), `${path}: case study rendered in HTML`);
+    const requiredLabels = path === "/work/marina-terrace" ? ["Render details", "Built with"] : ["The problem", "The approach", "The result", "Built with"];
+    for (const label of requiredLabels) assert(html.includes(label), `${path}: project details rendered in HTML`);
   }
   for (const [, src] of html.matchAll(/<img[^>]+src="([^"]+)"/g)) if (src.startsWith("/")) assets.add(src);
   console.log(`PASS ${path}: title, canonical, HTML content, links and structured data`);

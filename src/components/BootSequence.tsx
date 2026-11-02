@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { readThemeColors, readFonts, rgba } from "@/lib/themeColors";
+import { sampleHero, chestOf, solveLimb, RIG } from "@/lib/cinematicMotion";
 
 /**
  * Cinematic intro with an IK-skeleton stickman (jointed elbows/knees, not stiff
@@ -13,9 +14,9 @@ import { readThemeColors, readFonts, rgba } from "@/lib/themeColors";
  * reduced-motion skips.
  */
 
-const LAND = 0.55, LOOK = 0.85, RISE = 1.15, RISE_END = 1.55;
+const LAND = 0.55, RISE_END = 1.55;
 const E1D = 1.95, E2D = 2.6;
-const SURR_APP = 2.75, SURR_SET = 3.65, EXPLODE = 4.55, KILL = 4.85, FLIP_END = 5.5;
+const SURR_APP = 2.75, SURR_SET = 3.65, KILL = 4.85;
 const VEXIT = 6.1, EXIT_END = 6.6; // victory hold (FLIP_END→VEXIT) then hero ascends into the light
 const BLOOM = 6.1, TITLE = 6.8, ASH = 7.8, END = 9.4;
 
@@ -26,11 +27,14 @@ type V = { x: number; y: number };
 export function BootSequence() {
   const ref = useRef<HTMLCanvasElement>(null);
   const [show, setShow] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
   const skipRef = useRef(false);
 
   useEffect(() => {
-    if (new URLSearchParams(location.search).has("cine")) { setShow(true); return; } // dev: frame inspector
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const params = new URLSearchParams(location.search);
+    setPreviewMode(process.env.NODE_ENV === "development" && params.get("cine") === "play");
+    if (!reduce && params.has("cine")) { setShow(true); return; }
     let seen = false;
     try { seen = sessionStorage.getItem("booted") === "1"; sessionStorage.setItem("booted", "1"); } catch { /* */ }
     if (!reduce && !seen) setShow(true);
@@ -58,54 +62,49 @@ export function BootSequence() {
 
     const ease = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
     const eOut = (p: number) => 1 - Math.pow(1 - p, 3);
-    const eIn = (p: number) => p * p * p;
     const cl = (p: number) => Math.max(0, Math.min(1, p));
     const lerp = (a: number, b: number, t: number) => a + (b - a) * cl(t);
-    const lp = (a: V, b: V, t: number): V => ({ x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t) });
-
-    // 2-bone IK, returns the joint (knee/elbow) for hip/shoulder -> foot/hand.
-    const ik = (hx: number, hy: number, fx: number, fy: number, l1: number, l2: number, bend: number, maxA?: number): V => {
-      let dx = fx - hx, dy = fy - hy, d = Math.hypot(dx, dy) || 0.001;
-      const max = l1 + l2 - 0.01; if (d > max) { dx *= max / d; dy *= max / d; d = max; }
-      const a = Math.atan2(dy, dx);
-      const c = Math.max(-1, Math.min(1, (d * d + l1 * l1 - l2 * l2) / (2 * d * l1)));
-      let j = Math.acos(c); if (maxA !== undefined && j > maxA) j = maxA; // cap how far the joint swings (arms stay nearly straight)
-      const ang = a + bend * j;
-      return { x: hx + Math.cos(ang) * l1, y: hy + Math.sin(ang) * l1 };
-    };
 
     // jointed figure driven by end-effectors (pelvis abs; targets relative)
-    interface Pose { px: number; py: number; lean: number; fL: V; fR: V; hMain: V; hOff: V; sword: number; swordLen: number; face: number; }
+    interface Pose { px: number; py: number; lean: number; fL: V; fR: V; hMain: V; hOff: V; sword: number; swordLen: number; face: number; rotation?: number; }
     function figure(p: Pose, o: { color: string; s: number; alpha: number; glow?: boolean }) {
       const { color, s, alpha, glow } = o;
       const f = p.face;
-      const thigh = 11 * s, shin = 11 * s, upper = 8 * s, fore = 8 * s, spine = 19 * s, neck = 5 * s, headR = 4.8 * s;
+      const thigh = RIG.thigh * s, shin = RIG.shin * s, upper = RIG.upper * s, fore = RIG.fore * s, spine = RIG.spine * s, neck = 4 * s, headR = 4.8 * s;
       const ax = (v: V): V => ({ x: p.px + v.x * f, y: p.py + v.y }); // pelvis-relative -> abs (face flips x)
       const chest = { x: p.px + Math.sin(p.lean) * spine * f, y: p.py - Math.cos(p.lean) * spine };
-      const neckTop = { x: chest.x + Math.sin(p.lean) * neck * f, y: chest.y - Math.cos(p.lean) * neck };
-      const head = { x: neckTop.x + Math.sin(p.lean) * headR * f, y: neckTop.y - Math.cos(p.lean) * headR };
+      // Keep the gaze lifted independently of the torso during the deep landing.
+      const headLean = p.lean * .35;
+      const neckTop = { x: chest.x + Math.sin(headLean) * neck * f, y: chest.y - Math.cos(headLean) * neck };
+      const head = { x: neckTop.x + Math.sin(headLean) * headR * f, y: neckTop.y - Math.cos(headLean) * headR };
       const cax = (v: V): V => ({ x: chest.x + v.x * f, y: chest.y + v.y }); // chest-relative -> abs
-      const fL = ax(p.fL), fR = ax(p.fR), hM = cax(p.hMain), hO = cax(p.hOff);
-      const kL = ik(p.px, p.py, fL.x, fL.y, thigh, shin, -f), kR = ik(p.px, p.py, fR.x, fR.y, thigh, shin, -f); // knees bend forward (toward facing dir)
-      const eO = ik(chest.x, chest.y, hO.x, hO.y, upper, fore, f, 0.45), eM = ik(chest.x, chest.y, hM.x, hM.y, upper, fore, f, 0.45); // arms: gentle elbow only, never a sharp fold
       const hip = { x: p.px, y: p.py };
+      const left = solveLimb(hip, ax(p.fL), thigh, shin, -f), right = solveLimb(hip, ax(p.fR), thigh, shin, -f);
+      const main = solveLimb(chest, cax(p.hMain), upper, fore, f), off = solveLimb(chest, cax(p.hOff), upper, fore, f);
+      const { joint: kL, end: fL } = left, { joint: kR, end: fR } = right;
+      const { joint: eM, end: hM } = main, { joint: eO, end: hO } = off;
+      ctx.save();
+      if (p.rotation) { ctx.translate(p.px, p.py); ctx.rotate(p.rotation); ctx.translate(-p.px, -p.py); }
 
-      ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = color; ctx.lineWidth = 2.8 * s;
+      ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = color; ctx.lineWidth = 2.5 * s;
       const seg = (a: V, b: V) => { ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); };
       // back limbs dim for depth
-      ctx.globalAlpha = alpha * 0.7;
+      ctx.globalAlpha = alpha * 0.55;
       seg(hip, kL); seg(kL, fL); // back leg (straight shin, no foot kink)
+      seg(fL, { x: fL.x + 2.8 * s * f, y: fL.y });
       seg(chest, eO); seg(eO, hO); // back (off) arm
       // front + core
       ctx.globalAlpha = alpha;
       seg(hip, chest); seg(chest, neckTop); // spine + neck
       ctx.beginPath(); ctx.arc(head.x, head.y, headR, 0, 6.2832); ctx.stroke(); // head
       seg(hip, kR); seg(kR, fR); // front leg (straight shin, no foot kink)
+      seg(fR, { x: fR.x + 2.8 * s * f, y: fR.y });
       seg(chest, eM); seg(eM, hM); // sword arm
       // sword
       ctx.strokeStyle = C.volt; ctx.lineWidth = 3 * s; if (glow) { ctx.shadowColor = C.volt; ctx.shadowBlur = 13; }
       seg(hM, { x: hM.x + Math.cos(p.sword) * p.swordLen * f, y: hM.y + Math.sin(p.sword) * p.swordLen });
       ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      ctx.restore();
       return { chest, hM };
     }
 
@@ -121,29 +120,8 @@ export function BootSequence() {
         fL: { x: run ? step2 * 12 * s : -7 * s, y: fy - Math.max(0, step2) * 8 * s },
         fR: { x: run ? step * 12 * s : 7 * s, y: fy - Math.max(0, step) * 8 * s },
         hMain: { x: 8.5 * s, y: -2 * s + Math.sin(t * 2.2) * s },
-        hOff: { x: 6 * s, y: 8 * s },
+        hOff: { x: -7 * s, y: 10 * s },
         sword: -0.5, swordLen: 24 * s,
-      };
-    }
-
-    const lerpPose = (a: Pose, b: Pose, k: number): Pose => ({
-      px: lerp(a.px, b.px, k), py: lerp(a.py, b.py, k), face: b.face, lean: lerp(a.lean, b.lean, k),
-      fL: lp(a.fL, b.fL, k), fR: lp(a.fR, b.fR, k), hMain: lp(a.hMain, b.hMain, k), hOff: lp(a.hOff, b.hOff, k),
-      sword: lerp(a.sword, b.sword, k), swordLen: lerp(a.swordLen, b.swordLen, k),
-    });
-
-    // superhero landing (ref): wide lunge, off-hand braced forward on the ground,
-    // sword raised high overhead, head bows on impact (look 0) then lifts (look 1).
-    function landPose(ground: number, s: number, look: number): Pose {
-      const py = ground - 10 * s, fy = ground - py;
-      return {
-        px: cx, py, face: 1,
-        lean: lerp(0.85, 0.5, look),                  // stays in the braced lunge; only partly lifts
-        fL: { x: -7 * s, y: fy },                     // back leg folds deep (knee low)
-        fR: { x: 20 * s, y: fy },                     // front leg extended in a wide lunge
-        hMain: { x: -2 * s, y: lerp(-13, -18, look) * s }, // sword hand rises higher overhead
-        hOff: { x: 15 * s, y: 21 * s },               // off hand braces down-forward toward the ground
-        sword: lerp(-1.95, -1.7, look), swordLen: 31 * s,  // blade held high, up & back over the head
       };
     }
 
@@ -171,7 +149,7 @@ export function BootSequence() {
 
     let start = performance.now(); let raf = 0; let hardStop: ReturnType<typeof setTimeout> | undefined;
 
-    function render(t: number) {
+    function render(t: number, dt = 0) {
       let shake = 0;
       if (t > LAND - 0.04 && t < LAND + 0.2) shake = 10 * U;
       if ((t > E1D - 0.05 && t < E1D + 0.08) || (t > E2D - 0.05 && t < E2D + 0.08)) shake = 5 * U;
@@ -238,7 +216,7 @@ export function BootSequence() {
             const ex = cx + Math.cos(ang) * rad, ey = cy - 18 * U + Math.sin(ang) * rad * 0.55;
             ctx.save(); ctx.translate(ex, ey); if (fly) ctx.rotate(fly * 2.4);
             const ep = basePose(0, 0, 0.92 * U, ex > cx ? -1 : 1, t * 1.1 + i, t < SURR_SET);
-            ep.py = -26 * 0.92 * U; ep.hMain = { x: 9 * U, y: -2 * U }; ep.sword = ex > cx ? -2.2 : -1.0;
+            ep.hMain = { x: 9 * U, y: -2 * U }; ep.sword = -1.0;
             figure(ep, { color: C.mist, s: 0.92 * U, alpha: a });
             ctx.restore();
           }
@@ -247,30 +225,18 @@ export function BootSequence() {
 
         // ---- HERO ----
         const hs = 1.55 * U;
-        if (t < RISE) { drawLanding(t, hs, bA); }
-        else {
-          let p: Pose;
-          if (t < RISE_END) { // stand up from the landing crouch (feet stay planted)
-            const k = ease((t - RISE) / (RISE_END - RISE));
-            p = lerpPose(landPose(cy, hs, 1), basePose(cx, cy, hs, 1, t, false), k);
-          } else if (t >= FLIP_END) { // victory hold, then ascend into the light
-            p = basePose(cx, cy, hs, 1, t, false);
-            p.lean = 0.02; p.hMain = { x: 1 * hs, y: -17 * hs }; p.hOff = { x: -7 * hs, y: 11 * hs }; p.sword = -1.5; p.swordLen = 30 * hs; // triumphant, sword raised; off-arm hangs relaxed (no over-folded elbow)
-            if (t > VEXIT) p.py -= eIn(cl((t - VEXIT) / (EXIT_END - VEXIT))) * 140 * U; // rise as he fades
-          } else if (t >= EXPLODE && t < FLIP_END) {
-            if (t < KILL) { const k = (t - EXPLODE) / (KILL - EXPLODE); p = basePose(cx, cy, hs, 1, t, false); p.py = cy - lerp(26, 18, k) * hs; p.fL = { x: -11 * hs, y: 26 * hs }; p.fR = { x: 11 * hs, y: 26 * hs }; p.lean = -0.15; p.hMain = { x: lerp(8, 0, k) * hs, y: lerp(4, -6, k) * hs }; p.hOff = { x: lerp(-8, 0, k) * hs, y: 6 * hs }; p.sword = -0.4; } // gather/charge
-            else { const k = (t - KILL) / (FLIP_END - KILL); ctx.save(); ctx.translate(cx, cy - 16 * hs - Math.sin(k * Math.PI) * 150 * U); ctx.rotate(-ease(k) * 6.2832); ctx.translate(0, 16 * hs); const fp = basePose(0, 0, hs, 1, t, false); fp.py = -26 * hs; fp.fL = { x: -4 * hs, y: 16 * hs }; fp.fR = { x: 6 * hs, y: 18 * hs }; fp.lean = -0.3; fp.hMain = { x: 10 * hs, y: -4 * hs }; fp.sword = -0.7 + k * 7; fp.swordLen = 34 * hs; figure(fp, { color: C.bone, s: hs, alpha: bA, glow: true }); ctx.restore(); p = null as unknown as Pose; }
-          } else if (t >= SURR_SET && t < EXPLODE) { // struggle, sway + recoil + guard
-            const sway = Math.sin(t * 3.2), jab = Math.max(0, Math.sin(t * 9)) ** 3;
-            p = basePose(cx, cy, hs, sway > 0 ? 1 : -1, t, false);
-            p.lean = -0.18 * jab + sway * 0.04; p.px = cx + sway * 5 * U;
-            p.hMain = { x: lerp(6, 2, jab) * hs, y: lerp(2, -16, Math.abs(sway)) * hs }; p.hOff = { x: -7 * hs, y: -10 * hs }; p.sword = lerp(-0.6, -1.7, Math.abs(sway)); // raise to guard
-          } else if (t < E2D + 0.1) { // slash combos vs enemy 1 & 2
-            const target = t < E1D + 0.1 ? { d: E1D, side: 1 } : { d: E2D, side: -1 };
-            p = slashPose(t, target.d, target.side, hs);
-          } else p = basePose(cx, cy, hs, 1, t, false);
-          if (p) figure(p, { color: C.bone, s: hs, alpha: bA, glow: true });
-        }
+        const hero = sampleHero(t, H * .85 / hs), chest = chestOf(hero);
+        const p: Pose = {
+          px: cx + hero.hip.x * hs, py: cy + hero.hip.y * hs,
+          lean: hero.lean, face: 1, rotation: hero.rotation,
+          fL: { x: (hero.footL.x - hero.hip.x) * hs, y: (hero.footL.y - hero.hip.y) * hs },
+          fR: { x: (hero.footR.x - hero.hip.x) * hs, y: (hero.footR.y - hero.hip.y) * hs },
+          hMain: { x: (hero.hand.x - chest.x) * hs, y: (hero.hand.y - chest.y) * hs },
+          hOff: { x: (hero.offHand.x - chest.x) * hs, y: (hero.offHand.y - chest.y) * hs },
+          sword: hero.sword, swordLen: 30 * hs,
+        };
+        drawSlash(t, p, hs);
+        figure(p, { color: C.bone, s: hs, alpha: bA, glow: true });
       }
 
       // ---- heroic transition: light beam rises where the hero stood -> title forms ----
@@ -295,12 +261,12 @@ export function BootSequence() {
       }
 
       // particles
-      const dt = 1 / 60;
-      for (const pp of pts) { if (!pp.on) continue; pp.life -= dt; if (pp.life <= 0) { pp.on = false; continue; } pp.x += pp.vx * dt; pp.y += pp.vy * dt; pp.vy += 24 * U * dt; pp.vx *= 0.96; ctx.globalAlpha = Math.max(0, pp.life / pp.max) * 0.9; ctx.fillStyle = pp.c; ctx.fillRect(pp.x, pp.y, pp.r, pp.r); }
+      for (const pp of pts) { if (!pp.on) continue; pp.life -= dt; if (pp.life <= 0) { pp.on = false; continue; } pp.x += pp.vx * dt; pp.y += pp.vy * dt; pp.vy += 24 * U * dt; pp.vx *= Math.pow(.96, dt * 60); ctx.globalAlpha = Math.max(0, pp.life / pp.max) * 0.9; ctx.fillStyle = pp.c; ctx.fillRect(pp.x, pp.y, pp.r, pp.r); }
       ctx.globalAlpha = 1; ctx.restore();
       if (t > END - 0.6) { ctx.globalAlpha = cl((t - (END - 0.6)) / 0.6); ctx.fillStyle = C.void; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
     }
 
+    let previous = start;
     function loop(now: number) {
       // Skip = rebase the clock onto the final 0.6s fade-to-void, so a click/key
       // exits almost immediately from ANY beat. (The old Math.max(t, TITLE) froze
@@ -308,49 +274,32 @@ export function BootSequence() {
       if (skipRef.current) { skipRef.current = false; start = Math.min(start, now - (END - 0.6) * 1000); }
       const t = (now - start) / 1000;
       if (t >= END) { done(); return; }
-      render(t);
+      render(t, Math.min((now - previous) / 1000, .05));
+      previous = now;
       raf = requestAnimationFrame(loop);
     }
 
-    // slash: anticipation (coil back, raise) -> strike (whip down, lunge) -> follow-through
-    function slashPose(t: number, d: number, side: number, hs: number): Pose {
-      const s0 = d - 0.36, p = cl((t - s0) / (d + 0.12 - s0));
-      const wind = cl(p / 0.32), strike = cl((p - 0.32) / 0.36), follow = cl((p - 0.68) / 0.32);
-      const pose = basePose(cx, cy, hs, side, t, false);
-      const fy = cy - pose.py; // foot offset that lands feet on the ground
-      const lunge = eIn(strike) * (1 - follow * 0.5);
-      pose.px = cx + side * lerp(-3, 7, lunge) * U; // weight shifts back then drives forward
-      pose.lean = follow > 0 ? lerp(0.25, 0.12, follow) : strike > 0 ? lerp(-0.28, 0.26, ease(strike)) : lerp(0, -0.28, eOut(wind));
-      pose.fR = { x: (10 + lunge * 6) * hs, y: fy }; // front foot lunges
-      pose.fL = { x: -11 * hs, y: fy };             // back foot planted (knee bent)
-      const back: V = { x: -9 * hs, y: -18 * hs }, mid: V = { x: 13 * hs, y: -9 * hs }, end: V = { x: 15 * hs, y: 12 * hs };
-      pose.hMain = follow > 0 ? lp(mid, end, eOut(follow)) : strike > 0 ? lp(back, mid, eOut(strike)) : lp({ x: 6 * hs, y: -3 * hs }, back, eOut(wind));
-      pose.sword = follow > 0 ? lerp(0.35, 1.2, follow) : strike > 0 ? lerp(-2.4, 0.4, ease(strike)) : lerp(-0.5, -2.4, wind);
-      pose.swordLen = 30 * hs;
+    function drawSlash(t: number, pose: Pose, hs: number) {
+      const d = t < 2.2 ? E1D : E2D, side = t < 2.2 ? 1 : -1;
+      if (t < d - .16 || t > d + .15) return;
+      const strike = cl((t - d + .16) / .16), follow = cl((t - d) / .15);
       // crescent slash trail, a thin curved blade after-image along the swing arc
       if (strike > 0) {
-        const chestX = pose.px + Math.sin(pose.lean) * 19 * hs * side, chestY = pose.py - Math.cos(pose.lean) * 19 * hs;
-        const hMx = chestX + pose.hMain.x * side, hMy = chestY + pose.hMain.y;
-        const R = 38 * hs, wa = Math.atan2(Math.sin(pose.sword), Math.cos(pose.sword) * side), a1 = wa - 1.7 * side, a2 = wa;
-        const tAlpha = (follow > 0 ? 1 - follow : 1) * 0.9;
+        const chestX = pose.px + Math.sin(pose.lean) * RIG.spine * hs, chestY = pose.py - Math.cos(pose.lean) * RIG.spine * hs;
+        const grip = solveLimb({ x: chestX, y: chestY }, { x: chestX + pose.hMain.x, y: chestY + pose.hMain.y }, RIG.upper * hs, RIG.fore * hs, 1).end;
+        const hMx = grip.x, hMy = grip.y;
+        const R = 30 * hs, wa = pose.sword, a1 = wa - 1.15 * side, a2 = wa;
+        const tAlpha = strike * (1 - follow) * .65;
         ctx.save(); ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = tAlpha;
         ctx.beginPath(); ctx.arc(hMx, hMy, R, a1, a2, a1 > a2); ctx.arc(hMx, hMy, R * 0.52, a2, a1, !(a1 > a2)); ctx.closePath();
         const g = ctx.createRadialGradient(hMx, hMy, R * 0.52, hMx, hMy, R);
         g.addColorStop(0, rgba("surge", 0)); g.addColorStop(0.6, rgba("surge", 0.35)); g.addColorStop(1, rgba("surge", 0.85));
         ctx.fillStyle = g; ctx.fill(); ctx.restore();
       }
-      return pose;
-    }
-
-    // superhero landing drawer (drop-in + look down->up), built on landPose
-    function drawLanding(t: number, s: number, alpha: number) {
-      const yOff = t < LAND ? -(1 - (t / LAND) ** 2) * H * 0.85 : 0; // fast drop-in
-      const look = cl((t - (LAND + 0.05)) / (LOOK - LAND)); // 0 = head down, 1 = head up
-      figure(landPose(cy + yOff, s, look), { color: C.bone, s, alpha, glow: true });
     }
 
     const cine = new URLSearchParams(location.search).get("cine");
-    if (cine !== null) { const dt = parseFloat(cine) || 0; raf = requestAnimationFrame(() => render(dt)); } // dev: freeze one frame at t
+    if (cine !== null && cine !== "play") { const dt = parseFloat(cine) || 0; raf = requestAnimationFrame(() => render(dt)); }
     else { hardStop = setTimeout(done, END * 1000 + 300); raf = requestAnimationFrame(loop); }
     return () => { cancelAnimationFrame(raf); if (hardStop) clearTimeout(hardStop); removeEventListener("resize", resize); };
   }, [show, done]);
@@ -362,11 +311,13 @@ export function BootSequence() {
     return () => window.removeEventListener("keydown", skip);
   }, [show]);
 
-  if (!show) return null;
   return (
-    <div className="fixed inset-0 z-boot cursor-pointer bg-void" onClick={() => (skipRef.current = true)}>
-      <canvas ref={ref} className="block h-full w-full" />
-      <span className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 font-mono text-xs uppercase text-mist">tap or press any key to skip</span>
-    </div>
+    <>
+      {show && <div data-testid="boot-cinematic" className="fixed inset-0 z-boot cursor-pointer bg-void" onClick={() => (skipRef.current = true)}>
+        <canvas ref={ref} className="block h-full w-full" />
+        <span className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap font-mono text-xs uppercase text-mist">tap or press any key to skip</span>
+      </div>}
+      {previewMode && <a href="/?cine=play" data-solid data-testid="boot-preview-replay" className="fixed left-4 top-4 inline-flex min-h-11 items-center rounded-full border border-white/15 bg-black/80 px-4 font-mono text-xs text-white/80 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4" style={{ zIndex: 2147483646 }}>Replay opening</a>}
+    </>
   );
 }
