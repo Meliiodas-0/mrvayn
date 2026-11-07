@@ -60,8 +60,9 @@ stage upward and bring the six opponents inward. No added frame or HUD.
   instead of resetting the feet when the approach ends.
 - DialKit's development-only Cinematic group tunes speed, stroke, opponent opacity,
   impact strength, crowd distance and screen-shake strength.
-- The hero sculpture defers WebGL initialization until the opening ends, avoiding
-  shader setup competing with the cutscene. Its fallback remains available.
+- The hero sculpture defers WebGL initialization until the final title hold,
+  avoiding shader setup competing with the fight. It draws its first frame behind
+  the cinematic before the overlay fades. Its fallback remains available.
 - Canvas raster work is capped at five million pixels. No external media added.
 
 ## Checks
@@ -97,3 +98,17 @@ Preview: `http://localhost:4550/?cine=play`. Click Replay opening to watch again
   physical-device coverage is not claimed, nor a universal frame-rate guarantee.
 - No new dependencies, remote effects assets, shaders or video downloads added.
   The four unrelated local Palm close-up files are excluded from the release.
+
+## Hero handoff correction
+
+The flat SVG was visible while WebGL initialized after the cinematic. The hero
+container also changed from an inset stage to a fixed viewport at readiness.
+The opening now signals preparation at 6.65 seconds during the quiet title hold.
+The pending renderer uses the final viewport dimensions before its first draw.
+JavaScript-enabled loading hides the temporary SVG; failure or context loss shows
+the SVG immediately. Without JavaScript the SVG remains visible. A 12-second
+watchdog also restores it if application chunks never finish loading.
+
+Production playback review at desktop and 390x844 showed pending to WebGL while
+the cinematic was still playing, about 1.4 seconds before handoff. Stage dimensions
+remained unchanged and SVG stayed hidden. No browser console errors were recorded.

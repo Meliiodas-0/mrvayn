@@ -514,6 +514,13 @@ html { color-scheme: dark; }
 .sculpture-svg-phone { display: none; }
 .sculpture-stage[data-renderer="webgl"] .sculpture-fallback { visibility: hidden; }
 .sculpture-stage[data-renderer="fallback"] .sculpture-canvas { visibility: hidden; }
+/* Keep the prewarmed frame at its final viewport size and avoid displaying the
+   flat illustration as a temporary loading state. Without JS, SVG stays visible. */
+html[data-hero-loading="1"] .sculpture-stage[data-renderer="pending"] .sculpture-fallback { visibility: hidden; }
+.sculpture-stage[data-renderer="pending"] .sculpture-canvas { visibility: hidden; }
+@media (prefers-reduced-motion: no-preference) {
+  html[data-hero-loading="1"] .sculpture-stage[data-renderer="pending"] { position: fixed; inset: 0; height: 100svh; }
+}
 .sculpture-caption { position: absolute; inset: auto max(clamp(24px, 3.5vw, 72px), calc((100% - 1440px) / 2)) 30px; display: flex; align-items: end; justify-content: space-between; gap: 24px; }
 .sculpture-identity { font-size: 13px; line-height: 1.8; }
 .sculpture-identity p + p { color: rgb(var(--mist)); }

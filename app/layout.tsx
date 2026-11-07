@@ -64,7 +64,7 @@ export const viewport: Viewport = {
 // Runs before the hero is parsed: tells the CSS whether the boot cinematic will play
 // (returning and reduced-motion visitors skip it, so the hero must not double-reveal).
 const BOOT_SCRIPT =
-  "try{var d=document.documentElement;d.dataset.boot=(matchMedia('(prefers-reduced-motion: reduce)').matches||sessionStorage.getItem('booted')==='1')?'skip':'play'}catch(e){}";
+  "var d=document.documentElement;d.dataset.heroLoading='1';setTimeout(function(){delete d.dataset.heroLoading},12000);try{d.dataset.boot=(matchMedia('(prefers-reduced-motion: reduce)').matches||sessionStorage.getItem('booted')==='1')?'skip':'play'}catch(e){}";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

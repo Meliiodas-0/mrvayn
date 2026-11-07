@@ -11,6 +11,7 @@ export function HeroSculpture() {
   const host = useRef<HTMLDivElement>(null);
   const renderer = useRef<SculptureRenderer>();
   const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [tuning, setTuning] = useState<HeroMotion>(HERO_MOTION);
   const reduce = useReducedMotion();
   const pointerX = useMotionValue(0);
@@ -32,22 +33,22 @@ export function HeroSculpture() {
       try {
         const { createSculpture } = await import("./sculptureRenderer");
         if (cancelled) return;
-        const scene = createSculpture(element, () => setReady(false));
+        const scene = createSculpture(element, () => {setFailed(true);setReady(false);});
         renderer.current = scene;
         scene.setVisible(!document.hidden);
         setReady(true);
       } catch {
         // The server-rendered wordmark remains if WebGL or its chunk is unavailable.
-        if (!cancelled) setReady(false);
+        if (!cancelled) {setFailed(true);setReady(false);}
       }
     };
     // Keep shader/geometry setup off the opening animation's critical frames.
-    // The existing SVG remains available until the cinematic hands off.
+    // The final title hold gives the renderer time to draw behind the overlay.
     const maybeLoad=()=>{
-      if(intersects&&document.documentElement.dataset.boot!=="play")void load();
+      if(intersects&&(document.documentElement.dataset.boot!=="play"||document.documentElement.dataset.heroPrepare==="1"))void load();
     };
     const bootObserver=new MutationObserver(maybeLoad);
-    bootObserver.observe(document.documentElement,{attributes:true,attributeFilter:["data-boot"]});
+    bootObserver.observe(document.documentElement,{attributes:true,attributeFilter:["data-boot","data-hero-prepare"]});
     const observe = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { intersects=true; observe.disconnect(); maybeLoad(); }
     });
@@ -165,7 +166,7 @@ export function HeroSculpture() {
     return () => window.removeEventListener(HERO_TUNING_EVENT, update);
   }, []);
 
-  return <div ref={host} className="sculpture-stage" data-renderer={ready ? "webgl" : "fallback"} data-scroll-motion={ready && !reduce ? "on" : "off"} aria-hidden="true">
+  return <div ref={host} className="sculpture-stage" data-renderer={ready ? "webgl" : failed ? "fallback" : "pending"} data-scroll-motion={ready && !reduce ? "on" : "off"} aria-hidden="true">
     <SculptureFallback />
   </div>;
 }

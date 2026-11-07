@@ -194,6 +194,8 @@ export function BootSequence() {
     }
     function render(t: number) {
       time.set(t);
+      // Prewarm only during the quiet title hold, after the fight has finished.
+      if(t>=6.65&&document.documentElement.dataset.heroPrepare!=="1")document.documentElement.dataset.heroPrepare="1";
       ctx!.clearRect(0, 0, W, H); ctx!.fillStyle = C.void; ctx!.globalAlpha = 1; ctx!.fillRect(0, 0, W, H);
       ctx!.lineCap = "round"; ctx!.lineJoin = "round";
       const sceneAlpha = 1 - smooth((t - 6.05) / .45);
