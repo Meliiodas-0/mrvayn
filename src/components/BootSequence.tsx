@@ -1,323 +1,261 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { readThemeColors, readFonts, rgba } from "@/lib/themeColors";
-import { sampleHero, chestOf, solveLimb, RIG } from "@/lib/cinematicMotion";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { motion, useMotionValue, useTransform } from "motion/react";
+import { readThemeColors } from "@/lib/themeColors";
+import { sampleHero, sampleEnemy, scarfCurve, chestOf, solveLimb, RIG, type Point } from "@/lib/cinematicMotion";
+import { CINEMATIC_STYLE, CINEMATIC_TUNING_EVENT, cinematicLayout, cinematicCrowd, cinematicImpact } from "@/lib/cinematicStyle";
+import { cinematicCopy } from "@/data/cinematic";
 
-/**
- * Cinematic intro with an IK-skeleton stickman (jointed elbows/knees, not stiff
- * single-line "puppet" limbs). Choreography: superhero kneel-landing → enemy 1
- * knocked → enemy 2 knocked → six surround → struggle → explosion + backflip
- * finisher → heroic light bloom → MRVAYN rises, then disintegrates Thanos-style
- * and auto-transitions to the site. Motion uses anticipation, follow-through,
- * easing and weight-shift. Canvas + responsive; once/session; skip on click/key;
- * reduced-motion skips.
- */
-
-const LAND = 0.55, RISE_END = 1.55;
-const E1D = 1.95, E2D = 2.6;
-const SURR_APP = 2.75, SURR_SET = 3.65, KILL = 4.85;
-const VEXIT = 6.1, EXIT_END = 6.6; // victory hold (FLIP_END→VEXIT) then hero ascends into the light
-const BLOOM = 6.1, TITLE = 6.8, ASH = 7.8, END = 9.4;
-
-interface Pt { x: number; y: number; vx: number; vy: number; life: number; max: number; r: number; c: string; on: boolean; }
-interface Dust { hx: number; hy: number; vx: number; vy: number; delay: number; }
-type V = { x: number; y: number };
+const END = 8.1;
+const clamp = (n: number) => Math.max(0, Math.min(1, n));
+const smooth = (n: number) => { const t = clamp(n); return t * t * (3 - 2 * t); };
+const out = (n: number) => 1 - (1 - clamp(n)) ** 3;
+type Pose = { hip: Point; chest: Point; footL: Point; footR: Point; hand: Point; offHand: Point; lean: number; sword: number; rotation: number; elbow?: Point; pivot?: Point; shoulder?: Point; bladeAspect?: number };
 
 export function BootSequence() {
-  const ref = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const skipRef = useRef(false);
   const [show, setShow] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-  const skipRef = useRef(false);
+  const time = useMotionValue(0);
+  const titleOpacity = useTransform(time, [6.15, 6.65, 7.55, END], [0, 1, 1, 0]);
+  const titleY = useTransform(time, [6.15, 6.8], [12, 0]);
+  const overlayOpacity = useTransform(time, [0, 7.6, END], [1, 1, 0]);
+  const done = useCallback(() => {
+    document.documentElement.dataset.boot = "done";
+    setShow(false);
+  }, []);
 
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const params = new URLSearchParams(location.search);
     setPreviewMode(process.env.NODE_ENV === "development" && params.get("cine") === "play");
-    if (!reduce && params.has("cine")) { setShow(true); return; }
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { done(); return; }
     let seen = false;
-    try { seen = sessionStorage.getItem("booted") === "1"; sessionStorage.setItem("booted", "1"); } catch { /* */ }
-    if (!reduce && !seen) setShow(true);
-  }, []);
-  // attribute first, so the hero entrance (globals.css boot handoff) starts in the
-  // same frame the overlay unmounts
-  const done = useCallback(() => { document.documentElement.dataset.boot = "done"; setShow(false); }, []);
+    try { seen = sessionStorage.getItem("booted") === "1"; sessionStorage.setItem("booted", "1"); } catch { /* Session storage can be unavailable. */ }
+    if (params.has("cine") || !seen) { document.documentElement.dataset.boot="play"; setShow(true); }
+    else done();
+  }, [done]);
 
   useEffect(() => {
     if (!show) return;
-    const canvas = ref.current;
-    const c2d = canvas?.getContext("2d");
-    if (!canvas || !c2d) { const t = setTimeout(done, 100); return () => clearTimeout(t); }
-    const ctx = c2d;
+    const canvas = canvasRef.current, ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) { done(); return; }
     const C = readThemeColors();
-    const F = readFonts();
-
-    let W = 0, H = 0, dpr = 1, U = 1, cx = 0, cy = 0;
+    let settings = { ...CINEMATIC_STYLE };
+    let W = 0, H = 0, U = 1, cx = 0, ground = 0;
     const resize = () => {
-      W = innerWidth; H = innerHeight; dpr = Math.min(devicePixelRatio || 1, 2);
-      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      U = Math.max(0.9, Math.min(W, H) / 360); cx = W / 2; cy = H * 0.6;
+      W = innerWidth; H = innerHeight;
+      const layout = cinematicLayout(W, H, devicePixelRatio || 1), dpr = layout.pixelRatio;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      U = layout.unit; cx = W / 2; ground = layout.ground;
     };
     resize(); addEventListener("resize", resize);
-
-    const ease = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
-    const eOut = (p: number) => 1 - Math.pow(1 - p, 3);
-    const cl = (p: number) => Math.max(0, Math.min(1, p));
-    const lerp = (a: number, b: number, t: number) => a + (b - a) * cl(t);
-
-    // jointed figure driven by end-effectors (pelvis abs; targets relative)
-    interface Pose { px: number; py: number; lean: number; fL: V; fR: V; hMain: V; hOff: V; sword: number; swordLen: number; face: number; rotation?: number; }
-    function figure(p: Pose, o: { color: string; s: number; alpha: number; glow?: boolean }) {
-      const { color, s, alpha, glow } = o;
-      const f = p.face;
-      const thigh = RIG.thigh * s, shin = RIG.shin * s, upper = RIG.upper * s, fore = RIG.fore * s, spine = RIG.spine * s, neck = 4 * s, headR = 4.8 * s;
-      const ax = (v: V): V => ({ x: p.px + v.x * f, y: p.py + v.y }); // pelvis-relative -> abs (face flips x)
-      const chest = { x: p.px + Math.sin(p.lean) * spine * f, y: p.py - Math.cos(p.lean) * spine };
-      // Keep the gaze lifted independently of the torso during the deep landing.
-      const headLean = p.lean * .35;
-      const neckTop = { x: chest.x + Math.sin(headLean) * neck * f, y: chest.y - Math.cos(headLean) * neck };
-      const head = { x: neckTop.x + Math.sin(headLean) * headR * f, y: neckTop.y - Math.cos(headLean) * headR };
-      const cax = (v: V): V => ({ x: chest.x + v.x * f, y: chest.y + v.y }); // chest-relative -> abs
-      const hip = { x: p.px, y: p.py };
-      const left = solveLimb(hip, ax(p.fL), thigh, shin, -f), right = solveLimb(hip, ax(p.fR), thigh, shin, -f);
-      const main = solveLimb(chest, cax(p.hMain), upper, fore, f), off = solveLimb(chest, cax(p.hOff), upper, fore, f);
-      const { joint: kL, end: fL } = left, { joint: kR, end: fR } = right;
-      const { joint: eM, end: hM } = main, { joint: eO, end: hO } = off;
-      ctx.save();
-      if (p.rotation) { ctx.translate(p.px, p.py); ctx.rotate(p.rotation); ctx.translate(-p.px, -p.py); }
-
-      ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = color; ctx.lineWidth = 2.5 * s;
-      const seg = (a: V, b: V) => { ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); };
-      // back limbs dim for depth
-      ctx.globalAlpha = alpha * 0.55;
-      seg(hip, kL); seg(kL, fL); // back leg (straight shin, no foot kink)
-      seg(fL, { x: fL.x + 2.8 * s * f, y: fL.y });
-      seg(chest, eO); seg(eO, hO); // back (off) arm
-      // front + core
-      ctx.globalAlpha = alpha;
-      seg(hip, chest); seg(chest, neckTop); // spine + neck
-      ctx.beginPath(); ctx.arc(head.x, head.y, headR, 0, 6.2832); ctx.stroke(); // head
-      seg(hip, kR); seg(kR, fR); // front leg (straight shin, no foot kink)
-      seg(fR, { x: fR.x + 2.8 * s * f, y: fR.y });
-      seg(chest, eM); seg(eM, hM); // sword arm
-      // sword
-      ctx.strokeStyle = C.volt; ctx.lineWidth = 3 * s; if (glow) { ctx.shadowColor = C.volt; ctx.shadowBlur = 13; }
-      seg(hM, { x: hM.x + Math.cos(p.sword) * p.swordLen * f, y: hM.y + Math.sin(p.sword) * p.swordLen });
-      ctx.shadowBlur = 0; ctx.globalAlpha = 1;
-      ctx.restore();
-      return { chest, hM };
-    }
-
-    // standing/run/idle base pose, athletic stance, knees bent, feet planted
-    function basePose(px: number, ground: number, s: number, face: number, t: number, run: boolean): Pose {
-      const bob = Math.sin(t * (run ? 9 : 2.2)) * (run ? 2 : 0.7) * s;
-      const py = ground - 18 * s + bob; // hips low enough that IK bends the knees
-      const fy = ground - py; // foot offset that lands the feet exactly on the ground
-      const step = run ? Math.sin(t * 9) : 0, step2 = run ? Math.sin(t * 9 + Math.PI) : 0;
-      return {
-        px, py, face, lean: run ? 0.16 : Math.sin(t * 2.2) * 0.025,
-        // walk cycle: legs stride THROUGH centre (±12s) with a lift on the swinging foot; idle = planted
-        fL: { x: run ? step2 * 12 * s : -7 * s, y: fy - Math.max(0, step2) * 8 * s },
-        fR: { x: run ? step * 12 * s : 7 * s, y: fy - Math.max(0, step) * 8 * s },
-        hMain: { x: 8.5 * s, y: -2 * s + Math.sin(t * 2.2) * s },
-        hOff: { x: -7 * s, y: 10 * s },
-        sword: -0.5, swordLen: 24 * s,
-      };
-    }
-
-    const pts: Pt[] = [];
-    for (let i = 0; i < 520; i++) pts.push({ x: 0, y: 0, vx: 0, vy: 0, life: 0, max: 0, r: 0, c: C.surge, on: false });
-    const seeded = new Set<string>();
-    let dust: Dust[] = [], dustBuilt = false;
-    const TSIZE = Math.min(W * 0.068, 48 * U), tY = cy - 4 * U;
-
-    const burst = (x: number, y: number, n: number, big = false) => {
-      for (let i = 0; i < n; i++) { const p = pts.find((q) => !q.on); if (!p) break; const a = Math.random() * 6.28, s = (big ? 1 : 0.55) * (50 + Math.random() * 280); p.on = true; p.x = x; p.y = y; p.vx = Math.cos(a) * s; p.vy = Math.sin(a) * s - 30 * U; p.max = p.life = 0.4 + Math.random() * 0.45; p.r = (big ? 2.6 : 1.7) * U; p.c = Math.random() > 0.5 ? C.surge : C.volt; }
+    const tune = (event: Event) => {
+      settings = { ...CINEMATIC_STYLE, ...(event as CustomEvent).detail };
+      const frozen = new URLSearchParams(location.search).get("cine");
+      if (frozen !== null && frozen !== "play") render(Number(frozen) || 0);
     };
-    function buildDust() {
-      const off = document.createElement("canvas"); const o = off.getContext("2d"); if (!o) { dustBuilt = true; return; }
-      o.font = `600 ${TSIZE}px ${F.display}`;
-      const wpx = Math.ceil(o.measureText("MRVAYN").width) + 16, hpx = Math.ceil(TSIZE * 1.5);
-      off.width = wpx; off.height = hpx; o.font = `600 ${TSIZE}px ${F.display}`;
-      o.fillStyle = "#fff"; o.textAlign = "center"; o.textBaseline = "middle"; o.fillText("MRVAYN", wpx / 2, hpx / 2);
-      const data = o.getImageData(0, 0, wpx, hpx).data, step = W < 640 ? 6 : 5, ox = cx - wpx / 2, oy = tY - hpx / 2;
-      dust = [];
-      for (let y = 0; y < hpx; y += step) for (let x = 0; x < wpx; x += step) if (data[(y * wpx + x) * 4 + 3] > 128)
-        dust.push({ hx: ox + x, hy: oy + y, vx: (60 + Math.random() * 110) * U, vy: -(15 + Math.random() * 55) * U, delay: (x / wpx) * 0.55 + Math.random() * 0.05 });
-      dustBuilt = true;
+    if (process.env.NODE_ENV === "development") addEventListener(CINEMATIC_TUNING_EVENT, tune);
+
+    function line(points: Point[], color: string, alpha: number, width: number) {
+      ctx!.strokeStyle = color; ctx!.globalAlpha = alpha; ctx!.lineWidth = width;
+      ctx!.beginPath(); ctx!.moveTo(points[0].x, points[0].y);
+      for (const p of points.slice(1)) ctx!.lineTo(p.x, p.y);
+      ctx!.stroke();
     }
-
-    let start = performance.now(); let raf = 0; let hardStop: ReturnType<typeof setTimeout> | undefined;
-
-    function render(t: number, dt = 0) {
-      let shake = 0;
-      if (t > LAND - 0.04 && t < LAND + 0.2) shake = 10 * U;
-      if ((t > E1D - 0.05 && t < E1D + 0.08) || (t > E2D - 0.05 && t < E2D + 0.08)) shake = 5 * U;
-      if (t > KILL - 0.05 && t < KILL + 0.3) shake = 13 * U;
-
-      ctx.clearRect(0, 0, W, H); ctx.fillStyle = C.void; ctx.fillRect(0, 0, W, H);
-      ctx.save(); if (shake) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
-
-      const bA = t < VEXIT ? 1 : cl(1 - (t - VEXIT) / (EXIT_END - VEXIT));
-      const contact = 54 * U;
-
-      // shockwaves
-      if (t > LAND && t < LAND + 0.6) { const p = (t - LAND) / 0.6; ctx.globalAlpha = (1 - p) * 0.85; ctx.strokeStyle = C.volt; ctx.lineWidth = 4 * U; ctx.beginPath(); ctx.ellipse(cx, cy, p * 230 * U, p * 64 * U, 0, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1; if (p < 0.05) burst(cx, cy, 28, true); }
-      // finisher explosion, layered shockwave rings + radial impact lines (additive for punch)
-      if (t > KILL && t < KILL + 0.85) {
-        const p = (t - KILL) / 0.85, R = Math.max(W, H), oy = cy - 26 * U;
-        ctx.save(); ctx.globalCompositeOperation = "screen";
-        const ring = (delay: number, col: string, w: number, sp: number) => { const rp = cl((p - delay) / (1 - delay)); if (rp <= 0) return; ctx.globalAlpha = Math.pow(1 - rp, 1.5); ctx.strokeStyle = col; ctx.lineWidth = w * U * (1 - rp); ctx.beginPath(); ctx.arc(cx, oy, eOut(rp) * R * sp, 0, 6.2832); ctx.stroke(); };
-        ring(0, C.bone, 9, 0.5); ring(0.07, C.volt, 6, 0.66); ring(0.16, C.surge, 6, 0.8);
-        ctx.globalAlpha = (1 - p) * 0.6; ctx.strokeStyle = C.volt; ctx.lineWidth = 2 * U; ctx.lineCap = "round";
-        for (let i = 0; i < 20; i++) { const a = (i / 20) * 6.2832, r0 = (0.25 + p) * 120 * U, r1 = r0 + 90 * U * (1 - p); ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r0, oy + Math.sin(a) * r0); ctx.lineTo(cx + Math.cos(a) * r1, oy + Math.sin(a) * r1); ctx.stroke(); }
-        // core flash bloom
-        const cp = cl(p / 0.18), cg = ctx.createRadialGradient(cx, oy, 0, cx, oy, 90 * U * (0.4 + cp)); cg.addColorStop(0, rgba("ion", 0.55 * (1 - cp))); cg.addColorStop(0.5, rgba("surge", 0.25 * (1 - cp))); cg.addColorStop(1, rgba("surge", 0));
-        ctx.globalAlpha = 1; ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, oy, 90 * U * (0.4 + cp), 0, 6.2832); ctx.fill();
-        ctx.restore();
-      }
-      if (t > KILL && t < KILL + 0.22) { ctx.globalAlpha = (1 - (t - KILL) / 0.22) * 0.18; ctx.fillStyle = C.ion; ctx.fillRect(-20, -20, W + 40, H + 40); ctx.globalAlpha = 1; }
-
-      if (bA > 0) {
-        // line enemies, run in, recoil-fly on hit
-        const line = [{ side: 1, s: RISE_END, e: 1.78, d: E1D }, { side: -1, s: 2.05, e: 2.45, d: E2D }];
-        line.forEach((f, i) => {
-          if (t < f.s) return;
-          let fx: number, a = bA, fly = 0;
-          if (t >= f.d) { const dp = (t - f.d) / 0.6; if (dp >= 1) return; fx = cx + f.side * (contact + eOut(dp) * 380 * U); a = (1 - dp) * bA; fly = dp; if (!seeded.has("l" + i)) { burst(cx + f.side * contact, cy - 24 * U, 18); seeded.add("l" + i); } }
-          else if (t < f.e) fx = cx + f.side * lerp(Math.max(W, H) * 0.55, contact, ease((t - f.s) / (f.e - f.s)));
-          else fx = cx + f.side * contact;
-          ctx.save();
-          if (fly) {
-            // knockback: shoved SIDEWAYS by the slash (vx≫vy), small lift then gravity fall, tumbling about the torso
-            const yArc = (-6 * fly + 64 * fly * fly) * U;
-            ctx.translate(fx, cy - 22 * U + yArc); ctx.rotate(fly * 3.4 * f.side);
-            const ep = basePose(0, 22 * U, 0.95 * U, -f.side, t, false);
-            ep.hMain = { x: 9 * U, y: -2 * U }; ep.sword = -1.0;
-            figure(ep, { color: C.mist, s: 0.95 * U, alpha: a });
-          } else {
-            ctx.translate(fx, 0);
-            const ep = basePose(0, cy, 0.95 * U, -f.side, t * 1.2 + i, t < f.e);
-            ep.hMain = { x: 9 * U, y: -2 * U }; ep.sword = -1.0; // enemy sword forward
-            figure(ep, { color: C.mist, s: 0.95 * U, alpha: a });
-          }
-          ctx.restore();
-        });
-
-        // six surround, converge, jab, explode-fly
-        if (t > SURR_APP) {
-          const R = 80 * U;
-          for (let i = 0; i < 6; i++) {
-            const ang = (i / 6) * 6.2832 + 0.35;
-            let rad: number, a = bA, fly = 0;
-            if (t >= KILL) { const dp = (t - KILL) / 0.5; if (dp >= 1) continue; rad = R + eOut(dp) * 270 * U; a = (1 - dp) * bA; fly = dp; }
-            else if (t < SURR_SET) rad = lerp(Math.max(W, H) * 0.65, R, ease((t - SURR_APP) / (SURR_SET - SURR_APP)));
-            else rad = R + Math.sin(t * 6 + i) * 6 * U;
-            const ex = cx + Math.cos(ang) * rad, ey = cy - 18 * U + Math.sin(ang) * rad * 0.55;
-            ctx.save(); ctx.translate(ex, ey); if (fly) ctx.rotate(fly * 2.4);
-            const ep = basePose(0, 0, 0.92 * U, ex > cx ? -1 : 1, t * 1.1 + i, t < SURR_SET);
-            ep.hMain = { x: 9 * U, y: -2 * U }; ep.sword = -1.0;
-            figure(ep, { color: C.mist, s: 0.92 * U, alpha: a });
-            ctx.restore();
-          }
-          if (t > KILL - 0.05 && t < KILL + 0.05) { burst(cx, cy - 24 * U, 90, true); burst(cx, cy - 24 * U, 40, false); }
-        }
-
-        // ---- HERO ----
-        const hs = 1.55 * U;
-        const hero = sampleHero(t, H * .85 / hs), chest = chestOf(hero);
-        const p: Pose = {
-          px: cx + hero.hip.x * hs, py: cy + hero.hip.y * hs,
-          lean: hero.lean, face: 1, rotation: hero.rotation,
-          fL: { x: (hero.footL.x - hero.hip.x) * hs, y: (hero.footL.y - hero.hip.y) * hs },
-          fR: { x: (hero.footR.x - hero.hip.x) * hs, y: (hero.footR.y - hero.hip.y) * hs },
-          hMain: { x: (hero.hand.x - chest.x) * hs, y: (hero.hand.y - chest.y) * hs },
-          hOff: { x: (hero.offHand.x - chest.x) * hs, y: (hero.offHand.y - chest.y) * hs },
-          sword: hero.sword, swordLen: 30 * hs,
+    function shadow(x: number, y: number, size: number, alpha: number) {
+      ctx!.fillStyle = C.mist; ctx!.globalAlpha = alpha;
+      ctx!.beginPath(); ctx!.ellipse(x, y + 2 * U, size * 15, size * 1.4, 0, 0, Math.PI * 2); ctx!.fill();
+    }
+    function figure(p: Pose, s: number, color: string, alpha: number, face = 1, accent = false, t = 0) {
+      const joint = (root: Point, target: Point, a: number, b: number, bend: number) => solveLimb(root, target, a * s, b * s, bend);
+      const legs = [joint(p.hip, p.footL, RIG.thigh, RIG.shin, -face), joint(p.hip, p.footR, RIG.thigh, RIG.shin, -face)];
+      const arms = [joint(p.chest, p.offHand, RIG.upper, RIG.fore, face), p.elbow ? {joint:p.elbow,end:p.hand} : joint(p.chest, p.hand, RIG.upper, RIG.fore, face)];
+      const neck = { x: p.chest.x + Math.sin(p.lean * .35) * 3 * s, y: p.chest.y - Math.cos(p.lean * .35) * 3 * s };
+      const head = { x: neck.x, y: neck.y - 4 * s };
+      const pivot=p.pivot??p.hip;
+      if(accent){
+        const worldNeck=(pose:Pose)=>{
+          const v={x:pose.chest.x+Math.sin(pose.lean*.35)*3*s,y:pose.chest.y-Math.cos(pose.lean*.35)*3*s};
+          const root=pose.pivot??pose.hip, cs=Math.cos(pose.rotation),sn=Math.sin(pose.rotation);
+          return {x:root.x+(v.x-root.x)*cs-(v.y-root.y)*sn,y:root.y+(v.x-root.x)*sn+(v.y-root.y)*cs};
         };
-        drawSlash(t, p, hs);
-        figure(p, { color: C.bone, s: hs, alpha: bA, glow: true });
+        const anchor=worldNeck(p),previous=worldNeck(heroAt(Math.max(0,t-.04)).pose);
+        const tail=scarfCurve(t,{x:(anchor.x-previous.x)/s,y:(anchor.y-previous.y)/s}).map(v=>({x:anchor.x+v.x*s,y:anchor.y+v.y*s}));
+        ctx!.beginPath();ctx!.moveTo(tail[0].x,tail[0].y);
+        for(let i=1;i<tail.length-1;i++)ctx!.quadraticCurveTo(tail[i].x,tail[i].y,(tail[i].x+tail[i+1].x)/2,(tail[i].y+tail[i+1].y)/2);
+        ctx!.lineTo(tail[tail.length-1].x,tail[tail.length-1].y);
+        ctx!.strokeStyle=C.surge;ctx!.globalAlpha=alpha*.75;ctx!.lineWidth=settings.stroke*s*.72;ctx!.stroke();
       }
-
-      // ---- heroic transition: light beam rises where the hero stood -> title forms ----
-      if (t > VEXIT) {
-        const bloomP = cl((t - VEXIT) / (TITLE - VEXIT)), fade = t > TITLE ? cl(1 - (t - TITLE) / 0.5) : 1;
-        ctx.save(); const grd = ctx.createLinearGradient(cx, cy + 20 * U, cx, cy - 280 * U);
-        grd.addColorStop(0, rgba("surge", 0)); grd.addColorStop(0.35, rgba("surge", 0.45 * bloomP * fade)); grd.addColorStop(1, rgba("surge", 0));
-        const bw = lerp(28, 110, eOut(bloomP)) * U; ctx.fillStyle = grd; ctx.fillRect(cx - bw / 2, cy - 280 * U, bw, 300 * U); ctx.restore();
+      ctx!.save(); ctx!.translate(pivot.x, pivot.y); ctx!.rotate(p.rotation); ctx!.translate(-pivot.x, -pivot.y);
+      const stroke = settings.stroke * s;
+      line([p.hip, legs[0].joint, legs[0].end], color, alpha * .42, stroke);
+      line([p.chest, arms[0].joint, arms[0].end], color, alpha * .48, stroke);
+      line([p.hip, p.chest, neck], color, alpha, stroke);
+      line([p.hip, legs[1].joint, legs[1].end], color, alpha, stroke);
+      line([p.chest, p.shoulder??p.chest, arms[1].joint, arms[1].end], color, alpha, stroke);
+      ctx!.globalAlpha = alpha; ctx!.strokeStyle = color; ctx!.lineWidth = stroke * .85;
+      ctx!.beginPath(); ctx!.arc(head.x, head.y, 3.6 * s, 0, Math.PI * 2);
+      ctx!.fillStyle=C.void; ctx!.fill(); ctx!.stroke();
+      if (accent) {
+        line([{ x: neck.x - 2.2 * s, y: neck.y + s }, { x: neck.x + 2 * s, y: neck.y + 1.8 * s }], C.surge, alpha * .85, stroke * .9);
       }
-      if (t > BLOOM) {
-        const titleP = cl((t - BLOOM) / (TITLE - BLOOM));
-        ctx.font = `600 ${TSIZE}px ${F.display}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        if (t <= ASH) {
-          ctx.save(); ctx.globalAlpha = titleP; ctx.translate(0, (1 - eOut(titleP)) * 24 * U); // rises into place
-          ctx.shadowColor = C.surge; ctx.shadowBlur = 26 + Math.sin(t * 4) * 8; ctx.fillStyle = C.bone; ctx.fillText("MRVAYN", cx, tY); ctx.shadowBlur = 0;
-          ctx.font = `400 ${Math.max(10, 12 * U)}px ${F.mono}`; ctx.fillStyle = C.surge; ctx.fillText("UNREAL ENGINE & FULL-STACK DEV", cx, tY + TSIZE * 0.66); ctx.restore();
-        } else {
-          if (!dustBuilt) buildDust();
-          for (const d of dust) { const lt = t - ASH - d.delay; if (lt < 0) { ctx.fillStyle = C.bone; ctx.fillRect(d.hx, d.hy, 4.5 * U, 4.5 * U); } else { const p = lt / 0.75; if (p >= 1) continue; ctx.globalAlpha = 1 - p; ctx.fillStyle = p > 0.4 ? C.surge : C.bone; ctx.fillRect(d.hx + d.vx * lt, d.hy + d.vy * lt, 3 * U, 3 * U); ctx.globalAlpha = 1; } }
+      // Defined hilt and thin blade keep the hand and wrist readable.
+      const grip = arms[1].end, dx = Math.cos(p.sword), dy = Math.sin(p.sword)*(p.bladeAspect??1);
+      const guard={x:grip.x+dx*3.6*s,y:grip.y+dy*3.6*s};
+      line([{x:grip.x-dx*2.5*s,y:grip.y-dy*2.5*s},guard],C.mist,alpha,stroke*.85);
+      line([{ x: guard.x - dy * 2 * s, y: guard.y + dx * 2 * s }, { x: guard.x + dy * 2 * s, y: guard.y - dx * 2 * s }], C.volt, alpha, stroke * .65);
+      line([guard, { x: grip.x + dx * 27 * s, y: grip.y + dy * 27 * s }], color, alpha * .85, stroke * .65);
+      // A small closed grip surrounds the handle behind the guard, exactly at
+      // the IK wrist endpoint, rather than ending the forearm on the blade.
+      ctx!.beginPath();ctx!.arc(grip.x,grip.y,1.15*s,0,Math.PI*2);
+      ctx!.fillStyle=C.void;ctx!.globalAlpha=alpha;ctx!.fill();
+      ctx!.strokeStyle=color;ctx!.lineWidth=stroke*.7;ctx!.stroke();
+      ctx!.restore();
+    }
+    function enemy(x: number, y: number, s: number, face: number, t: number, alpha: number, tumble = 0, stride = 0, pressure=0, phase=0) {
+      const p=sampleEnemy(t,phase,face,stride,pressure);
+      const abs=(v:Point)=>({x:x+v.x*s,y:y+v.y*s});
+      shadow(x, y, s, alpha * .05);
+      figure({...p,hip:abs(p.hip),chest:abs(p.chest),footL:abs(p.footL),footR:abs(p.footR),hand:abs(p.hand),offHand:abs(p.offHand),rotation:tumble},s,C.mist,alpha,face);
+    }
+    function heroAt(t: number): { pose: Pose; scale: number } {
+      const scale = 1.4 * U, hero = sampleHero(Math.min(t, 6.1), H * .85 / scale), chest = chestOf(hero);
+      const abs = (p: Point) => ({ x: cx + p.x * scale, y: ground + p.y * scale });
+      return { scale, pose: { hip: abs(hero.hip), chest: abs(chest), footL: abs(hero.footL), footR: abs(hero.footR), hand: abs(hero.hand), offHand: abs(hero.offHand), lean: hero.lean, sword: hero.sword, rotation: hero.rotation, bladeAspect:hero.bladeAspect, ...(hero.elbow?{elbow:abs(hero.elbow)}:{}), ...(hero.pivot?{pivot:abs(hero.pivot)}:{}), ...(hero.shoulder?{shoulder:abs(hero.shoulder)}:{}) } };
+    }
+    function slash(t: number, hit: number, side: number) {
+      const progress = clamp((t - hit + .13) / .29);
+      if (progress <= 0 || progress >= 1) return;
+      const tipTrail=Array.from({length:7},(_,i)=>{
+        const {pose,scale}=heroAt(t-(6-i)*.008);
+        return {x:pose.hand.x+Math.cos(pose.sword)*27*scale,y:pose.hand.y+Math.sin(pose.sword)*(pose.bladeAspect??1)*27*scale};
+      });
+      ctx!.save(); ctx!.globalAlpha = Math.sin(progress * Math.PI) * .42 * settings.impact;
+      line(tipTrail,C.surge,Math.sin(progress*Math.PI)*.42*settings.impact,1.1*U);
+      const k = clamp((t - hit) / .22);
+      if (k > 0) for (let i = -1; i <= 1; i++) line([{ x: cx + side * 60 * U, y: ground - 30 * U }, { x: cx + side * (64 + 16 * k) * U, y: ground - (30 + i * 12 * k) * U }], C.bone, (1 - k) * .7, U);
+      ctx!.restore();
+    }
+    function flipTrail(t:number,alpha:number){
+      if(t<=4.93||t>=5.44)return;
+      const strength=smooth((t-4.93)/.08)*(1-smooth((t-5.27)/.17))*settings.impact;
+      const tip=(at:number)=>{
+        const {pose:p,scale}=heroAt(at),root=p.pivot??p.hip;
+        const x=p.hand.x+Math.cos(p.sword)*27*scale,y=p.hand.y+Math.sin(p.sword)*27*scale;
+        const cs=Math.cos(p.rotation),sn=Math.sin(p.rotation);
+        return {x:root.x+(x-root.x)*cs-(y-root.y)*sn,y:root.y+(x-root.x)*sn+(y-root.y)*cs};
+      };
+      const trail=Array.from({length:19},(_,i)=>tip(t-(18-i)*.006));
+      line(trail,C.surge,alpha*strength*.16,5*U);
+      for(let i=1;i<trail.length;i++)line([trail[i-1],trail[i]],i>14?C.bone:C.surge,alpha*strength*(i/18)*.7,(.4+i/30)*U);
+    }
+    function finisherFx(t:number,alpha:number){
+      const age=t-5.08, strength=settings.impact*alpha;
+      if(age>=0&&age<.65){
+        const k=clamp(age/.52),radius=(22+out(k)*155)*U;
+        // A local light bloom, never a full-screen flash.
+        const glow=ctx!.createRadialGradient(cx,ground-16*U,0,cx,ground-16*U,145*U);
+        glow.addColorStop(0,C.surge);glow.addColorStop(1,"transparent");
+        ctx!.fillStyle=glow;ctx!.globalAlpha=(1-clamp(age/.24))**2*.12*strength;
+        ctx!.fillRect(cx-145*U,ground-161*U,290*U,290*U);
+        for(let ring=0;ring<2;ring++){
+          ctx!.beginPath();ctx!.ellipse(cx,ground+2*U,radius*(1-ring*.12),radius*.115,0,0,Math.PI*2);
+          ctx!.strokeStyle=ring?C.bone:C.surge;ctx!.lineWidth=(ring?.65:1.25)*U;
+          ctx!.globalAlpha=(1-k)**2*(ring?.42:.65)*strength;ctx!.stroke();
         }
-        ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+        // Seeded directions give stable sparks without allocations or RNG.
+        for(let i=0;i<24;i++){
+          const angle=(i*2.399963)%(Math.PI*2), speed=55+(i*37%95);
+          const travel=(i%5)*3+age*speed, x=cx+Math.cos(angle)*travel*U;
+          const y=ground-15*U+Math.sin(angle)*travel*.55*U+age*age*26*U;
+          const length=(2+(i%4))*U*(1-k);
+          line([{x,y},{x:x-Math.cos(angle)*length,y:y-Math.sin(angle)*length*.45}],i%4?C.bone:C.surge,(1-k)**2*.8*strength,(i%3?.65:1)*U);
+        }
+        // Opponent contact flecks travel with the initial outward knockback.
+        if(age<.24)for(let i=0;i<6;i++){
+          const c=cinematicCrowd(i,t,W,U,settings.crowdDistance);
+          for(let j=0;j<3;j++){
+            const x=cx+c.x+c.face*(j*4+age*50)*U,y=ground+c.y-(21+j*4)*U;
+            line([{x,y},{x:x-c.face*4*U,y:y-(j-1)*3*U}],C.bone,(1-age/.24)*.5*strength,.8*U);
+          }
+        }
       }
-
-      // particles
-      for (const pp of pts) { if (!pp.on) continue; pp.life -= dt; if (pp.life <= 0) { pp.on = false; continue; } pp.x += pp.vx * dt; pp.y += pp.vy * dt; pp.vy += 24 * U * dt; pp.vx *= Math.pow(.96, dt * 60); ctx.globalAlpha = Math.max(0, pp.life / pp.max) * 0.9; ctx.fillStyle = pp.c; ctx.fillRect(pp.x, pp.y, pp.r, pp.r); }
-      ctx.globalAlpha = 1; ctx.restore();
-      if (t > END - 0.6) { ctx.globalAlpha = cl((t - (END - 0.6)) / 0.6); ctx.fillStyle = C.void; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
-    }
-
-    let previous = start;
-    function loop(now: number) {
-      // Skip = rebase the clock onto the final 0.6s fade-to-void, so a click/key
-      // exits almost immediately from ANY beat. (The old Math.max(t, TITLE) froze
-      // the frame until wall-clock caught up, then still played the whole ending.)
-      if (skipRef.current) { skipRef.current = false; start = Math.min(start, now - (END - 0.6) * 1000); }
-      const t = (now - start) / 1000;
-      if (t >= END) { done(); return; }
-      render(t, Math.min((now - previous) / 1000, .05));
-      previous = now;
-      raf = requestAnimationFrame(loop);
-    }
-
-    function drawSlash(t: number, pose: Pose, hs: number) {
-      const d = t < 2.2 ? E1D : E2D, side = t < 2.2 ? 1 : -1;
-      if (t < d - .16 || t > d + .15) return;
-      const strike = cl((t - d + .16) / .16), follow = cl((t - d) / .15);
-      // crescent slash trail, a thin curved blade after-image along the swing arc
-      if (strike > 0) {
-        const chestX = pose.px + Math.sin(pose.lean) * RIG.spine * hs, chestY = pose.py - Math.cos(pose.lean) * RIG.spine * hs;
-        const grip = solveLimb({ x: chestX, y: chestY }, { x: chestX + pose.hMain.x, y: chestY + pose.hMain.y }, RIG.upper * hs, RIG.fore * hs, 1).end;
-        const hMx = grip.x, hMy = grip.y;
-        const R = 30 * hs, wa = pose.sword, a1 = wa - 1.15 * side, a2 = wa;
-        const tAlpha = strike * (1 - follow) * .65;
-        ctx.save(); ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = tAlpha;
-        ctx.beginPath(); ctx.arc(hMx, hMy, R, a1, a2, a1 > a2); ctx.arc(hMx, hMy, R * 0.52, a2, a1, !(a1 > a2)); ctx.closePath();
-        const g = ctx.createRadialGradient(hMx, hMy, R * 0.52, hMx, hMy, R);
-        g.addColorStop(0, rgba("surge", 0)); g.addColorStop(0.6, rgba("surge", 0.35)); g.addColorStop(1, rgba("surge", 0.85));
-        ctx.fillStyle = g; ctx.fill(); ctx.restore();
+      for(const [start,power] of [[4.85,.35],[5.5,.65]]){
+        const age=t-start;if(age<=0||age>=.34)continue;
+        const k=age/.34;
+        for(const side of [-1,1])for(let i=0;i<5;i++){
+          const x=cx+side*(8+out(k)*(16+i*6))*U,y=ground-(Math.sin(k*Math.PI)*(1+i*.7))*U;
+          line([{x,y},{x:x-side*(3+i)*U,y:y+.4*U}],C.mist,(1-k)**2*power*strength,.8*U);
+        }
       }
     }
-
+    function render(t: number) {
+      time.set(t);
+      ctx!.clearRect(0, 0, W, H); ctx!.fillStyle = C.void; ctx!.globalAlpha = 1; ctx!.fillRect(0, 0, W, H);
+      ctx!.lineCap = "round"; ctx!.lineJoin = "round";
+      const sceneAlpha = 1 - smooth((t - 6.05) / .45);
+      if (sceneAlpha <= 0) return;
+      ctx!.save();
+      const impact=cinematicImpact(t),shake=settings.shake*(W<640?.55:1);
+      ctx!.translate(impact.shakeX*shake,impact.shakeY*shake);
+      const floor = ctx!.createLinearGradient(cx - 180 * U, ground, cx + 180 * U, ground);
+      floor.addColorStop(0, "transparent"); floor.addColorStop(.5, C.steel); floor.addColorStop(1, "transparent");
+      ctx!.strokeStyle = floor; ctx!.globalAlpha = sceneAlpha * .45; ctx!.lineWidth = .6;
+      ctx!.beginPath(); ctx!.moveTo(cx - 180 * U, ground + 3 * U); ctx!.lineTo(cx + 180 * U, ground + 3 * U); ctx!.stroke();
+      const drawHero = () => {
+        const { pose, scale } = heroAt(t);
+        const height = Math.abs(pose.footL.y - ground);
+        shadow(cx, ground, scale * (1 - Math.min(.6, height / H)), sceneAlpha * .055);
+        figure(pose, scale, C.bone, sceneAlpha, 1, true, t);
+        slash(t, 1.95, 1); slash(t, 2.6, -1);
+      };
+      for (const [side, start, hit] of [[1, 1.4, 1.95], [-1, 2.08, 2.6]]) {
+        if (t < start || t > hit + .5) continue;
+        const approach = out((t - start) / (hit - start - .12)), recoil = out((t - hit) / .5);
+        const x = cx + side * ((1 - approach) * (W / 2 + 40 * U) + 65 * U + recoil * 115 * U);
+        const stride=(1-smooth((approach-.65)/.35))*(1-recoil);
+        enemy(x, ground, 1.15 * U, -side, t, settings.enemyOpacity * sceneAlpha * (1 - recoil), side * recoil * .9,stride,0,side*1.7);
+      }
+      const drawCrowd=(foreground:boolean)=>{
+        if(t<=2.88||t>=5.64)return;
+        for(let i=0;i<6;i++){
+          const c=cinematicCrowd(i,t,W,U,settings.crowdDistance);
+          if(c.foreground!==foreground)continue;
+          enemy(cx+c.x,ground+c.y,c.scale,c.face,t,settings.enemyOpacity*sceneAlpha*c.alpha,c.tumble,c.stride,c.pressure,i*1.37);
+        }
+      };
+      drawCrowd(false);
+      finisherFx(t,sceneAlpha);flipTrail(t,sceneAlpha);
+      drawHero(); drawCrowd(true); ctx!.restore(); ctx!.globalAlpha = 1;
+    }
     const cine = new URLSearchParams(location.search).get("cine");
-    if (cine !== null && cine !== "play") { const dt = parseFloat(cine) || 0; raf = requestAnimationFrame(() => render(dt)); }
-    else { hardStop = setTimeout(done, END * 1000 + 300); raf = requestAnimationFrame(loop); }
-    return () => { cancelAnimationFrame(raf); if (hardStop) clearTimeout(hardStop); removeEventListener("resize", resize); };
-  }, [show, done]);
-
-  useEffect(() => {
-    if (!show) return;
+    let frame = 0, timer: ReturnType<typeof setTimeout> | undefined;
+    let previous = performance.now(), elapsed = 0;
+    const loop = (now: number) => {
+      elapsed += Math.min((now - previous) / 1000, .05) * settings.speed; previous = now;
+      if (skipRef.current) { skipRef.current = false; elapsed = Math.max(elapsed, END - .22); }
+      if (elapsed >= END) { done(); return; }
+      render(elapsed); frame = requestAnimationFrame(loop);
+    };
+    if (cine !== null && cine !== "play") frame = requestAnimationFrame(() => render(Number(cine) || 0));
+    else { frame = requestAnimationFrame(loop); timer = setTimeout(done, END / .8 * 1000 + 300); }
     const skip = () => { skipRef.current = true; };
-    window.addEventListener("keydown", skip, { once: true });
-    return () => window.removeEventListener("keydown", skip);
-  }, [show]);
+    addEventListener("keydown", skip, { once: true });
+    return () => { cancelAnimationFrame(frame); clearTimeout(timer); removeEventListener("resize", resize); removeEventListener("keydown", skip); removeEventListener(CINEMATIC_TUNING_EVENT, tune); };
+  }, [show, done, time]);
 
-  return (
-    <>
-      {show && <div data-testid="boot-cinematic" className="fixed inset-0 z-boot cursor-pointer bg-void" onClick={() => (skipRef.current = true)}>
-        <canvas ref={ref} className="block h-full w-full" />
-        <span className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap font-mono text-xs uppercase text-mist">tap or press any key to skip</span>
-      </div>}
-      {previewMode && <a href="/?cine=play" data-solid data-testid="boot-preview-replay" className="fixed left-4 top-4 inline-flex min-h-11 items-center rounded-full border border-white/15 bg-black/80 px-4 font-mono text-xs text-white/80 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4" style={{ zIndex: 2147483646 }}>Replay opening</a>}
-    </>
-  );
+  return <>
+    {show && <motion.div data-testid="boot-cinematic" className="fixed inset-0 z-boot bg-void" style={{ opacity: overlayOpacity }}>
+      <canvas ref={canvasRef} aria-hidden className="block h-full w-full" onClick={() => { skipRef.current = true; }} />
+      <motion.div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center" style={{ opacity: titleOpacity, y: titleY }}>
+        <p className="font-display font-medium text-bone" style={{ fontSize: "clamp(38px, 7.5vw, 108px)", letterSpacing: "-.045em", lineHeight: 1.1 }}>{cinematicCopy.title}</p>
+        <p className="mt-5 text-mist" style={{ fontSize: "clamp(11px, 1vw, 15px)", letterSpacing: ".03em" }}>{cinematicCopy.subtitle}</p>
+      </motion.div>
+      <button type="button" className="absolute inline-flex min-h-11 items-center px-4 text-xs text-mist transition-colors hover:text-bone focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4" style={{bottom:"max(20px, env(safe-area-inset-bottom))",left:"max(20px, env(safe-area-inset-left))"}} onClick={() => { skipRef.current = true; }}>{cinematicCopy.skip}</button>
+    </motion.div>}
+    {previewMode && <a href="/?cine=play" data-solid data-testid="boot-preview-replay" className="fixed left-4 top-4 z-[2147483646] inline-flex min-h-11 items-center rounded-full border border-white/15 bg-black/80 px-4 text-xs text-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">{cinematicCopy.replay}</a>}
+  </>;
 }

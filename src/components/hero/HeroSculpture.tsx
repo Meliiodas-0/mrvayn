@@ -25,6 +25,7 @@ export function HeroSculpture() {
     if (!element) return;
     let cancelled = false;
     let loading = false;
+    let intersects = false;
     const load = async () => {
       if (loading || cancelled) return;
       loading = true;
@@ -40,13 +41,21 @@ export function HeroSculpture() {
         if (!cancelled) setReady(false);
       }
     };
+    // Keep shader/geometry setup off the opening animation's critical frames.
+    // The existing SVG remains available until the cinematic hands off.
+    const maybeLoad=()=>{
+      if(intersects&&document.documentElement.dataset.boot!=="play")void load();
+    };
+    const bootObserver=new MutationObserver(maybeLoad);
+    bootObserver.observe(document.documentElement,{attributes:true,attributeFilter:["data-boot"]});
     const observe = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { observe.disconnect(); void load(); }
+      if (entry.isIntersecting) { intersects=true; observe.disconnect(); maybeLoad(); }
     });
     observe.observe(element);
     return () => {
       cancelled = true;
       observe.disconnect();
+      bootObserver.disconnect();
       renderer.current?.dispose();
       renderer.current = undefined;
     };

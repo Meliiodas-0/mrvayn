@@ -7,8 +7,17 @@ import "dialkit/styles.css";
 import { HERO_MOTION, HERO_TUNING_EVENT } from "@/lib/heroMotion";
 import { NAV_MOTION, NAV_TUNING_EVENT } from "@/lib/navMotion";
 import { PARKOUR, PARKOUR_TUNING_EVENT } from "@/lib/cursor/parkour";
+import { CINEMATIC_STYLE, CINEMATIC_TUNING_EVENT } from "@/lib/cinematicStyle";
 
 const MOTION_CONTROLS = {
+  Cinematic: {
+    shake: [CINEMATIC_STYLE.shake, 0, 1, .05] as [number, number, number, number],
+    crowdDistance: [CINEMATIC_STYLE.crowdDistance, .85, 1.4, .05] as [number, number, number, number],
+    speed: [CINEMATIC_STYLE.speed, .8, 1.4, .02] as [number, number, number, number],
+    stroke: [CINEMATIC_STYLE.stroke, 1, 2.2, .05] as [number, number, number, number],
+    enemyOpacity: [CINEMATIC_STYLE.enemyOpacity, .3, .8, .02] as [number, number, number, number],
+    impact: [CINEMATIC_STYLE.impact, .2, 1, .05] as [number, number, number, number],
+  },
   Parkour: {
     speed: [PARKOUR.speed, 160, 320, 5] as [number, number, number, number],
     jump: [PARKOUR.jump, 80, 150, 2] as [number, number, number, number],
@@ -138,6 +147,14 @@ export function DevMotionTuner() {
     persist: { storage: "sessionStorage", presets: false },
   });
   const { scrollYProgress } = useScroll();
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent(CINEMATIC_TUNING_EVENT, { detail: {
+      speed: tuning.Cinematic.speed, stroke: tuning.Cinematic.stroke,
+      enemyOpacity: tuning.Cinematic.enemyOpacity, impact: tuning.Cinematic.impact,
+      crowdDistance: tuning.Cinematic.crowdDistance,
+      shake: tuning.Cinematic.shake,
+    } }));
+  }, [tuning.Cinematic.speed, tuning.Cinematic.stroke, tuning.Cinematic.enemyOpacity, tuning.Cinematic.impact, tuning.Cinematic.crowdDistance, tuning.Cinematic.shake]);
   useEffect(() => {
     window.dispatchEvent(
       new CustomEvent(PARKOUR_TUNING_EVENT, {

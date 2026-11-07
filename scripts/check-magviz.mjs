@@ -8,7 +8,7 @@ const root = "/projects/magviz/v14";
 const loadProjects = source => {
   const result = {};
   const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } });
-  new Function("exports", "require", outputText)(result, () => ({ systemsProjects: [] }));
+  new Function("exports", "require", outputText)(result, () => ({ systemsProjects: [], archvizStudies: [] }));
   return result.projects;
 };
 const current = loadProjects(readFileSync("src/data/projects.ts", "utf8"));
