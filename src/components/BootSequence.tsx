@@ -6,8 +6,9 @@ import { readThemeColors } from "@/lib/themeColors";
 import { sampleHero, sampleEnemy, scarfCurve, chestOf, solveLimb, RIG, type Point } from "@/lib/cinematicMotion";
 import { CINEMATIC_STYLE, CINEMATIC_TUNING_EVENT, cinematicLayout, cinematicCrowd, cinematicImpact } from "@/lib/cinematicStyle";
 import { cinematicCopy } from "@/data/cinematic";
+import { createAshTitle } from "@/lib/cinematicAsh";
 
-const END = 8.1;
+const END = 8.7;
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
 const smooth = (n: number) => { const t = clamp(n); return t * t * (3 - 2 * t); };
 const out = (n: number) => 1 - (1 - clamp(n)) ** 3;
@@ -15,13 +16,14 @@ type Pose = { hip: Point; chest: Point; footL: Point; footR: Point; hand: Point;
 
 export function BootSequence() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const titleRef = useRef<HTMLParagraphElement>(null);
   const skipRef = useRef(false);
   const [show, setShow] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const time = useMotionValue(0);
-  const titleOpacity = useTransform(time, [6.15, 6.65, 7.55, END], [0, 1, 1, 0]);
+  const titleOpacity = useTransform(time, [6.15, 6.65, 7.12, 7.5], [0, 1, 1, 0]);
   const titleY = useTransform(time, [6.15, 6.8], [12, 0]);
-  const overlayOpacity = useTransform(time, [0, 7.6, END], [1, 1, 0]);
+  const overlayOpacity = useTransform(time, [0, 7.85, END], [1, 1, 0]);
   const done = useCallback(() => {
     document.documentElement.dataset.boot = "done";
     setShow(false);
@@ -43,6 +45,19 @@ export function BootSequence() {
     if (!canvas || !ctx) { done(); return; }
     const C = readThemeColors();
     let settings = { ...CINEMATIC_STYLE };
+    let drawTitle:ReturnType<typeof createAshTitle>=()=>{};
+    let cancelled=false;
+    const prepareTitle=()=>{
+      const label=titleRef.current;if(!label)return;
+      const style=getComputedStyle(label);
+      try{
+        drawTitle=createAshTitle(cinematicCopy.title,style.fontFamily,parseFloat(style.fontSize),C.bone);
+        label.style.visibility="";
+      }catch{
+        // Privacy modes can block pixel sampling. Retain a readable text exit.
+        drawTitle=()=>{};label.style.visibility="visible";
+      }
+    };
     let W = 0, H = 0, U = 1, cx = 0, ground = 0;
     const resize = () => {
       W = innerWidth; H = innerHeight;
@@ -50,8 +65,14 @@ export function BootSequence() {
       canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       U = layout.unit; cx = W / 2; ground = layout.ground;
+      prepareTitle();
     };
     resize(); addEventListener("resize", resize);
+    void document.fonts.ready.then(()=>{
+      if(cancelled)return;prepareTitle();
+      const frozen=new URLSearchParams(location.search).get("cine");
+      if(frozen!==null&&frozen!=="play")render(Number(frozen)||0);
+    });
     const tune = (event: Event) => {
       settings = { ...CINEMATIC_STYLE, ...(event as CustomEvent).detail };
       const frozen = new URLSearchParams(location.search).get("cine");
@@ -198,6 +219,7 @@ export function BootSequence() {
       if(t>=6.65&&document.documentElement.dataset.heroPrepare!=="1")document.documentElement.dataset.heroPrepare="1";
       ctx!.clearRect(0, 0, W, H); ctx!.fillStyle = C.void; ctx!.globalAlpha = 1; ctx!.fillRect(0, 0, W, H);
       ctx!.lineCap = "round"; ctx!.lineJoin = "round";
+      drawTitle(ctx!,t,cx,H/2-19);
       const sceneAlpha = 1 - smooth((t - 6.05) / .45);
       if (sceneAlpha <= 0) return;
       ctx!.save();
@@ -246,14 +268,14 @@ export function BootSequence() {
     else { frame = requestAnimationFrame(loop); timer = setTimeout(done, END / .8 * 1000 + 300); }
     const skip = () => { skipRef.current = true; };
     addEventListener("keydown", skip, { once: true });
-    return () => { cancelAnimationFrame(frame); clearTimeout(timer); removeEventListener("resize", resize); removeEventListener("keydown", skip); removeEventListener(CINEMATIC_TUNING_EVENT, tune); };
+    return () => { cancelled=true;cancelAnimationFrame(frame); clearTimeout(timer); removeEventListener("resize", resize); removeEventListener("keydown", skip); removeEventListener(CINEMATIC_TUNING_EVENT, tune); };
   }, [show, done, time]);
 
   return <>
     {show && <motion.div data-testid="boot-cinematic" className="fixed inset-0 z-boot bg-void" style={{ opacity: overlayOpacity }}>
       <canvas ref={canvasRef} aria-hidden className="block h-full w-full" onClick={() => { skipRef.current = true; }} />
       <motion.div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center" style={{ opacity: titleOpacity, y: titleY }}>
-        <p className="font-display font-medium text-bone" style={{ fontSize: "clamp(38px, 7.5vw, 108px)", letterSpacing: "-.045em", lineHeight: 1.1 }}>{cinematicCopy.title}</p>
+        <p ref={titleRef} aria-hidden className="invisible font-display font-medium text-bone" style={{ fontSize: "clamp(38px, 7.5vw, 108px)", letterSpacing: "-.045em", lineHeight: 1.1 }}>{cinematicCopy.title}</p>
         <p className="mt-5 text-mist" style={{ fontSize: "clamp(11px, 1vw, 15px)", letterSpacing: ".03em" }}>{cinematicCopy.subtitle}</p>
       </motion.div>
       <button type="button" className="absolute inline-flex min-h-11 items-center px-4 text-xs text-mist transition-colors hover:text-bone focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4" style={{bottom:"max(20px, env(safe-area-inset-bottom))",left:"max(20px, env(safe-area-inset-left))"}} onClick={() => { skipRef.current = true; }}>{cinematicCopy.skip}</button>

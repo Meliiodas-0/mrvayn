@@ -37,7 +37,7 @@ stage upward and bring the six opponents inward. No added frame or HUD.
   phones use 55% strength. Only the canvas scene moves, not controls or page UI.
   Reduced-motion users still skip the entire opening. No full-screen flash.
 - A Motion-driven title reveal and overlay fade replace the old title effects.
-- Timing now runs at authored speed, about 8.1 seconds. Anticipation and recovery
+- Timing now runs at authored speed, about 8.7 seconds. Anticipation and recovery
   hold longer while the two contacts and tucked rotation remain quick.
 - Elbow flexion is interpolated relative to the upper arm, preserving a consistent
   bend direction through shoulder-led attacks and removing the backwards snap.
@@ -112,3 +112,17 @@ watchdog also restores it if application chunks never finish loading.
 Production playback review at desktop and 390x844 showed pending to WebGL while
 the cinematic was still playing, about 1.4 seconds before handoff. Stage dimensions
 remained unchanged and SVG stayed hidden. No browser console errors were recorded.
+
+## Closing title ash dissolve
+
+The closing MRVAYN title is rasterized once from its real loaded font and sampled
+into glyph-covered fragments. A seeded left-to-right erosion front removes those
+exact pieces from the intact mask; detached flakes curl upward, shrink and fade.
+It is not an unrelated particle layer over a fading text rectangle. The subtitle
+settles out separately, and the already-prepared 3D hero appears behind the ash.
+
+The exit runs from 7.12 to 8.65 seconds; the overlay finishes at 8.7 seconds. Masks
+are rebuilt only on resize/font readiness, glyph sampling is bounded by a 4,500-cell
+grid, and there is no per-frame image readback, new dependency or downloaded media.
+The whole cinematic remains skipped for reduced-motion users. Ash determinism,
+erosion order, finite transforms and complete particle expiry are tested.

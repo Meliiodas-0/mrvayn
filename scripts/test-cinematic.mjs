@@ -7,6 +7,22 @@ const { sampleHero, sampleEnemy, scarfCurve, heroJoints, solveLimb, HERO_KEYS, R
 const styleSource = readFileSync(new URL('../src/lib/cinematicStyle.ts', import.meta.url), 'utf8');
 const styleOutput = ts.transpileModule(styleSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 } }).outputText;
 const { cinematicLayout, cinematicCrowd, cinematicImpact } = await import(`data:text/javascript;base64,${Buffer.from(styleOutput).toString('base64')}`);
+const ashSource=readFileSync(new URL('../src/lib/cinematicAsh.ts',import.meta.url),'utf8');
+const ashOutput=ts.transpileModule(ashSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2020}}).outputText;
+const {ashFragment,ASH_START,ASH_END}=await import(`data:text/javascript;base64,${Buffer.from(ashOutput).toString('base64')}`);
+for(let seed=1;seed<=1000;seed++){
+  const x=(seed%101)/100,y=(seed%73)/72;
+  assert.equal(ashFragment(ASH_START-.001,x,y,seed).released,false,'No ash before title exit');
+  assert.equal(ashFragment(ASH_END,x,y,seed).alpha,0,'All ash settles before handoff ends');
+  for(const t of [7.2,7.5,7.8,8.1,8.4]){
+    const p=ashFragment(t,x,y,seed);
+    assert.deepEqual(p,ashFragment(t,x,y,seed),'Ash samples are deterministic');
+    assert.ok(p.alpha>=0&&p.alpha<=1&&p.scale>=.19&&p.scale<=1,'Bounded ash opacity and scale');
+    assert.ok(p.dy<=0&&Number.isFinite(p.dx),'Ash rises without invalid transforms');
+  }
+}
+assert.equal(ashFragment(7.5,0,.5,1).released,true,'Left edge erodes first');
+assert.equal(ashFragment(7.5,1,.5,1).released,false,'Right edge holds until the erosion front reaches it');
 const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
 const close = (a,b,message) => assert.ok(Math.abs(a-b)<1e-6, `${message}: ${a} != ${b}`);
 function checkBone(root, limb, a, b) {
