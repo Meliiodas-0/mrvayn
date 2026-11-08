@@ -6,7 +6,7 @@ const { outputText } = ts.transpileModule(source, { compilerOptions: { module: t
 const { sampleHero, sampleEnemy, scarfCurve, heroJoints, solveLimb, HERO_KEYS, RIG } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
 const styleSource = readFileSync(new URL('../src/lib/cinematicStyle.ts', import.meta.url), 'utf8');
 const styleOutput = ts.transpileModule(styleSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 } }).outputText;
-const { cinematicLayout, cinematicCrowd, cinematicImpact } = await import(`data:text/javascript;base64,${Buffer.from(styleOutput).toString('base64')}`);
+const { cinematicLayout, cinematicCrowd, cinematicImpact, cinematicStrikeReaction } = await import(`data:text/javascript;base64,${Buffer.from(styleOutput).toString('base64')}`);
 const ashSource=readFileSync(new URL('../src/lib/cinematicAsh.ts',import.meta.url),'utf8');
 const ashOutput=ts.transpileModule(ashSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2020}}).outputText;
 const {ashFragment,ASH_START,ASH_END}=await import(`data:text/javascript;base64,${Buffer.from(ashOutput).toString('base64')}`);
@@ -52,32 +52,49 @@ for(let i=0;i<=1584;i++) {
   assert.ok(distance(head,nearest)>4.8,`Blade clears face at ${t}`);
   if(t>=2.23&&t<=2.75)assert.ok(j.main.end.y+blade.y<0,`Low sweep clears the floor at ${t}`);
   if(t>=.55&&t<=4.85 || t>=5.5&&t<=6.1) {
-    close(j.left.end.x,-12,`left foot x ${t}`); close(j.right.end.x,12,`right foot x ${t}`);
+    close(j.left.end.x,t>=5.5?-14:-12,`left foot x ${t}`); close(j.right.end.x,t>=5.5?19.3:12,`right foot x ${t}`);
     close(j.left.end.y,0,`left ground ${t}`); close(j.right.end.y,0,`right ground ${t}`);
     assert.ok(j.left.joint.y<=.05 && j.right.joint.y<=.05,`knees above ground ${t}`);
   }
   if(t>=.55 && t<=1.15) close(distance(j.off.end,{x:22,y:0}),0,`bracing hand ${t}`);
+  if(t>=5.5){
+    close(distance(j.off.end,{x:2,y:0}),0,`Heroic landing hand stays planted ${t}`);
+    assert.ok(p.hip.y>=-9.501&&p.hip.y<=-8.79,'Hero holds a low crouch after the flip');
+    assert.ok(j.main.end.x<j.chest.x-10,'Sword arm is drawn left, away from the planted hand');
+    assert.ok(j.left.joint.x<p.hip.x&&j.left.joint.y<p.hip.y,'Left knee opens outward and rises above the hip');
+    assert.ok(j.main.end.y+blade.y<0,'Held blade stays clear of the floor');
+  }
 }
 // Compare actual rotated body landmarks across every transition boundary.
 function landmarks(t) {
   const p=sampleHero(t), j=heroJoints(p), cs=Math.cos(p.rotation), sn=Math.sin(p.rotation), pivot=p.pivot??p.hip;
   return [p.hip,j.chest,j.left.joint,j.left.end,j.right.joint,j.right.end,j.main.joint,j.main.end,j.off.joint,j.off.end].map(v=>({x:pivot.x+(v.x-pivot.x)*cs-(v.y-pivot.y)*sn,y:pivot.y+(v.x-pivot.x)*sn+(v.y-pivot.y)*cs}));
 }
-for(const [t] of [...HERO_KEYS,...[1.72,1.82,1.974,2.055,2.23,2.43,2.49,2.624,2.71].map(t=>[t])]) {
+for(const [t] of [...HERO_KEYS,...[1.72,1.875,2.01,2.075,2.23,2.505,2.545,2.66,2.73,5.24].map(t=>[t])]) {
   if(t===0) continue;
-  const a=landmarks(t-1e-6),b=landmarks(t+1e-6);
+  const a=landmarks(t-1e-7),b=landmarks(t+1e-7);
   for(let i=0;i<a.length;i++) assert.ok(distance(a[i],b[i])<.002,`continuous ${t} joint ${i}`);
 }
 assert.ok(maxHandCorrection < .001, 'Authored hand targets stay within reach');
 const angularSpeed=t=>Math.abs(sampleHero(t+.001).rotation-sampleHero(t-.001).rotation)/.002;
+const bladeSpeed=t=>Math.abs(sampleHero(t+.001).sword-sampleHero(t-.001).sword)/.002;
+assert.ok(bladeSpeed(1.915)>30,'First strike has a fast contact pass');
+assert.ok(bladeSpeed(2.565)>40,'Second sweep accelerates sharply through contact');
 for(let i=0;i<=8100;i++){
   const t=i/1000,fx=cinematicImpact(t);
   assert.deepEqual(fx,cinematicImpact(t),'Finisher effects are deterministic');
   assert.ok(Math.abs(fx.shakeX)<=6.5&&Math.abs(fx.shakeY)<=6.2,'Camera impulse has a bounded CSS-pixel amplitude');
-  if(t<5.08||t>=5.7)assert.ok(fx.shakeX===0&&fx.shakeY===0,'No camera shake outside impact/landing');
+  const inContact=t>=1.95&&t<2.12||t>=2.6&&t<2.79||t>=5.08&&t<5.36||t>=5.5&&t<5.7;
+  if(!inContact)assert.ok(Math.abs(fx.shakeX)<1e-10&&Math.abs(fx.shakeY)<1e-10,'No camera shake outside authored contact windows');
   const before=cinematicImpact(t-1e-6),after=cinematicImpact(t+1e-6);
   assert.ok(Math.abs(before.shakeX-after.shakeX)<.01&&Math.abs(before.shakeY-after.shakeY)<.01,'Camera impulse starts and settles continuously');
 }
+assert.equal(cinematicStrikeReaction(.03).travel,0,'Enemy registers contact before knockback travel');
+assert.ok(cinematicStrikeReaction(.03).stagger>.9,'Enemy torso breaks its guard on impact');
+assert.equal(cinematicStrikeReaction(.1).opacity,1,'Enemy stays visible through the initial hit');
+assert.ok(cinematicStrikeReaction(.2).travel>.7&&cinematicStrikeReaction(.2).lift>5,'Knockback carries upward momentum');
+assert.ok(sampleHero(1.97).hip.x>5&&sampleHero(1.97).hip.y>-13,'First strike transfers weight into a low planted stance');
+assert.ok(sampleHero(2.62).hip.x<-5&&sampleHero(2.62).hip.y>-11,'Second strike drives weight through the low sweep');
 assert.ok(Math.abs(cinematicCrowd(1,5.079,1920,1).tumble)===0,'Crowd holds until the flip connects');
 assert.ok(Math.abs(cinematicCrowd(1,5.2,1920,1).tumble)>.4,'Crowd recoils with the finisher burst');
 for(let enemy=0;enemy<6;enemy++){
@@ -97,7 +114,7 @@ for(let i=0;i<600;i++){
   for(let k=0;k<a.length;k++)assert.ok(distance(a[k],b[k])<.001,'Wind motion is continuous');
   assert.ok(a[a.length-1].x<-10,'Scarf trails in the wind direction');
 }
-assert.ok(Math.abs(sampleHero(2.6).sword-sampleHero(2.43).sword-Math.PI)<.1,'Second strike sweeps a half-turn');
+assert.ok(Math.abs(sampleHero(2.608).sword-sampleHero(2.513).sword-Math.PI)<.1,'Second strike sweeps a half-turn');
 assert.ok(sampleHero(2.6).hip.y>-13,'Second strike bends low');
 assert.ok(sampleHero(3.78).hip.x>3&&sampleHero(4.16).hip.x<-3,'Crowd pressure forces opposite weight shifts');
 assert.ok(cinematicCrowd(1,3.73,1920,1).pressure>.9&&cinematicCrowd(4,4.11,1920,1).pressure>.9,'Close pair feints match recoil beats');

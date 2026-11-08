@@ -126,3 +126,43 @@ are rebuilt only on resize/font readiness, glyph sampling is bounded by a 4,500-
 grid, and there is no per-frame image readback, new dependency or downloaded media.
 The whole cinematic remains skipped for reduced-motion users. Ash determinism,
 erosion order, finite transforms and complete particle expiry are tested.
+
+## Heroic landing and strike refinement, 8 November 2026
+
+The first mirrored side-view attempt was rejected as too far from the reference.
+The replacement is front three-quarter: a foreshortened forward-pitched torso,
+left knee raised outward, right leg extended, empty hand planted centrally,
+sword low to the left, and a tapered red scarf flowing right. Small lowered eye
+strokes and a planted palm make the reference's head and hand direction readable.
+Feet remain stick endpoints, with no toes. Touchdown is at 5.5 seconds,
+compression at 5.62, then a small settle at 5.86. The pose holds into the existing
+title transition rather than rising into the previous overhead victory gesture.
+The support arm and front knee are drawn in the foreground at full contrast.
+An FK unfolding track opens the knee during the final quarter-second of flight,
+keeping rigid bone lengths rather than snapping the IK bend direction. The sword
+clears the face through an overhead grip path as the tuck opens. Impact VFX,
+ash title exit and cursor game are preserved. Publication approved 9 November 2026.
+
+Tests assert both foot contacts, fixed planted-hand contact, a low hip through
+the hold, clear blade placement, finite transforms, fixed limb lengths and
+continuous transition boundaries, including the flip-to-ground transition.
+
+The two sword strikes were subsequently tightened locally: the right strike's
+loaded-to-contact interval is 75 ms rather than 130 ms, and the left sweep's is
+95 ms rather than 170 ms. Impact times remain 1.95 and 2.6 seconds so opponent
+reactions stay aligned. Anticipation holds longer; brief contact holds remain.
+Slash trails use a tighter 36 ms history and 220 ms effect envelope. Overall
+playback speed, crowd beats, flip, landing and ash title timing are unchanged.
+
+Strike weight pass: contact poses now drive the pelvis over the planted lead leg
+with deeper compression, then retain a 60 ms authored hold before follow-through.
+Opponent guards break first, registering contact for 45 ms before the launch;
+knockback has a small upward arc and delayed opacity loss rather than immediate
+fading/sliding. Local sparks originate from the actual blade intersection at the
+opponent's contact x position. Each hit adds a short directional camera impulse
+smaller than the finisher, with no full-screen flash.
+
+Release checks on 9 November: production build, TypeScript, ESLint, cinematic pose
+and impact tests, hero-scroll tests and clean diff checks pass. Cursor source is
+unchanged. Only the cinematic source, related regression tests and this note are
+included; unrelated local Palm close-up images remain excluded.

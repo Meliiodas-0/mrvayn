@@ -4,7 +4,7 @@ export const RIG = { thigh: 11, shin: 11, upper: 9, fore: 9, spine: 17 };
 export type CinematicPose = {
   hip: Point; footL: Point; footR: Point; hand: Point; offHand: Point;
   lean: number; sword: number; rotation: number;
-  elbow?: Point; pivot?: Point; shoulder?: Point; bladeAspect?: number;
+  elbow?: Point; pivot?: Point; shoulder?: Point; bladeAspect?: number; spineScale?:number; leftKnee?:Point;
 };
 export const clamp = (v: number) => Math.max(0, Math.min(1, v));
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -26,8 +26,9 @@ export function solveLimb(root: Point, target: Point, a: number, b: number, bend
   return { joint, end };
 }
 
-export function chestOf(p: Pick<CinematicPose,"hip"|"lean">): Point {
-  return { x: p.hip.x + Math.sin(p.lean) * RIG.spine, y: p.hip.y - Math.cos(p.lean) * RIG.spine };
+export function chestOf(p: Pick<CinematicPose,"hip"|"lean"|"spineScale">): Point {
+  const length=RIG.spine*(p.spineScale??1);
+  return { x: p.hip.x + Math.sin(p.lean) * length, y: p.hip.y - Math.cos(p.lean) * length };
 }
 
 function pose(x: number, height: number, lean: number, hand: [number, number], off: [number, number], sword: number): CinematicPose {
@@ -46,6 +47,15 @@ function landing(height: number, lean: number) {
   return p;
 }
 const ready = () => pose(0, 17.8, .04, [11, -5], [-7, 10], -.7);
+function heroicLanding(height:number,lean:number) {
+  // Front three-quarter view: foreshortened torso pitched toward the camera.
+  const p=pose(0,height,lean,[0,0],[0,0],2.92-Math.PI*2);
+  p.spineScale=.5;
+  const chest=chestOf(p);p.hand={x:chest.x-13,y:chest.y-7};
+  p.footL={x:-14,y:0};p.footR={x:19.3,y:0};
+  p.offHand={x:2,y:0};
+  return p;
+}
 export const HERO_KEYS: ReadonlyArray<readonly [number, CinematicPose]> = [
   [0, landing(13, 1.4)],
   [.55, landing(13, 1.4)],
@@ -70,12 +80,12 @@ export const HERO_KEYS: ReadonlyArray<readonly [number, CinematicPose]> = [
   [4.55, ready()],
   [4.72, pose(0, 12.8, .3, [10, 4], [-9, 6], -.2)],
   [4.85, pose(0, 17.8, -.08, [10, -7], [-8, 6], -.6)],
-  [5.5, pose(0, 17.8, -.08, [10, -7], [-8, 6], -.6)],
-  // Touchdown, compression, recovery, then the victory gesture.
-  [5.62, pose(0, 12.8, .42, [11, -3], [-9, 7], -.45)],
-  [5.9, pose(0, 17.8, .03, [8, -11], [-7, 10], -1.15)],
-  [6.1, pose(0, 17.8, .02, [3, -15], [-7, 10], -1.5)],
-  [6.6, pose(0, 17.8, .02, [3, -15], [-7, 10], -1.5)],
+  [5.5, heroicLanding(9.5,.38)],
+  // Absorb the impact, settle slightly, then own the pose until the title.
+  [5.62, heroicLanding(8.8,.48)],
+  [5.86, heroicLanding(9,.43)],
+  [6.1, heroicLanding(9,.43)],
+  [6.6, heroicLanding(9,.43)],
 ];
 
 export function blendPose(a: CinematicPose, b: CinematicPose, t: number): CinematicPose {
@@ -89,6 +99,7 @@ export function blendPose(a: CinematicPose, b: CinematicPose, t: number): Cinema
     hip: point(a.hip, b.hip, t), footL: point(a.footL, b.footL, t), footR: point(a.footR, b.footR, t),
     hand, offHand: point(a.offHand, b.offHand, t),
     lean: mix(a.lean, b.lean, t), sword: mix(a.sword, b.sword, t), rotation: mix(a.rotation, b.rotation, t),
+    spineScale:mix(a.spineScale??1,b.spineScale??1,t),
   };
 }
 function shift(p: CinematicPose, y: number): CinematicPose {
@@ -120,18 +131,19 @@ const initialArm=armAngles(initial), finalArm=armAngles(final);
 const ATTACK_KEYS = [
   [1.55,0,17.8,.04,...initialArm,initial.sword],
   [1.72,-3,15,-.22,-1.15,-2.6,-2.05],
-  [1.82,-2,14.8,-.16,-1.12,-2.58,-2.1],
-  [1.95,4,14.8,.28,.28,-.18,.12],
-  [1.974,4,14.8,.28,.28,-.18,.12],
-  [2.055,3.5,15,.26,.6,.15,.78],
+  // Hold the loaded pose longer, then snap through 75 ms into contact.
+  [1.875,-3,14.2,-.24,-1.12,-2.58,-2.1],
+  [1.95,5.6,12.6,.38,.28,-.18,.12],
+  [2.01,5.6,12.6,.38,.28,-.18,.12],
+  [2.075,4.5,13.4,.3,.6,.15,.78],
   // Sink onto the lead leg, then sweep through a horizontal half-turn toward
   // the rear attacker. Unwrapped angles prevent an overhead return swing.
   [2.23,3,14.8,.35,.48,-.18,.18],
-  [2.43,4,12,.7,.7,.05,.22],
-  [2.49,2,11.8,.3,1.5,.85,1.35],
-  [2.6,-4,12,-.65,2.9,2.45,3.32],
-  [2.624,-4,12,-.65,2.9,2.45,3.32],
-  [2.71,-3.5,13,-.5,3.35,2.85,3.65],
+  [2.505,4,12,.7,.7,.05,.22],
+  [2.545,2,11.8,.3,1.5,.85,1.35],
+  [2.6,-5.6,10.8,-.78,2.9,2.45,3.32],
+  [2.66,-5.6,10.8,-.78,2.9,2.45,3.32],
+  [2.73,-4.5,12.1,-.6,3.35,2.85,3.65],
   [3.08,0,17.4,-.06,finalArm[0],finalArm[1]>0?finalArm[1]-Math.PI*2:finalArm[1],final.sword],
   // The near pair presses in: a retreating parry, opposite-side recoil, then
   // a compressed guard. Feet stay grounded while the weight changes sides.
@@ -186,7 +198,7 @@ export function sampleHero(t: number, dropHeight = 200): CinematicPose {
   if(t>=1.55&&t<=4.55)p=attackAt(t,p);
   // Let the free arm hang naturally in grounded guards, rather than holding a
   // right-angled elbow beside the shoulder. Preserve the braced landing/tuck.
-  const relaxed = smooth((t - 1.15) / .4) * (1 - smooth((t - 4.55) / .3)) + smooth((t - 5.5) / .4);
+  const relaxed = smooth((t - 1.15) / .4) * (1 - smooth((t - 4.55) / .3));
   p.offHand.y += 5 * relaxed;
   p.offHand = solveLimb(chestOf(p), p.offHand, RIG.upper, RIG.fore, 1).end;
   if(!p.elbow)p.hand = solveLimb(chestOf(p), p.hand, RIG.upper, RIG.fore, 1).end;
@@ -198,36 +210,55 @@ export function sampleHero(t: number, dropHeight = 200): CinematicPose {
     p.footL = point(p.footL, { x: -6, y: p.hip.y + 8 }, tuck);
     p.footR = point(p.footR, { x: 8, y: p.hip.y + 7 }, tuck);
     p.hand = point(p.hand, { x: chest.x + 9, y: chest.y + 1 }, tuck);
+    const opening=smooth((k-.65)/.26);
+    if(k>.65)p.hand.y-=14*Math.sin(opening*Math.PI);
+    p.hand=solveLimb(chest,p.hand,9,9,1).end;
     p.offHand = point(p.offHand, { x: chest.x - 7, y: chest.y + 6 }, tuck);
+    const head={x:chest.x+Math.sin(p.lean*.35)*3,y:chest.y-Math.cos(p.lean*.35)*3-4};
+    const outward=Math.atan2(p.hand.y-head.y,p.hand.x-head.x);
+    const delta=Math.atan2(Math.sin(outward-p.sword),Math.cos(outward-p.sword));
+    p.sword+=delta*tuck;
     p.rotation = -Math.PI * 2 * curve([[0,0],[.16,.055],[.32,.24],[.58,.73],[.82,.965],[1,1]],k);
     p.pivot={x:p.hip.x,y:p.hip.y-8};
     p = shift(p, -4*k*(1-k)*48);
   }
-  if (t > 6.1) p = shift(p, -(clamp((t - 6.1) / .5) ** 3) * 90);
+  if(t>5.24&&t<5.5){
+    // Unfold the left leg through a straight extension before rotating its
+    // knee outward. FK keeps both bones rigid instead of snapping IK sides.
+    const start=sampleHero(5.24),a=solveLimb(start.hip,start.footL,11,11,-1);
+    const end=heroicLanding(9.5,.38),b=solveLimb(end.hip,end.footL,11,11,1);
+    const angle=(from:Point,to:Point)=>Math.atan2(to.y-from.y,to.x-from.x);
+    const upperA=angle(start.hip,a.joint),upperB=angle(end.hip,b.joint);
+    const flexA=Math.atan2(Math.sin(angle(a.joint,a.end)-upperA),Math.cos(angle(a.joint,a.end)-upperA));
+    const flexB=Math.atan2(Math.sin(angle(b.joint,b.end)-upperB),Math.cos(angle(b.joint,b.end)-upperB));
+    const u=smooth((t-5.24)/.26),upper=mix(upperA,upperA+Math.atan2(Math.sin(upperB-upperA),Math.cos(upperB-upperA)),u),fore=upper+mix(flexA,flexB,u);
+    p.leftKnee={x:p.hip.x+Math.cos(upper)*11,y:p.hip.y+Math.sin(upper)*11};
+    p.footL={x:p.leftKnee.x+Math.cos(fore)*11,y:p.leftKnee.y+Math.sin(fore)*11};
+  }else if(t>=5.5)p.leftKnee=solveLimb(p.hip,p.footL,11,11,1).joint;
   return p;
 }
 
 export function heroJoints(p: CinematicPose) {
   const chest = chestOf(p);
-  return { chest, shoulder:p.shoulder??chest, left: solveLimb(p.hip, p.footL, RIG.thigh, RIG.shin, -1), right: solveLimb(p.hip, p.footR, RIG.thigh, RIG.shin, -1), main: p.elbow ? {joint:p.elbow,end:p.hand} : solveLimb(chest, p.hand, RIG.upper, RIG.fore, 1), off: solveLimb(chest, p.offHand, RIG.upper, RIG.fore, 1) };
+  return { chest, shoulder:p.shoulder??chest, left:p.leftKnee?{joint:p.leftKnee,end:p.footL}:solveLimb(p.hip, p.footL, RIG.thigh, RIG.shin, -1), right: solveLimb(p.hip, p.footR, RIG.thigh, RIG.shin, -1), main: p.elbow ? {joint:p.elbow,end:p.hand} : solveLimb(chest, p.hand, RIG.upper, RIG.fore, 1), off: solveLimb(chest, p.offHand, RIG.upper, RIG.fore, 1) };
 }
 
 // Independent phases give each opponent breathing, weight changes and guard
 // tracking without turning a planted stance into a looping walk in place.
-export function sampleEnemy(time:number,phase:number,face:number,stride:number,pressure=0) {
+export function sampleEnemy(time:number,phase:number,face:number,stride:number,pressure=0,stagger=0) {
   const beat=time*4.2+phase, settle=1-clamp(stride);
   const weight=Math.sin(beat)*1.6*settle;
-  const hip={x:weight,y:-17.6+Math.sin(beat*2)*.55*settle+pressure*2};
-  const lean=face*(.08+pressure*.3)+Math.sin(beat+.6)*.055*settle;
+  const hip={x:weight,y:-17.6+Math.sin(beat*2)*.55*settle+pressure*2+stagger*2.5};
+  const lean=face*(.08+pressure*.3-stagger*.7)+Math.sin(beat+.6)*.055*settle;
   const chest=chestOf({hip,lean}), step=Math.sin(time*17+phase)*stride;
   const guard=Math.sin(beat*.8+.7)*.11;
   return {
     hip,chest,lean,rotation:0,
     footL:{x:-7+step*5,y:-Math.max(0,step)*4},
     footR:{x:7-step*5,y:-Math.max(0,-step)*4},
-    hand:{x:chest.x+face*(10+pressure*4),y:chest.y-4+Math.sin(beat+.4)*1.5+pressure*3},
+    hand:{x:chest.x+face*(10+pressure*4-stagger*3),y:chest.y-4+Math.sin(beat+.4)*1.5+pressure*3+stagger*8},
     offHand:{x:chest.x-face*6,y:chest.y+12+Math.sin(beat-1)*1.2},
-    sword:face>0?-.8+guard+pressure*.65:Math.PI+.8-guard-pressure*.65,
+    sword:face>0?-.8+guard+pressure*.65+stagger:Math.PI+.8-guard-pressure*.65-stagger,
   };
 }
 

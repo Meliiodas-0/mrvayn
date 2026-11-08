@@ -36,10 +36,24 @@ export function cinematicImpact(time:number) {
     return age<0||age>=duration?0:Math.sin(Math.min(1,age/.018)*Math.PI/2)*(1-age/duration)**3;
   };
   const hit=impulse(5.08,.28), landing=impulse(5.5,.2);
+  const first=impulse(1.95,.17),second=impulse(2.6,.19);
   return {
     hit,landing,
-    shakeX:hit*(Math.sin((time-5.08)*97)*5+Math.sin((time-5.08)*151)*1.5),
-    shakeY:hit*Math.cos((time-5.08)*119)*3.7+landing*Math.sin((time-5.5)*103)*2.5,
+    shakeX:hit*(Math.sin((time-5.08)*97)*5+Math.sin((time-5.08)*151)*1.5)+first*Math.sin((time-1.95)*99)*3-second*Math.sin((time-2.6)*93)*3.4,
+    shakeY:hit*Math.cos((time-5.08)*119)*3.7+landing*Math.sin((time-5.5)*103)*2.5+first*Math.cos((time-1.95)*107)*1.5+second*Math.cos((time-2.6)*103)*1.7,
     burst:Math.max(0,Math.min(1,(time-5.08)/.52)),
+  };
+}
+
+export function cinematicStrikeReaction(age:number){
+  const clamp=(v:number)=>Math.max(0,Math.min(1,v));
+  const smooth=(v:number)=>{const k=clamp(v);return k*k*(3-2*k);};
+  const flight=clamp((age-.045)/.44);
+  return {
+    stagger:smooth(age/.012)*(1-smooth((age-.055)/.14)),
+    travel:1-(1-clamp((age-.045)/.4))**3,
+    lift:Math.sin(flight*Math.PI)*13,
+    tumble:(1-(1-clamp((age-.02)/.36))**3)*1.05,
+    opacity:1-smooth((age-.2)/.29),
   };
 }
